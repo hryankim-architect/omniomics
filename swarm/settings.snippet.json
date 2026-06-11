@@ -1,0 +1,16 @@
+{
+  "_comment": "Merge these into ~/swarm/.claude/settings.json. Keep the existing PostToolUse audit hook; add these Bash allows so /golden and omniomics-runner run without prompts.",
+  "permissions": {
+    "allow": [
+      "Bash(cd ~/omniomics && python run_golden.py)",
+      "Bash(cd ~/omniomics && python golden/run_golden_brca.py:*)",
+      "Bash(cd ~/omniomics && python run_cohort.py)",
+      "Bash(cd ~/omniomics && python run_cohort_brca.py)",
+      "Bash(cd ~/omniomics && python run_meth_arm.py)",
+      "Bash(cd ~/omniomics && python run_joint_dmoi.py)",
+      "Bash(cd ~/omniomics && python run_dmoi_enhancer.py)",
+      "Bash(cd ~/omniomics && python run_combat_benchmark.py)",
+      "Bash(cd ~/omniomics && python run_mouse_n3_combat.py)"
+    ]
+  }
+}

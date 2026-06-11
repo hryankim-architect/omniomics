@@ -1,0 +1,20 @@
+# data (large / downloaded / private) — reproducible via run_golden.py & omniomics-prepare-brca
+data/
+*.tsv.gz
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+.ipynb_checkpoints/
+
+# generated outputs / provenance
+golden/audit.log
+docbuild/
+
+# os
+.DS_Store

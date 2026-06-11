@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "omniomics"
+version = "0.1.0"
+description = "Manifest-driven multi-omics analysis engine (distilled from the GSE57577 reproduction)"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+  "numpy>=1.23",
+  "pandas>=1.5",
+  "scipy>=1.9",
+  "scikit-learn>=1.1",
+  "matplotlib>=3.6",
+]
+
+[project.optional-dependencies]
+enrichment = ["gseapy>=1.0"]   # GO/pathway enrichment (run_go.py)
+
+[project.scripts]
+omniomics-prepare-brca = "omniomics.prepare:main"
+
+[tool.setuptools]
+packages = ["omniomics"]
+
+[tool.setuptools.package-dir]
+omniomics = "omniomics"

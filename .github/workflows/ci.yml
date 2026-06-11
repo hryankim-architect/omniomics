@@ -1,0 +1,28 @@
+name: golden
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  golden:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install omniomics
+        run: pip install -e .
+      - name: Golden task — GSE57577 reproduction (self-contained, downloads public GEO data)
+        run: python run_golden.py
+      # The BRCA golden (golden/run_golden_brca.py) needs private TCGA/METABRIC data and is
+      # run on the swarm host, not in CI.

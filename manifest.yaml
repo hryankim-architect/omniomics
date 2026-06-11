@@ -1,0 +1,44 @@
+# omniomics dataset manifest — describes studies so the engine can run them uniformly.
+# This is the Phase-1 substrate: add a study here and the harness ingests + harmonizes it.
+
+studies:
+  GSE57577:
+    title: "Engineered Dnmt3a ADD variants in Dnmt-TKO mouse ESCs (Noh 2015)"
+    organism: mus_musculus
+    genome: mm9
+    rnaseq:
+      kind: cufflinks_fpkm_tar          # GSE57575_RAW.tar of *.fpkm_tracking
+      accession: GSE57575
+      file: GSE57575_RAW.tar
+      sample_regex: '(Set\d)_([A-Z]+)_genes'
+      genotypes: [WT, WWD, R, TKO]
+      replicate_block: Set               # Set1/Set2 = paired blocks
+    chipseq:
+      accession: GSE57574
+      h3k4me3_density: GSE57574_H3K4me3_density.txt.gz
+    rrbs:
+      accession: GSE57576
+      methylcall_template: "GSE57576_methylcall.Sample_{geno}.mincov10.txt.gz"
+    contrasts:
+      dnmt3a2_rescue: {numerator: WT, denominator: TKO}   # re-express WT-Dnmt3a2 in TKO
+
+  GSE77003:
+    title: "Reversible regulation of histone landscape by DNA methylation; Dnmt3a2 rescue in TKO mESC"
+    organism: mus_musculus
+    genome: mm9
+    rnaseq:
+      kind: matrix
+      accession: GSE77003
+      file: GSE77003_rpkm.txt.gz
+      gene_col: Gene
+      drop_cols: [RefSeq]
+      samples: [mRNA_J1, mRNA_TKO, mRNA_TKO3a1, mRNA_TKO3a1-r2, mRNA_TKO3a2,
+                mRNA_TKO3a2-r2, mRNA_TKO3b1, mRNA_DKO, mRNA_DKO3a1, mRNA_DKO3a2, mRNA_DKO3b1]
+    contrasts:
+      dnmt3a2_rescue: {numerator: mRNA_TKO3a2, denominator: mRNA_TKO}  # re-express Dnmt3a2 in TKO
+
+# Shared biological axis across both studies: log2FC( Dnmt3a2-rescued / TKO ).
+# Cross-study reproducibility = correlation of this axis on common genes.
+cross_study:
+  shared_axis: dnmt3a2_rescue
+  join_key: gene_symbol

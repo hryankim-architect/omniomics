@@ -1,0 +1,45 @@
+# Swarm golden-task registry — known-answer reproductions the swarm must keep passing
+# as it evolves. Mirrors the bixbench_runner / genotex_runner pattern in swarm-starter/rag.
+# Each task: an unattended pipeline run + metric assertions + hash-chained audit record.
+
+version: 1
+tasks:
+
+  gse57577_reproduction:
+    title: "Reproduce Noh 2015 Dnmt3a ADD engineering (RNA/ChIP)"
+    engine: omniomics
+    command: "python run_golden.py"
+    datasets: [GSE57575, GSE57574]
+    asserts:
+      expr_matrix_shape: [38227, 8]
+      WWD_DE_FDR05: {expect: 1888, tol: 60}
+      R_DE_FDR05:    {expect: 9, max: 40}
+      TKO_DE_FDR05:  {expect: 3, max: 40}
+      named_targets_significant: {expect: 6, min: 5}   # Gata4,Dab2,Lama1,Col4a1,Col4a2,Enc1
+      chip_WWD_WT_ratio: {expect: 1.64, tol: 0.15}
+    status: PASSING
+
+  brca_multiomics_pipeline:
+    title: "Cross-cohort + methylation + joint embedding on TCGA-BRCA / METABRIC"
+    engine: omniomics
+    command: "python golden/run_golden_brca.py"
+    datasets: [TCGA-BRCA (RNA+HM450), METABRIC (RNA)]
+    asserts:
+      PC1_cohort_var_before: {min: 0.90}      # platform batch dominates pre-correction
+      PC1_cohort_var_after:  {max: 0.05}       # mixed after ComBat-lite
+      xcohort_AUROC_before:  {expect: 0.753, tol: 0.03}
+      xcohort_AUROC_after:   {expect: 0.869, tol: 0.03}   # harmonization recovers transfer
+      meth_expr_pct_negative:{expect: 74.3, tol: 4.0}     # promoter methylation silences
+      AUROC_RNA_subtype:     {expect: 0.910, tol: 0.03}
+      lumab_RNA_pole_2feat:  {expect: 0.914, tol: 0.04}   # compact pole rep (DMOI thesis)
+      lumab_RNA_2000genes:   {expect: 0.950, tol: 0.04}
+    status: PASSING
+
+# Wiring into the swarm (swarm-starter/.claude):
+#   - command exposed as a slash-command (e.g. /golden) alongside /eval
+#   - run on every substantive change; failures block via critic.py / approval.py
+#   - each run appends a hash-chained record to golden/audit.log (PROV-AGENT-style provenance)
+governance:
+  audit_log: golden/audit.log
+  on_fail: block_merge
+  reviewer_agent: swarm-reviewer

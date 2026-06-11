@@ -1,0 +1,5 @@
+metric,value
+PC1_cohort_var_before,0.994683749549288
+PC1_cohort_var_after,2.630937439822753e-31
+xcohort_AUROC_before,0.753419452887538
+xcohort_AUROC_after,0.8692173252279634
