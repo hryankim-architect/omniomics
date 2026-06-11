@@ -18,9 +18,11 @@ dependencies = [
 
 [project.optional-dependencies]
 enrichment = ["gseapy>=1.0"]   # GO/pathway enrichment (run_go.py)
+test = ["pytest>=7"]
 
 [project.scripts]
-omniomics-prepare-brca = "omniomics.prepare:main"
+omniomics-golden       = "omniomics.cli:golden"
+omniomics-prepare-brca = "omniomics.cli:prepare_brca"
 
 [tool.setuptools]
 packages = ["omniomics"]
