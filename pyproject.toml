@@ -18,6 +18,7 @@ dependencies = [
 
 [project.optional-dependencies]
 enrichment = ["gseapy>=1.0"]   # GO/pathway enrichment (run_go.py)
+modern = ["pydeseq2>=0.4"]     # count-based DESeq2 reanalysis (run_modern_de.py, Aim 1)
 test = ["pytest>=7"]
 
 [project.scripts]

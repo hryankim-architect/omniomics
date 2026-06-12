@@ -1,0 +1,9 @@
+sample,fastq_1,fastq_2,strandedness
+WT_set1,fastq/SRR1283908.fastq.gz,,auto
+WWD_set1,fastq/SRR1283909.fastq.gz,,auto
+R_set1,fastq/SRR1283910.fastq.gz,,auto
+TKO_set1,fastq/SRR1283911.fastq.gz,,auto
+WT_set2,fastq/SRR1283912.fastq.gz,,auto
+WWD_set2,fastq/SRR1283913.fastq.gz,,auto
+R_set2,fastq/SRR1283914.fastq.gz,,auto
+TKO_set2,fastq/SRR1283915.fastq.gz,,auto
