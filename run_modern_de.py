@@ -29,10 +29,38 @@ gene_col = "gene_name" if "gene_name" in df.columns else df.columns[0]
 samp_cols = [c for c in df.columns if c not in ("gene_id", "gene_name")]
 counts = df.groupby(gene_col)[samp_cols].sum().round().astype(int).T   # samples x genes
 
-smap = pd.read_csv(MAP).set_index("sample")
-meta = pd.DataFrame({"genotype": smap["genotype"].reindex(counts.index),
-                     "set": smap["replicate_set"].reindex(counts.index)})
-meta = meta.dropna()
+# Resolve each count-matrix column to (genotype, set) regardless of how the pipeline named
+# samples. nf-core/fetchngs + rnaseq may label columns by run (SRR), experiment (SRX), GSM, or
+# our readable name (WT_set1) — build a lookup over ALL of them and match exactly or by substring
+# (handles composite tags like "SRX540720_SRR1283909").
+smap = pd.read_csv(MAP)
+lut = {}
+for _, r in smap.iterrows():
+    for col in ("run", "srx", "gsm", "sample"):
+        if col in smap.columns and pd.notna(r[col]):
+            lut[str(r[col])] = (r["genotype"], r["replicate_set"])
+
+def _resolve(colname):
+    c = str(colname)
+    if c in lut:
+        return lut[c]
+    for k, v in lut.items():        # substring match for composite tags
+        if k in c:
+            return v
+    return (None, None)
+
+geno, sett = {}, {}
+for c in counts.index:
+    geno[c], sett[c] = _resolve(c)
+meta = pd.DataFrame({"genotype": pd.Series(geno), "set": pd.Series(sett)}).dropna()
+
+if meta.shape[0] < 8:
+    unresolved = [c for c in geno if geno[c] is None]
+    sys.exit(f"[modern-de] only resolved {meta.shape[0]}/8 columns to the genotype map.\n"
+             f"  count-matrix columns: {list(counts.index)}\n"
+             f"  unresolved: {unresolved}\n"
+             f"  -> paste the salmon.merged.gene_counts.tsv header and I'll fix the SRR/SRX/GSM map.")
+
 counts = counts.loc[meta.index]
 counts = counts.loc[:, counts.sum(axis=0) > 0]
 print(f"[modern-de] {counts.shape[0]} samples x {counts.shape[1]} genes; design ~ set + genotype")
