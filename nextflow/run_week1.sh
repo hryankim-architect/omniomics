@@ -7,6 +7,10 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
+# Nextflow 25/26 default to a new strict config parser that rejects nf-core 3.22.2's
+# legacy `if (...) { process {...} }` config syntax. Fall back to the v1 parser.
+export NXF_SYNTAX_PARSER=v1
+
 RNASEQ_VER=3.22.2
 FETCHNGS_VER=1.12.0
 GENOME=GRCm38            # modern mouse build (mm10; GENCODE M25). Paper used mm9 — note in concordance table.
