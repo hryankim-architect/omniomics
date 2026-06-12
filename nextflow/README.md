@@ -20,20 +20,27 @@ Re-derives the paper's RNA-seq from **raw reads** with current best practice, to
 
 ## Install the toolchain (Linux node, once)
 
-nf-core needs **Nextflow + Java 17 + a container engine**. On an anaconda box (e.g. hrkim-linux):
+nf-core needs **Nextflow + Java 17 + a container engine**. Install into a **dedicated conda env**
+(NOT base — installing Nextflow's deps into base downgrades numpy/pandas and breaks the Python env):
 
 ```bash
 cd nextflow
-bash install_tools.sh        # conda: Java 17 + Nextflow (+ rootless Apptainer if no Docker)
-# Docker present?  -> PROFILE=docker (default)
-# No Docker (HPC)? -> PROFILE=singularity   (nf-core's singularity profile drives Apptainer too)
+bash install_tools.sh        # creates conda env 'nf' with Java 17 + Nextflow (+ Apptainer if no Docker)
 ```
 
 ## Run (on the Linux node, NOT macOS/sandbox)
 
+Run the pipeline **from the `nf` env**; keep your Python/omniomics env separate:
+
 ```bash
-PROFILE=singularity bash run_week1.sh    # or just: bash run_week1.sh  (Docker default)
+conda run -n nf bash run_week1.sh                              # Docker (default)
+conda run -n nf env PROFILE=singularity bash run_week1.sh      # HPC / no Docker
 # env check -> nf-core test smoke -> fetchngs (FASTQ) -> nf-core/rnaseq
+```
+
+Then run the Python concordance from your omniomics env:
+```bash
+python ../run_modern_de.py
 ```
 
 ### Troubleshooting
