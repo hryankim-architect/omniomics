@@ -10,13 +10,17 @@ cd "$(dirname "$0")"
 RNASEQ_VER=3.22.2
 FETCHNGS_VER=1.12.0
 GENOME=GRCm38            # modern mouse build (mm10; GENCODE M25). Paper used mm9 — note in concordance table.
-PROFILE=docker           # use 'singularity' on HPC
+PROFILE=${PROFILE:-docker}   # override e.g.  PROFILE=singularity bash run_week1.sh
 THREADS=${THREADS:-8}
 MEM=${MEM:-32.GB}
 
-echo "== Step 1: environment check =="
-command -v nextflow >/dev/null || { echo "Nextflow missing: curl -s https://get.nextflow.io | bash"; exit 1; }
-command -v docker   >/dev/null || { echo "Docker missing: https://docs.docker.com/get-docker/"; exit 1; }
+echo "== Step 1: environment check (PROFILE=$PROFILE) =="
+command -v nextflow >/dev/null || { echo "Nextflow missing -> run: bash install_tools.sh   (or: conda install -c bioconda -c conda-forge nextflow)"; exit 1; }
+command -v java >/dev/null || { echo "Java missing -> conda install -c conda-forge 'openjdk=17'"; exit 1; }
+case "$PROFILE" in
+  docker)      command -v docker >/dev/null || { echo "Docker missing -> install Docker, or use PROFILE=singularity"; exit 1; } ;;
+  singularity) command -v singularity >/dev/null || command -v apptainer >/dev/null || { echo "Singularity/Apptainer missing -> conda install -c conda-forge apptainer"; exit 1; } ;;
+esac
 nextflow -version | head -1
 
 echo "== Step 2: smoke test (test profile, tiny data — MUST pass before real run) =="

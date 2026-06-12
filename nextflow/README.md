@@ -18,11 +18,30 @@ Re-derives the paper's RNA-seq from **raw reads** with current best practice, to
 | SRR1283914 | R_set2 | R | set2 |
 | SRR1283915 | TKO_set2 | TKO | set2 |
 
-## Run (on a Linux node with Docker — e.g. the swarm's hrkim-linux, NOT macOS/sandbox)
+## Install the toolchain (Linux node, once)
+
+nf-core needs **Nextflow + Java 17 + a container engine**. On an anaconda box (e.g. hrkim-linux):
 
 ```bash
-bash run_week1.sh        # env check -> nf-core test smoke -> fetchngs (FASTQ) -> nf-core/rnaseq
+cd nextflow
+bash install_tools.sh        # conda: Java 17 + Nextflow (+ rootless Apptainer if no Docker)
+# Docker present?  -> PROFILE=docker (default)
+# No Docker (HPC)? -> PROFILE=singularity   (nf-core's singularity profile drives Apptainer too)
 ```
+
+## Run (on the Linux node, NOT macOS/sandbox)
+
+```bash
+PROFILE=singularity bash run_week1.sh    # or just: bash run_week1.sh  (Docker default)
+# env check -> nf-core test smoke -> fetchngs (FASTQ) -> nf-core/rnaseq
+```
+
+### Troubleshooting
+- **"Nextflow missing"** → `bash install_tools.sh` (or `conda install -c bioconda -c conda-forge nextflow`).
+- **Java errors** → Nextflow wants Java 11–21; `conda install -c conda-forge 'openjdk=17'`.
+- **No Docker on a shared node** → use `PROFILE=singularity`; set `export NXF_SINGULARITY_CACHEDIR=$HOME/.nf_singularity_cache` (roomy disk) so images cache, not re-pull.
+- **Memory/CPU** → match the node: `THREADS=16 MEM='64.GB' PROFILE=singularity bash run_week1.sh`.
+- **Resume after a failure** → re-run the same command; Nextflow `-resume` continues from the last checkpoint.
 
 Files:
 - `ids.csv` — SRR list for `nf-core/fetchngs` (downloads FASTQ + builds a samplesheet).
