@@ -1,0 +1,3 @@
+modality,endpoint,anchor,anchor_auroc,data,n_features,combined,delta,basal_meth_alone,note
+methylation,LumA_vs_LumB,proliferation_RNA_20genes,0.919,random_genomewide,3035,0.916,-0.001,,method is modality-agnostic; random genome-wide methylation adds ~0 beyond the RNA proliferation anchor
+methylation,LumA_vs_LumB,proliferation_RNA_20genes,0.919,basal_gene_targeted,227,0.918,0.000,0.756,targeted basal-gene methylation also adds ~0 -- the basal axis is transcriptional not predictively methylation-encoded here
