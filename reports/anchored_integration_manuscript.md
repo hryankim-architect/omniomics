@@ -153,13 +153,20 @@ controlling for the anchor, retains those orthogonal to the anchor (|r| < 0.6), 
 against matched random panels and (for verification) held-out splits and permuted labels. Data: TCGA-BRCA
 (Xena HiSeqV2, HumanMethylation450, clinical) and METABRIC (microarray, clinical). Pathway enrichment:
 g:Profiler. All functions are in `omniomics.multiomics`; runners and recorded metrics are in the repository.
+**Scalability.** The discovery is linear and streams: a vectorized residualize-then-correlate, an optional
+one-pass Sure-Independence-Screening pre-filter, Benjamini–Hochberg FDR, and parallel nulls let it run on
+genome-wide feature matrices out of core. As an end-to-end check, screening all 485,577 HumanMethylation450
+probes (n = 829) to the top 5,000 by association with ER status took ≈ 24 s in a single low-memory pass; the
+ESR1-methylation anchor (AUROC 0.65) then rose to 0.90 with genome-wide CpGs, and the top CpG beyond ESR1
+mapped to PGR (the canonical ER-coregulated gene) — textbook biology recovered at scale.
 
 ## 5. Data and Code Availability
 
 Code, runners, recorded metrics, unit tests and continuous-integration guards: the `omniomics` repository
 (`reports/dmoi_*.py`, `*_results.csv`, `tests/`). Key runners: `dmoi_knowledge_anchor.py`,
 `dmoi_residual_discovery.py`, `dmoi_discovery_{er,her2}.py`, `dmoi_external_{metabric,her2_metabric}.py`,
-`dmoi_external_lung.py`, `dmoi_external_hnsc.py`, `dmoi_discovery_nsclc_io.py`, `dmoi_clinical_survival.py`.
+`dmoi_external_lung.py`, `dmoi_external_hnsc.py`, `dmoi_discovery_nsclc_io.py`, `dmoi_clinical_survival.py`,
+`dmoi_meth_genomewide.py` (genome-wide scale). Scale utilities: `omniomics.scale`, `omniomics.representations`.
 Full methods note: `reports/anchored_integration_methods.md`. All data are public and de-identified: TCGA
 (BRCA, LUAD, LUSC, HNSC) via UCSC Xena; METABRIC via cBioPortal; the NSCLC anti-PD-1 cohort from Hellmann
 et al. (MSK 2018) via cBioPortal.
