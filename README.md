@@ -71,6 +71,22 @@ Recorded metrics: `{auto_integrate,external_subtype,knowledge_anchor,discovery,d
 fusion_gain,immune_axis,discordance_test,external_validation{,_her2}_metabric}_results.csv`; CI guards in
 `tests/test_golden.py`, unit tests in `tests/test_dmoi_v2.py`.
 
+### Scaling & deep-learning readiness
+
+Built ahead of large-n / genome-wide data, all preserving the never-below-the-anchor principle (defaults
+reproduce prior results exactly; verified in `tests/test_{scale,representations}.py`):
+
+- **In `anchored_residual_discovery`:** vectorized residualize-then-correlate (one matrix pass; ~35× at 8k
+  features), an optional `screen_top` Sure-Independence-Screening pre-filter, `n_jobs` parallel nulls
+  (identical results for any `n_jobs`), a Benjamini–Hochberg FDR count (`n_fdr`), plus a standalone
+  `leave_one_cohort_out` honest cross-cohort evaluator.
+- **`omniomics.scale`** (out-of-core, `pip install omniomics[scale]` for parquet/HDF5): `chunked_columns`,
+  one-pass `streaming_sis`, `streaming_gram_pca` (PCA for p≫n via the n×n Gram matrix), `randomized_components`.
+- **`omniomics.representations`** (`pip install omniomics[deep]` for the scVI/VAE backend): a swappable
+  encoder slot (PCA / randomized / autoencoder / lazy `vae`) and `gated_candidate_cv` — a learned latent is
+  a **candidate modality adopted only if it beats the anchor out-of-sample** (β can be 0 ⇒ never below).
+  `iterative_svd_impute` fills missing modalities/values in the same slot.
+
 ## Layout
 ```
 omniomics/            reusable engine
