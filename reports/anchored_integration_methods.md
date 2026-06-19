@@ -83,6 +83,24 @@ on both tumour (0.799 vs 0.773) and normal-adjacent tissue (0.89 vs 0.81), and t
 A random genome-wide CpG slice is not the 353 curated Horvath clock CpGs; demonstrating methylation
 dominance needs *curated* biomarkers, not a flaw in the integrator.
 
+**Where it does — the first real win for methylation (prediction confirmed).** Swapping the random slice
+for the externally trained **Horvath (2013) 353-CpG clock** flips the normal-tissue result: the clock
+methylation reaches AUROC **0.941 vs RNA 0.908, winning 10/10 CV seeds** (a matched random-CpG set scores
+only 0.68, so the gain is the *curation*), and `auto_integrate` **selects methylation as the anchor** —
+the first real, non-synthetic endpoint where methylation is the superior modality, and a direct refutation
+of any "RNA-biased" reading. Even here there is no super-additive *fusion* gain (RNA adds ≈0 on the clock
+residual): one modality dominates, the integrator picks it, and the honest theme holds — multi-omics value
+comes from *routing to the right curated modality*, not from blindly combining. Runner
+`reports/dmoi_fusion_gain.py`; data `fusion_gain_results.csv`.
+
+The immune axis was then tested for the harder prize — a *super-additive* fusion gain — using a curated
+immune methylation modality (EPIC/Salas reference CpGs, NNLS-deconvolved into immune-cell fractions) on
+two external labels, histology (IDC vs ILC) and lymph-node status. None appeared: histology is RNA-anchored
+with methylation strong-but-redundant, node status is near-chance for every modality. Across the whole
+programme exactly one endpoint flips the leader to methylation (normal-tissue age) and none shows Δ > 0
+fusion — confirming the thesis that multi-omics value here is modality *selection*, not combination. Runner
+`reports/dmoi_immune_fusion.py`; data `immune_axis_results.csv`.
+
 **Scorecard.** Across every real endpoint, RNA is simultaneously the most accurate, most
 data-efficient, and most stable modality. The integrator's value is therefore **not** higher accuracy
 on these tasks; it is (i) *safety* — never below the leader; (ii) *adaptivity* — picks methylation
@@ -120,8 +138,37 @@ fusion degree by cross-validation. The result is an integrator that is never wor
 view, improves on it exactly where a modality carries orthogonal signal, and tells you which modality
 did the work — which, on honest real-data evaluation, is the property that actually matters.
 
-*References:* Ding, Li, Narasimhan & Tibshirani, Cooperative learning for multiview analysis, *PNAS*
-2022 (10.1073/pnas.2202113119); Nikolaou et al., Flexible late-fusion for multi-omics survival,
-*Cancer Res* 2023; Hauptmann et al., Fair comparison of multi-omics integration architectures, *BMC
-Bioinformatics* 2022; Montesinos-López et al., Genomic prediction powered by multi-omics, *Front.
-Genet.* 2025.
+## 8. Related work — the multi-omics-vs-single-modality debate
+
+The central finding here — that one modality usually dominates a task, naive fusion rarely beats it, and
+value comes from *routing to the right modality* rather than blending — sits within an active, mixed
+literature. We did not invent the phenomenon; we reproduce scattered prior observations and package them
+into a never-below-anchor tool, with a clean curated-biomarker demonstration of when methylation wins.
+
+| Prior study | Finding | Relation to this work |
+|---|---|---|
+| Li et al., *BMC Med Inform Decis Mak* 2024 — 31-combination TCGA survival benchmark | Adding omics types most often *hurt* prediction; mRNA (±miRNA) sufficient for most cancers; methylation helped only some | Independent confirmation of our headline: one modality dominates per endpoint; curated methylation helps only on specific tasks |
+| Nikolaou et al., *Cancer Res* 2023 — flexible late fusion | Dominant modality is task-specific; weight by individual CV success; pan-cancer multi-omics barely above the best single modality | Empirical basis for `select_anchor` (per-task, CV-chosen anchor) |
+| Makrodimitris et al., *Brief Bioinform* 2023; Montesinos-López et al., *Front Genet* 2025 | Naive/early concatenation underperforms; PC-concatenation is hard to beat | Why we anchor and gate the residual rather than concatenate |
+| Ding, Li, Narasimhan & Tibshirani, *PNAS* 2022 — cooperative learning | Degree of fusion (early↔late) chosen adaptively by CV via an agreement penalty | `anchored_gate` is a constrained, never-below-anchor special case of this |
+| Tong et al., *BMC Med Inform Decis Mak* 2020; Spooner et al., *Brief Bioinform* 2024 | Complementary modalities + structured/ensemble late fusion give modest gains | The Δ > 0 regime the gate is designed to capture when it genuinely exists |
+| Morandini et al., *GeroScience* 2023 (ATAC-clock); Meyer et al., *Aging Cell* 2020 | Epigenetic clocks beat transcriptomic clocks; methylation age signal is largely orthogonal to expression | Precedent for our clock > RNA result on normal-tissue age |
+| Jonkman et al., *Genome Biology* 2022 | Epigenetic clocks partly track immune cell composition (naive vs activated T/NK) | Links our clock and immune-axis threads; nuance on what the clock encodes |
+
+In short, "does multi-omics beat the best single modality?" is well-studied with mixed answers; our
+results align with the skeptical-benchmark camp (esp. Li 2024, Nikolaou 2023) and add a packaged,
+never-below-anchor gated integrator plus a clean curated-biomarker (Horvath-clock) case of methylation
+genuinely winning.
+
+*References:* Li et al., Does combining numerous data types improve or hinder survival prediction? A
+large-scale benchmark, *BMC Med Inform Decis Mak* 2024; Nikolaou et al., Flexible late-fusion for
+multi-omics survival, *Cancer Res* 2023; Makrodimitris et al., Linear vs non-linear joint embedding for
+multi-omics, *Brief Bioinform* 2023; Ding, Li, Narasimhan & Tibshirani, Cooperative learning for
+multiview analysis, *PNAS* 2022 (10.1073/pnas.2202113119); Hauptmann et al., Fair comparison of
+multi-omics integration architectures, *BMC Bioinformatics* 2022; Montesinos-López et al., Genomic
+prediction powered by multi-omics, *Front. Genet.* 2025; Tong et al., Deep-learning feature-level
+integration for breast-cancer survival, *BMC Med Inform Decis Mak* 2020; Spooner et al., Benchmarking
+ensemble ML for multi-omics clinical outcome prediction, *Brief Bioinform* 2024; Morandini et al.,
+ATAC-clock: an aging clock from chromatin accessibility, *GeroScience* 2023; Meyer et al., BiT age: a
+transcriptome-based aging clock, *Aging Cell* 2020; Jonkman et al., T and NK cell activation drives
+epigenetic clock progression, *Genome Biology* 2022.

@@ -100,6 +100,41 @@ def test_external_subtype_anchor_guard():
     assert (df["auroc_combined"] >= df["auroc_anchor"] - 0.01).all()   # never below the chosen anchor
 
 
+def test_fusion_gain_guard():
+    """The curated-biomarker fusion-gain result: on NORMAL-tissue age the Horvath clock methylation
+    must beat RNA and be the chosen anchor, while a matched random-CpG set must not; on tumour RNA wins.
+    Skip-safe until reports/dmoi_fusion_gain.py has produced the CSV."""
+    f = REPO / "fusion_gain_results.csv"
+    if not f.exists():
+        pytest.skip("fusion_gain_results.csv not committed (dmoi_fusion_gain.py not run yet)")
+    df = pd.read_csv(f).set_index("tissue")
+    nt = df.loc["normal_tissue"]
+    assert float(nt["auroc_clock_score"]) > float(nt["auroc_rna"]), "clock should beat RNA on normal-tissue age"
+    assert float(nt["clock_minus_rna"]) > 0 and float(nt["clock_gt_rna_frac"]) >= 0.8
+    assert str(nt["auto_anchor"]).startswith("clock"), "anchor should be the clock methylation"
+    assert float(nt["auroc_clock_score"]) - float(nt["auroc_random"]) > 0.15, "curation must beat random CpGs"
+    assert 0.42 <= float(nt["perm_null"]) <= 0.58, "permuted-label null should be ~0.5"
+    if "tumor" in df.index:
+        tm = df.loc["tumor"]
+        assert float(tm["auroc_rna"]) > float(tm["auroc_clock_score"]) and str(tm["auto_anchor"]) == "RNA"
+
+
+def test_immune_axis_guard():
+    """Immune-axis fusion test (honest negative): no super-additive gain on either external label —
+    histology is RNA-anchored with the gate adding ~nothing, node status is near-chance for all
+    modalities. Skip-safe until reports/dmoi_immune_fusion.py has produced the CSV."""
+    f = REPO / "immune_axis_results.csv"
+    if not f.exists():
+        pytest.skip("immune_axis_results.csv not committed (dmoi_immune_fusion.py not run yet)")
+    df = pd.read_csv(f).set_index("endpoint")
+    h = df.loc["histology_idc_ilc"]
+    assert str(h["auto_anchor"]) == "RNA" and float(h["auto_delta"]) <= 0.01   # no fusion gain
+    assert float(h["auroc_rna"]) >= float(h["auroc_meth_genomewide"])           # RNA leads
+    nd = df.loc["node_status"]
+    assert float(nd[["auroc_rna", "auroc_meth_genomewide", "auroc_immune_deconv", "auroc_immune_cpgs"]].max()) < 0.65
+    assert float(nd["auto_delta"]) <= 0.01
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""

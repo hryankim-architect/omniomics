@@ -1,0 +1,3 @@
+tissue,endpoint,n,auroc_rna,auroc_clock_score,auroc_clock_set,auroc_random,clock_minus_rna,clock_gt_rna_frac,auto_anchor,auto_delta,perm_null,clock_age_pearson
+normal_tissue,older_vs_median_age,84,0.908,0.941,0.929,0.678,0.033,1.0,clock_score,-0.003,0.512,0.893
+tumor,older_vs_median_age,781,0.75,0.664,0.661,0.623,-0.086,0.0,RNA,0.0,0.494,0.316
