@@ -257,6 +257,18 @@ def test_methylation_modality_guard():
     assert (df["delta"].astype(float).abs() <= 0.02).all()       # no methylation axis beyond the RNA anchor
 
 
+def test_external_metabric_guard():
+    """External validation in METABRIC: the TCGA-discovered basal panel adds beyond the proliferation
+    anchor (beats random) AND an unbiased re-discovery recovers the same basal genes. Skip-safe."""
+    f = REPO / "external_validation_metabric.csv"
+    if not f.exists():
+        pytest.skip("external_validation_metabric.csv not committed")
+    v = pd.read_csv(f).set_index("metric")["value"]
+    assert float(v["tcga_basal_panel_delta"]) > 0.02          # TCGA panel replicates (adds beyond anchor)
+    assert float(v["basal_vs_random_p"]) <= 0.06              # beats matched random panels
+    assert int(float(v["overlap_with_tcga_basal_of30"])) >= 10  # independent re-discovery recovers basal genes
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""

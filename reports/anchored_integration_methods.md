@@ -137,6 +137,14 @@ targeted CpGs add ≈ 0 (Δ +0.000; basal methylation alone only 0.756). So the 
 *transcriptional* signal, not predictively methylation-encoded for this endpoint — and the method does not
 manufacture a methylation discovery. `reports/dmoi_discovery_methylation.py`; `methylation_discovery_results.csv`.
 
+*External validation (independent cohort).* The basal discovery reproduces in **METABRIC** (microarray,
+n = 1175 LumA/B). The TCGA-discovered basal panel — fixed, so no selection leakage in METABRIC — gated onto
+the same proliferation prior adds **Δ +0.036 (combined 0.960)** and beats matched random panels (0/20 beat
+it, p = 0.048); and running the discovery *unbiased* on METABRIC independently recovers the basal axis (top
+genes KRT5/14/17/6B/16, COL17A1, TP63, SOX10, DSG3/DSC3, KLK5/6/7), overlapping the TCGA panel **20/30**
+(hypergeometric p ≈ 7×10⁻²⁷). So the discovered axis is a reproducible biological signal, not a TCGA
+artefact. `reports/dmoi_external_metabric.py`; `external_validation_metabric.csv`.
+
 **The gate is capable, not just safe (positive control).** On a methylation-defined endpoint (mean of
 a held-out CpG set RNA cannot see), a disjoint methylation set scores 0.983 vs RNA 0.795; the gate
 engages strongly (β = 4–8) for a significant **+0.047** over the anchor. So the gate captures real
