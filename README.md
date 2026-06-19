@@ -17,6 +17,52 @@ For the breast-cancer (TCGA/METABRIC) pipeline, set `DMOI_BRCA_DATA` and run `om
 once — see **`LOCAL_SETUP.md`**. Methods + every result are in **`PROTOTYPE_REPORT.md`**;
 the scaling rationale in `SCALING_RESEARCH_ROADMAP.md`.
 
+## Anchored multi-omics integration & knowledge-anchored discovery
+
+A second contribution distilled from this project: a multi-omics integrator that is **never worse than its
+best single view**, generalised into a **discovery** tool. Full write-up: `reports/anchored_integration_methods.md`;
+standalone preprint: `reports/anchored_integration_preprint.pdf`.
+
+**Idea.** Anchor on the empirically-strongest modality *or a fixed textbook prior* (zero trained parameters)
+and add the other data only as a **non-negative gated residual** — never below the anchor, improving on it
+only where another view carries orthogonal signal. Mining that residual turns the integrator into a
+discovery engine that names the features beating the textbook, with a matched-random-panel noise control.
+
+**Library — `omniomics.multiomics`:**
+```python
+select_anchor(modalities, y)                    # pick the anchor empirically, per task, by CV
+anchored_integrate(Xa, Xs, y)                   # gate a secondary onto the anchor's residual (never below)
+auto_integrate(modalities, y)                   # any number of modalities, one call (forward gating)
+signature_score(expr, genes)                    # fixed textbook signature -> zero-param anchor score
+knowledge_anchored_integrate(score, mods, y)    # anchor on established knowledge, gate data on top
+anchored_residual_discovery(score, X, names, y) # discover anchor-orthogonal axes beyond the textbook
+```
+
+**Validated results (TCGA-BRCA + METABRIC):**
+
+| result | finding |
+|---|---|
+| anchored integration | never below the best single modality; gate engages only on a positive control (+0.047) |
+| anchor selection (9 labels) | methylation for methylation-defined / RNA for expression-defined labels — not RNA-biased |
+| knowledge anchor (LumA/B) | 20-gene proliferation prior (0 params) AUROC 0.919; + data 0.947 — first clean fusion gain |
+| residual discovery (LumA/B) | basal/keratinization axis beyond proliferation — verified (held-out, stable, label-specific; enriched p≈8e-11) |
+| generalization | HER2 → neuroendocrine/immune axis (verified); ER → nothing (textbook complete: a specificity control) |
+| **external validation (METABRIC)** | basal axis **reproduces** (Δ+0.036; independent re-discovery 20/30, p≈7e-27); HER2 cohort-specific (amplicon already complete there) |
+
+**Reproduce:**
+```bash
+python run_auto_integrate.py                  # anchored integration on TCGA-BRCA
+python reports/dmoi_knowledge_anchor.py       # textbook-prior anchoring (proliferation / Horvath clock)
+python reports/dmoi_residual_discovery.py     # the basal discovery + 3-way verification
+python reports/dmoi_discovery_er.py           # generalization: ER (specificity negative)
+python reports/dmoi_discovery_her2.py         # generalization: HER2 (2nd positive axis)
+python reports/dmoi_external_metabric.py      # external validation: basal reproduces in METABRIC
+python reports/dmoi_external_her2_metabric.py # external validation: HER2 cohort-specific
+```
+Recorded metrics: `{auto_integrate,external_subtype,knowledge_anchor,discovery,discovery_{er,her2},
+fusion_gain,immune_axis,discordance_test,external_validation{,_her2}_metabric}_results.csv`; CI guards in
+`tests/test_golden.py`, unit tests in `tests/test_dmoi_v2.py`.
+
 ## Layout
 ```
 omniomics/            reusable engine
