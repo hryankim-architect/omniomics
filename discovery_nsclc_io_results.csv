@@ -1,0 +1,2 @@
+dataset,endpoint,n,textbook_anchor,anchor_auroc,combined,delta,novel_delta,random_delta_mean,novel_vs_random_p,top_features
+NSCLC_antiPD1_MSK2018,durable_clinical_benefit,227,TMB_nonsynonymous,0.599,0.627,0.028,0.061,0.006,0.038,PDL1(+); EGFR_mut(-); STK11_mut(-) -- textbook IO biomarkers beyond TMB

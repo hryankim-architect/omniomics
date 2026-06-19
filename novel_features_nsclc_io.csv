@@ -1,0 +1,7 @@
+feature,partial_corr_beyond_TMB,corr_with_TMB
+PDL1_SCORE,0.155,0.0
+EGFR_mut,-0.142,0.058
+STK11_mut,-0.109,0.095
+FRACTION_GENOME_ALTERED,-0.106,0.236
+ERBB2_mut,-0.087,0.172
+SMARCA4_mut,0.063,0.157

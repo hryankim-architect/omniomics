@@ -4,10 +4,25 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "omniomics"
-version = "0.1.0"
-description = "Manifest-driven multi-omics analysis engine (distilled from the GSE57577 reproduction)"
+version = "0.2.0"
+description = "Anchored multi-omics integration + knowledge-anchored residual discovery (never below the best single view), distilled from a GSE57577 reproduction"
 readme = "README.md"
 requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "H. Ryan Kim", email = "ryan.kim2112@gmail.com" }]
+keywords = ["multi-omics", "integration", "bioinformatics", "gene-signature", "prior-informed", "TCGA", "epigenetics", "discovery"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+  "Operating System :: OS Independent",
+]
 dependencies = [
   "numpy>=1.23",
   "pandas>=1.5",
@@ -15,6 +30,11 @@ dependencies = [
   "scikit-learn>=1.1",
   "matplotlib>=3.6",
 ]
+
+[project.urls]
+Homepage = "https://github.com/hryankim-architect/omniomics"
+Repository = "https://github.com/hryankim-architect/omniomics"
+Issues = "https://github.com/hryankim-architect/omniomics/issues"
 
 [project.optional-dependencies]
 enrichment = ["gseapy>=1.0"]   # GO/pathway enrichment (run_go.py)

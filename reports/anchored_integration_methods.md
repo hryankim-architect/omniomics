@@ -155,6 +155,16 @@ the textbook anchor happens to be complete. The method stays well-behaved throug
 where there is no residual (METABRIC HER2, like TCGA ER). `reports/dmoi_external_her2_metabric.py`;
 `external_validation_her2_metabric.csv`.
 
+*Cross-domain (a completely different dataset and question).* The method is neither breast-cancer- nor
+expression-specific. On **NSCLC patients receiving anti-PD-1 checkpoint blockade** (Hellmann/MSK 2018,
+n = 227; mutation/clinical features, endpoint = durable clinical benefit), anchoring on the textbook
+immuno-oncology biomarker **tumour mutational burden (TMB)** and mining the residual independently recovers
+the field's *other* established biomarkers: **PD-L1 score** (positive, and genuinely orthogonal to TMB:
+corr 0.00), **EGFR mutation** and **STK11/LKB1 mutation** (both negative — known checkpoint-blockade
+resistance). Discovered panel Δ +0.061 vs random +0.006 (p = 0.038). So anchored on the textbook biomarker,
+the method recovers the known complementary biomarkers in a new domain. `reports/dmoi_discovery_nsclc_io.py`;
+`discovery_nsclc_io_results.csv`.
+
 **The gate is capable, not just safe (positive control).** On a methylation-defined endpoint (mean of
 a held-out CpG set RNA cannot see), a disjoint methylation set scores 0.983 vs RNA 0.795; the gate
 engages strongly (β = 4–8) for a significant **+0.047** over the anchor. So the gate captures real

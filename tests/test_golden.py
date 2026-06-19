@@ -281,6 +281,24 @@ def test_external_her2_metabric_guard():
     assert abs(float(v["tcga_her2_panel_delta"])) <= 0.01         # so no residual; panel adds ~nothing
 
 
+def test_nsclc_io_discovery_guard():
+    """Cross-domain generalization (a completely different dataset + question): NSCLC anti-PD-1
+    immunotherapy, anchored on the textbook TMB biomarker. The residual recovers the field's OTHER
+    established IO biomarkers (PD-L1 positive & orthogonal to TMB; EGFR/STK11 resistance), beating random
+    panels. Confirms the method is neither breast-cancer- nor expression-specific. Skip-safe."""
+    f = REPO / "discovery_nsclc_io_results.csv"
+    if not f.exists():
+        pytest.skip("discovery_nsclc_io_results.csv not committed (dmoi_discovery_nsclc_io.py not run yet)")
+    d = pd.read_csv(f).iloc[0]
+    assert float(d["novel_delta"]) > float(d["random_delta_mean"])   # discovery beats random panels
+    assert float(d["novel_vs_random_p"]) <= 0.06                     # significant in a new domain
+    nf = REPO / "novel_features_nsclc_io.csv"
+    if nf.exists():
+        feats = set(pd.read_csv(nf)["feature"])
+        # recovers >=2 of the known IO biomarkers beyond TMB
+        assert len(feats & {"PDL1_SCORE", "EGFR_mut", "STK11_mut"}) >= 2
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""

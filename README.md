@@ -48,6 +48,7 @@ anchored_residual_discovery(score, X, names, y) # discover anchor-orthogonal axe
 | residual discovery (LumA/B) | basal/keratinization axis beyond proliferation — verified (held-out, stable, label-specific; enriched p≈8e-11) |
 | generalization | HER2 → neuroendocrine/immune axis (verified); ER → nothing (textbook complete: a specificity control) |
 | **external validation (METABRIC)** | basal axis **reproduces** (Δ+0.036; independent re-discovery 20/30, p≈7e-27); HER2 cohort-specific (amplicon already complete there) |
+| **cross-domain (NSCLC anti-PD1)** | anchor on textbook **TMB** → residual recovers the other IO biomarkers: PD-L1 (orthogonal +), EGFR & STK11 (resistance); Δ+0.061 vs random +0.006, p=0.038 — not breast/expression-specific |
 
 **Reproduce:**
 ```bash
@@ -58,6 +59,7 @@ python reports/dmoi_discovery_er.py           # generalization: ER (specificity 
 python reports/dmoi_discovery_her2.py         # generalization: HER2 (2nd positive axis)
 python reports/dmoi_external_metabric.py      # external validation: basal reproduces in METABRIC
 python reports/dmoi_external_her2_metabric.py # external validation: HER2 cohort-specific
+NSCLC_TABLE=.../patient_table.csv python reports/dmoi_discovery_nsclc_io.py  # cross-domain: NSCLC anti-PD1 (TMB anchor)
 ```
 Recorded metrics: `{auto_integrate,external_subtype,knowledge_anchor,discovery,discovery_{er,her2},
 fusion_gain,immune_axis,discordance_test,external_validation{,_her2}_metabric}_results.csv`; CI guards in
