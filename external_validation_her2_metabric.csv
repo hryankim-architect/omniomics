@@ -1,0 +1,8 @@
+test,metric,value,note
+replication,n,1980,METABRIC HER2 (independent expression cohort)
+replication,amplicon_anchor_auroc_METABRIC,0.997,near-complete here (vs 0.752 in TCGA) -- textbook leaves ~no residual
+replication,amplicon_anchor_auroc_TCGA,0.752,TCGA: amplicon incomplete -> a residual existed to discover
+replication,tcga_her2_panel_delta,0.000,TCGA HER2 panel adds nothing in METABRIC (no residual to add to)
+replication,random_panel_mean_delta,0.000,
+replication,panel_vs_random_p,1.000,15/15 random panels match (all ~0)
+verdict,replicates,No,HER2 axis does NOT replicate -- because the amplicon anchor is near-complete in METABRIC (interpretable negative)

@@ -18,3 +18,7 @@ docbuild/
 
 # os
 .DS_Store
+
+# local node-handoff scaffolding (per-round commit scripts + handoff notes; not deliverables)
+commit-*.sh
+HANDOFF-*.md
