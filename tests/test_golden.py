@@ -347,6 +347,24 @@ def test_clinical_survival_guard():
     assert "ER_negative_status" in set(d["endpoint"])  # positive identity correlate recorded
 
 
+def test_meth_genomewide_guard():
+    """End-to-end genome-wide scale validation (TCGA-BRCA HM450, 485k probes): the streaming-SIS ->
+    vectorized-discovery + FDR pipeline runs at scale and recovers textbook ER biology -- the ESR1
+    methylation anchor predicts ER status, genome-wide CpGs add a large gain, and the top novel CpG beyond
+    ESR1 maps to PGR (the canonical ER-coregulated gene). Skip-safe until the heavy run produces the CSVs."""
+    f = REPO / "meth_genomewide_results.csv"
+    if not f.exists():
+        pytest.skip("meth_genomewide_results.csv not committed (dmoi_meth_genomewide.py not run yet)")
+    d = pd.read_csv(f).iloc[0]
+    assert int(d["total_probes"]) > 400000                      # genuine genome-wide scale
+    assert float(d["anchor_auroc"]) >= 0.60                     # ESR1 methylation anchor predicts ER
+    assert float(d["combined"]) >= float(d["anchor_auroc"]) + 0.1   # genome-wide CpGs add a real gain
+    assert int(d["n_fdr_q05"]) >= 1000                          # broad FDR-significant methylation footprint
+    nf = REPO / "meth_genomewide_novel.csv"
+    if nf.exists():
+        assert "PGR" in set(pd.read_csv(nf)["gene"].astype(str))   # textbook ER-coregulated gene recovered
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""

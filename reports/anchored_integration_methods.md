@@ -195,6 +195,19 @@ captures lineage *identity*, not outcome. It is clinically coherent on identity:
 biology, and that biology happens to be a differentiation marker rather than a survival driver.
 `reports/dmoi_clinical_survival.py`; `clinical_basal_survival.csv`.
 
+*Genome-wide scale (end-to-end on real data).* The scale-prep stack was exercised on a real
+**485,577-probe × 829-sample** TCGA-BRCA HumanMethylation450 matrix that does not comfortably fit in memory.
+A one-pass streaming SIS screened all 485k probes to the top 5,000 by association with ER status in ≈ 24 s
+(low memory), and the vectorized partial-correlation discovery with BH-FDR and parallel nulls then ran on
+the survivors, anchored on the textbook ESR1-methylation prior (ER− tumours show ESR1 promoter
+hypermethylation). The anchor predicts ER status (AUROC 0.65, incomplete); genome-wide CpGs lift it to 0.90;
+and the top CpG discovered *beyond* ESR1 maps to **PGR** (progesterone receptor — the canonical
+ER-coregulated gene), with 4,837/5,000 screened CpGs FDR-significant (ER status has a broad methylation
+footprint). As with the easy histology split, the panel-vs-random null saturates, so the informative
+outputs are the anchor AUROC, the FDR count, and the biologically coherent top hits. This confirms the
+pipeline runs end-to-end at genome-wide scale and recovers textbook biology. `reports/dmoi_meth_genomewide.py`;
+`meth_genomewide_results.csv`, `meth_genomewide_novel.csv`.
+
 **The gate is capable, not just safe (positive control).** On a methylation-defined endpoint (mean of
 a held-out CpG set RNA cannot see), a disjoint methylation set scores 0.983 vs RNA 0.795; the gate
 engages strongly (β = 4–8) for a significant **+0.047** over the anchor. So the gate captures real
