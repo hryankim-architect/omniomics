@@ -135,6 +135,21 @@ def test_immune_axis_guard():
     assert float(nd["auto_delta"]) <= 0.01
 
 
+def test_discordance_signal_guard():
+    """Three 'is cross-omics disagreement signal or noise?' tests on gene-matched LumA/B: the linear
+    difference is provably inert, the interaction does not clear the pairing-permutation null, and the
+    layers are redundant (not synergistic). Skip-safe until dmoi_discordance_tests.py produces the CSV."""
+    f = REPO / "discordance_test_results.csv"
+    if not f.exists():
+        pytest.skip("discordance_test_results.csv not committed (dmoi_discordance_tests.py not run yet)")
+    df = pd.read_csv(f)
+    v = {(t, m): float(val) for t, m, val in df[["test", "metric", "value"]].itertuples(index=False)}
+    assert abs(v[("pairing_permutation", "linear_diff_increment")]) <= 0.005   # linear diff provably inert
+    assert v[("pairing_permutation", "increment_int")] <= 0.02                 # interaction ~ does not clear null
+    assert v[("synergy", "info_synergy_bits")] <= 0.05                         # redundant, not synergistic
+    assert v[("synergy", "auroc_joint_nonlinear")] <= v[("synergy", "auroc_rna")] + 0.01  # joint not above RNA alone
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""
