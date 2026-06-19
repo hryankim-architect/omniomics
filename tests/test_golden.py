@@ -312,6 +312,8 @@ def test_external_lung_guard():
     assert int(d["overlap_with_brca_basal_of30"]) >= 6          # same axis re-discovered in another cancer
     assert float(d["overlap_hyper_p"]) <= 1e-6                  # overlap is highly significant
     assert float(d["anchor_auroc"]) < 0.85                     # proliferation anchor incomplete for histology
+    if "stability_gain" in d and pd.notna(d["stability_gain"]):
+        assert float(d["stability_gain"]) > 0.5                # stability rescues the saturated panel-vs-random null
     nf = REPO / "novel_genes_lung.csv"
     if nf.exists():
         genes = set(pd.read_csv(nf)["gene"])
@@ -360,6 +362,8 @@ def test_meth_genomewide_guard():
     assert float(d["anchor_auroc"]) >= 0.60                     # ESR1 methylation anchor predicts ER
     assert float(d["combined"]) >= float(d["anchor_auroc"]) + 0.1   # genome-wide CpGs add a real gain
     assert int(d["n_fdr_q05"]) >= 1000                          # broad FDR-significant methylation footprint
+    if "stability_gain" in d and pd.notna(d["stability_gain"]):
+        assert float(d["stability_gain"]) > 0.3                 # stability confirms a real axis where panel-vs-random saturates
     nf = REPO / "meth_genomewide_novel.csv"
     if nf.exists():
         assert "PGR" in set(pd.read_csv(nf)["gene"].astype(str))   # textbook ER-coregulated gene recovered

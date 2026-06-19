@@ -52,7 +52,7 @@ def main():
     var = M.var(axis=1); feats = sorted(set(var.sort_values(ascending=False).head(5000).index) | (basal & set(M.index)))
     X = M.loc[feats].T.values.astype("float32")
     res = mo.anchored_residual_discovery(anchor, X, feats, y, top_k=30, corr_max=0.6, cv=5,
-                                         random_state=0, n_perm=10, inner_repeats=1)
+                                         random_state=0, n_perm=10, inner_repeats=1, stability_reps=15)
     nov = [gn for gn, _, _ in res["novel"]]; ov = sorted(set(nov) & basal)
     N, K, n, k = len(feats), len(basal & set(feats)), len(nov), len(ov)
     p_hyper = sum(comb(K, i) * comb(N - K, n - i) for i in range(k, min(K, n) + 1)) / comb(N, n)
@@ -63,7 +63,7 @@ def main():
                        combined=round(res["auroc_combined"], 3), delta=round(res["delta"], 3),
                        novel_delta=round(res["novel_delta"], 3), random_delta_mean=round(res["random_delta_mean"], 3),
                        novel_vs_random_p=round(res["novel_vs_random_p"], 3), overlap_with_brca_basal_of30=int(k),
-                       overlap_hyper_p=f"{p_hyper:.2e}", shared_genes="; ".join(ov))
+                       overlap_hyper_p=f"{p_hyper:.2e}", stability_gain=res["stability_gain"], shared_genes="; ".join(ov))
                   ]).to_csv(os.path.join(REPO, "external_validation_lung.csv"), index=False)
     print(f"TCGA lung LUAD-vs-LUSC n={len(y)} | proliferation anchor AUROC={res['auroc_anchor']:.3f}")
     print(f"overlap with BRCA basal panel: {k}/30 (hypergeometric p={p_hyper:.2e})")

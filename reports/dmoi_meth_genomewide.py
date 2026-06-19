@@ -61,13 +61,15 @@ def main():
 
     # --- step 2: anchored residual discovery on the screened survivors (vectorized + FDR + parallel) ---
     res = mo.anchored_residual_discovery(anchor, X, list(ids), y, top_k=30, corr_max=0.6, cv=5,
-                                         random_state=0, n_perm=10, inner_repeats=1, n_jobs=4, fdr_q=0.05)
+                                         random_state=0, n_perm=10, inner_repeats=1, n_jobs=4, fdr_q=0.05,
+                                         stability_reps=12)
     pmg = pm.set_index("#id")["gene"]
     pd.DataFrame([dict(dataset="TCGA-BRCA_HM450_genomewide", endpoint="ER_status", n=int(X.shape[0]),
                        total_probes=int(nrows), screened_top=int(X.shape[1]), textbook_anchor="ESR1_methylation",
                        anchor_auroc=round(res["auroc_anchor"], 3), combined=round(res["auroc_combined"], 3),
                        delta=round(res["delta"], 3), novel_delta=round(res["novel_delta"], 3),
-                       novel_vs_random_p=round(res["novel_vs_random_p"], 3), n_fdr_q05=int(res["n_fdr"]))
+                       novel_vs_random_p=round(res["novel_vs_random_p"], 3), n_fdr_q05=int(res["n_fdr"]),
+                       stability_gain=res["stability_gain"])
                   ]).to_csv(os.path.join(REPO, "meth_genomewide_results.csv"), index=False)
     pd.DataFrame([(g, pmg.get(g, "?"), pc, ca) for g, pc, ca in res["novel"]],
                  columns=["probe", "gene", "partial_corr", "corr_with_anchor"]
