@@ -1,0 +1,10 @@
+check,value,pass,note
+heldout_selected_delta_mean,0.0509,True,train-selected novel panel gated gain on held-out TEST (leakage-honest)
+heldout_frac_splits_positive,1.0,True,held-out gain positive in 10/10 splits
+heldout_random_delta_mean,0.0256,,random-panel gated gain on held-out TEST
+heldout_selected_gt_random_frac,1.0,True,selected beats random-mean in 10/10 splits
+heldout_p_random_beats_selected,0.027,True,~2.7% of random panels beat the selected panel (per-split mean)
+stability_basal_core_recurrence,10,True,KRT5/6B/14/17 DSG3 DSC3 TP63 SOX10 COL17A1 KLK7/8 CLDN19 TRIM29 in 10/10 train splits
+permuted_real_advantage,0.0214,,selected-minus-random advantage with REAL labels (held-out)
+permuted_null_mean,-0.0087,,same advantage with SHUFFLED labels (5x) -- collapses to ~0
+permuted_real_gt_all_perm,1,True,advantage exists only with real labels (real > all 5 permuted)

@@ -95,6 +95,12 @@ label-permutation null on the raw gain is non-significant) — the method's valu
 discovery** (it reliably isolates a coherent, anchor-orthogonal new axis) more than a large AUROC win.
 Runner `reports/dmoi_residual_discovery.py`; `discovery_results.csv` + `novel_genes.csv`.
 
+*Verified three ways* (`discovery_verification.csv`): (V1) selecting the panel on a TRAIN split and scoring
+it on a held-out TEST still beats random panels in 10/10 splits (Δ +0.051 vs +0.026) — so the gain is not
+selection leakage; (V2) the basal core (KRT5/6B/14/17, DSG3, DSC3, TP63, SOX10, COL17A1, KLK7/8, CLDN19,
+TRIM29) recurs in 10/10 train splits; (V3) under permuted labels the selected-vs-random advantage collapses
+(real +0.021 > all five permutations), so the method finds the axis only when the signal is real.
+
 **The gate is capable, not just safe (positive control).** On a methylation-defined endpoint (mean of
 a held-out CpG set RNA cannot see), a disjoint methylation set scores 0.983 vs RNA 0.795; the gate
 engages strongly (β = 4–8) for a significant **+0.047** over the anchor. So the gate captures real

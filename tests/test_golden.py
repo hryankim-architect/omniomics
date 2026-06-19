@@ -184,6 +184,22 @@ def test_residual_discovery_guard():
         assert len(genes & {"TP63", "KRT5", "KRT14", "KRT17", "KRT6B", "SOX10", "DSG3", "DSC3"}) >= 2
 
 
+def test_residual_discovery_verification_guard():
+    """Independent verification of the residual discovery: (V1) train-selected panel beats random on a
+    held-out TEST (no selection leakage), (V2) the basal core is stable across splits, (V3) the advantage
+    appears only with real labels. Skip-safe until discovery_verification.csv exists."""
+    f = REPO / "discovery_verification.csv"
+    if not f.exists():
+        pytest.skip("discovery_verification.csv not committed")
+    v = pd.read_csv(f).set_index("check")["value"]
+    assert float(v["heldout_selected_delta_mean"]) > float(v["heldout_random_delta_mean"])   # V1 held-out
+    assert float(v["heldout_frac_splits_positive"]) >= 0.9
+    assert float(v["heldout_selected_gt_random_frac"]) >= 0.9
+    assert int(float(v["stability_basal_core_recurrence"])) >= 8                              # V2 stability
+    assert float(v["permuted_real_advantage"]) > float(v["permuted_null_mean"])               # V3 specificity
+    assert int(float(v["permuted_real_gt_all_perm"])) == 1
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""
