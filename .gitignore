@@ -22,3 +22,6 @@ docbuild/
 # local node-handoff scaffolding (per-round commit scripts + handoff notes; not deliverables)
 commit-*.sh
 HANDOFF-*.md
+
+# internal-review slide decks (not committed deliverables)
+reports/omniomics_*.pptx
