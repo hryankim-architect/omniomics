@@ -165,6 +165,18 @@ resistance). Discovered panel Δ +0.061 vs random +0.006 (p = 0.038). So anchore
 the method recovers the known complementary biomarkers in a new domain. `reports/dmoi_discovery_nsclc_io.py`;
 `discovery_nsclc_io_results.csv`.
 
+*Cross-cancer replication of a discovered axis.* The strongest test that a discovered axis is real biology
+rather than a cohort artefact is to look for it in a *different cancer*. The breast basal/keratinization
+residual should re-appear wherever the squamous lineage does. On **TCGA lung carcinoma** (LUAD adeno vs LUSC
+squamous, n = 1,129; UCSC Xena), anchoring on the *same* zero-parameter proliferation signature (AUROC 0.77
+for histology — incomplete) and mining the residual recovers the squamous/keratinization axis, and it
+overlaps the breast basal panel **10/30** (hypergeometric p ≈ 3×10⁻¹⁶): the same genes (KRT5, KRT14, KRT6B,
+TP63, DSG3, DSC3, FAT2, CALML3, ANXA8, TRIM29) discovered in a different cancer. Honest caveat: here the
+panel-vs-random delta control *saturates* (p ≈ 0.18) because squamous-vs-adeno is a near-trivial
+transcriptomic split — random high-variance panels also separate it — so on this easy endpoint the
+informative metric is the gene-level replication, which is decisive. `reports/dmoi_external_lung.py`;
+`external_validation_lung.csv`.
+
 **The gate is capable, not just safe (positive control).** On a methylation-defined endpoint (mean of
 a held-out CpG set RNA cannot see), a disjoint methylation set scores 0.983 vs RNA 0.795; the gate
 engages strongly (β = 4–8) for a significant **+0.047** over the anchor. So the gate captures real

@@ -1,0 +1,2 @@
+dataset,endpoint,n,textbook_anchor,anchor_auroc,combined,delta,novel_delta,random_delta_mean,novel_vs_random_p,overlap_with_brca_basal_of30,overlap_hyper_p,shared_genes
+TCGA_lung_LUAD_vs_LUSC,histology_squamous_vs_adeno,1129,proliferation_20gene,0.773,0.977,0.204,0.185,0.17,0.182,10,3.15e-16,ANXA8; CALML3; DSC3; DSG3; FAT2; KRT14; KRT5; KRT6B; TP63; TRIM29

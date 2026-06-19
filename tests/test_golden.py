@@ -299,6 +299,25 @@ def test_nsclc_io_discovery_guard():
         assert len(feats & {"PDL1_SCORE", "EGFR_mut", "STK11_mut"}) >= 2
 
 
+def test_external_lung_guard():
+    """Cross-CANCER external validation: the breast basal/keratinization axis re-discovers in TCGA lung
+    (LUAD vs LUSC) anchored on the same proliferation signature -- the residual recovers the SAME genes
+    (KRT5/14/6B, TP63, DSG3/DSC3, ...), overlapping the breast panel with strong hypergeometric
+    significance. (Panel-vs-random saturates because squamous-vs-adeno is a near-trivial split, so the
+    informative metric is gene-level overlap.) Skip-safe until dmoi_external_lung.py produces the CSV."""
+    f = REPO / "external_validation_lung.csv"
+    if not f.exists():
+        pytest.skip("external_validation_lung.csv not committed (dmoi_external_lung.py not run yet)")
+    d = pd.read_csv(f).iloc[0]
+    assert int(d["overlap_with_brca_basal_of30"]) >= 6          # same axis re-discovered in another cancer
+    assert float(d["overlap_hyper_p"]) <= 1e-6                  # overlap is highly significant
+    assert float(d["anchor_auroc"]) < 0.85                     # proliferation anchor incomplete for histology
+    nf = REPO / "novel_genes_lung.csv"
+    if nf.exists():
+        genes = set(pd.read_csv(nf)["gene"])
+        assert len(genes & {"KRT5", "KRT14", "KRT6B", "TP63", "DSG3", "DSC3"}) >= 3
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""
