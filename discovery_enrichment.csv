@@ -1,0 +1,10 @@
+panel,source,term,p_adj,intersection,term_size
+basal_LumAB,REAC,Formation of the cornified envelope,8.271255962944476e-11,9,129
+basal_LumAB,KEGG,Cornified envelope formation,3.1032643385748283e-10,9,215
+basal_LumAB,GO:BP,epidermis development,1.0218202047175123e-09,11,400
+basal_LumAB,REAC,Keratinization,8.94906798011536e-09,9,216
+basal_LumAB,GO:BP,skin development,1.8451488659429424e-07,9,325
+basal_LumAB,REAC,Developmental Biology,4.956708044714898e-07,14,1394
+basal_LumAB,GO:BP,epithelium development,7.780882363351107e-07,13,1234
+basal_LumAB,REAC,Developmental Cell Lineages,1.7519842823317664e-06,5,40
+HER2_neuroendo,(none),no significant GO/KEGG/Reactome enrichment -- diffuse multi-program panel (neuroendocrine/secretory/immune by single-gene function),,0,0
