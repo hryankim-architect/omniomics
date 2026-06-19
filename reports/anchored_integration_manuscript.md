@@ -150,7 +150,12 @@ extend this to any number of modalities by greedy forward selection. **Knowledge
 builds a fixed mean-z score from a curated gene set; `knowledge_anchored_integrate` pins it as the anchor.
 **Residual discovery.** `anchored_residual_discovery` ranks features by partial correlation with the label
 controlling for the anchor, retains those orthogonal to the anchor (|r| < 0.6), gates the panel, and tests it
-against matched random panels and (for verification) held-out splits and permuted labels. Data: TCGA-BRCA
+against matched random panels and (for verification) held-out splits and permuted labels. Because the
+matched-random-panel null saturates when an endpoint is broadly predictable (e.g. squamous-vs-adeno, ER
+status), the method also reports a **selection-stability** statistic — the recurrence of the discovered panel
+across 50% subsamples relative to a permuted-label null — which stays informative there (lung basal axis
+stability gain ≈ +0.89; genome-wide ER methylation ≈ +0.63, both where the panel-vs-random null is
+uninformative). Data: TCGA-BRCA
 (Xena HiSeqV2, HumanMethylation450, clinical) and METABRIC (microarray, clinical). Pathway enrichment:
 g:Profiler. All functions are in `omniomics.multiomics`; runners and recorded metrics are in the repository.
 **Scalability.** The discovery is linear and streams: a vectorized residualize-then-correlate, an optional
