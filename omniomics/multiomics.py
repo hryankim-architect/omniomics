@@ -527,7 +527,7 @@ def knowledge_anchored_integrate(anchor_score, modalities, y,
 
 def anchored_residual_discovery(anchor_score, X, feature_names, y, top_k=30, corr_max=0.6,
                                 cv=5, random_state=0, n_perm=12, inner_repeats=3,
-                                betas=(0.0, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0)):
+                                betas=(0.0, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0), screen_top=None):
     """Knowledge-anchored residual discovery with a noise gate -- separate the known, keep only real new.
 
     Synthesises the whole toolkit: (1) anchor on a FIXED prior (`anchor_score`), (2) gate the data `X`
@@ -537,12 +537,35 @@ def anchored_residual_discovery(anchor_score, X, feature_names, y, top_k=30, cor
     re-gated and stress-tested against a matched random panel and its own permutation null.
 
     X : (samples x features) array; feature_names : names aligned to columns; anchor_score : 1-D prior.
+    screen_top : optional int. If set and X has more than screen_top features, a Sure-Independence-Screening
+        pre-filter keeps the top screen_top features by |marginal correlation with the anchor-residualized
+        response| before the gating/permutation steps (scale prep for genome-wide p; default None = off,
+        identical results). When active, the whole-pool gate (auroc_combined/delta) and the matched
+        random-panel null are computed over the screened pool rather than all features.
     Returns dict: auroc_anchor, auroc_combined, delta, perm_p, signal (bool: delta>0 & perm_p<.05),
     novel = [(feature, partial_corr_with_y_given_anchor, corr_with_anchor)], novel_delta, novel_perm_p,
     random_delta (matched control).
     """
     a = np.asarray(anchor_score, dtype=float); X = np.asarray(X, dtype=float); y = np.asarray(y)
     names = list(feature_names); rng = np.random.default_rng(random_state)
+
+    # Anchor-residualized response (used for both the optional SIS screen and the partial correlation).
+    az = (a - a.mean()) / (a.std() + 1e-9)
+    azc = az - az.mean(); den = float(azc @ azc) + 1e-12
+    rY = (y.astype(float) - y.mean()) - (float(azc @ (y.astype(float) - y.mean())) / den) * azc
+    rYc = rY - rY.mean(); rYn = np.sqrt(float(rYc @ rYc)) + 1e-12
+
+    # Optional Sure-Independence-Screening pre-filter (scale prep): when p is huge (e.g. genome-wide
+    # methylation, 450k+ probes), keep only the top `screen_top` features by |marginal correlation with the
+    # anchor-residualized response| BEFORE the expensive gating / permutation steps. This bounds memory and
+    # compute and is aligned with the discovery target (association with y beyond the anchor). The matched
+    # random-panel null is then drawn from this screened candidate pool (a conservative background).
+    # Default screen_top=None -> no screening (behaviour identical to the unscreened method).
+    if screen_top is not None and X.shape[1] > screen_top:
+        Xc0 = X - X.mean(axis=0)
+        s = np.abs(Xc0.T @ rYc) / (np.sqrt((Xc0 * Xc0).sum(axis=0)) * rYn + 1e-12)
+        keep = np.sort(np.argsort(-s)[:int(screen_top)])
+        X = X[:, keep]; names = [names[i] for i in keep]
 
     def gate(Xs, yy):
         return anchored_integrate(a.reshape(-1, 1), Xs, yy, betas=betas, cv=cv,
@@ -555,16 +578,10 @@ def anchored_residual_discovery(anchor_score, X, feature_names, y, top_k=30, cor
     # Vectorized residualize-then-correlate: residualize y and every feature on the anchor in a single
     # matrix pass, then correlate -- numerically identical to a per-feature loop but O(1) passes instead
     # of O(p), so it scales to hundreds of thousands of features (e.g. genome-wide methylation).
-    az = (a - a.mean()) / (a.std() + 1e-9)
-    azc = az - az.mean()
-    den = float(azc @ azc) + 1e-12
     Xc = X - X.mean(axis=0)
     rX = Xc - np.outer(azc, (azc @ Xc) / den)            # residual of each feature on the anchor
-    yc = y.astype(float) - y.mean()
-    rY = yc - (float(azc @ yc) / den) * azc              # residual of y on the anchor
     rXc = rX - rX.mean(axis=0)
-    rYc = rY - rY.mean()
-    pc = (rXc.T @ rYc) / (np.sqrt((rXc * rXc).sum(axis=0)) * np.sqrt(float(rYc @ rYc)) + 1e-12)
+    pc = (rXc.T @ rYc) / (np.sqrt((rXc * rXc).sum(axis=0)) * rYn + 1e-12)
     ca = (Xc.T @ azc) / (np.sqrt((Xc * Xc).sum(axis=0)) * np.sqrt(float(azc @ azc)) + 1e-12)
     novel_idx = [j for j in np.argsort(-np.abs(pc)) if abs(ca[j]) < corr_max][:top_k]
     novel = [(names[j], round(float(pc[j]), 3), round(float(ca[j]), 3)) for j in novel_idx]
