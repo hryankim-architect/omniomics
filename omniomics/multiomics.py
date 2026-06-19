@@ -525,9 +525,58 @@ def knowledge_anchored_integrate(anchor_score, modalities, y,
                              random_state=random_state, gate_margin=gate_margin, inner_repeats=inner_repeats)
 
 
+def benjamini_hochberg(pvalues):
+    """Benjamini-Hochberg FDR adjustment. Returns q-values aligned to the input order (clipped to 1).
+
+    Scale-prep utility: with thousands-to-millions of features, per-feature p-values must be FDR-controlled
+    rather than thresholded raw. Pure numpy, vectorized.
+    """
+    p = np.asarray(pvalues, dtype=float); m = p.size
+    if m == 0:
+        return p
+    order = np.argsort(p); ranked = p[order]
+    q = ranked * m / np.arange(1, m + 1)
+    q = np.minimum.accumulate(q[::-1])[::-1]              # enforce monotone non-decreasing q
+    out = np.empty_like(q); out[order] = np.minimum(q, 1.0)
+    return out
+
+
+def leave_one_cohort_out(X, y, cohort, fit_predict=None):
+    """Leave-one-cohort-out (LOCO) evaluation: train on all cohorts but one, test on the held-out cohort.
+
+    The honest evaluation protocol when pooling multiple cohorts at scale -- within-cohort cross-validation
+    overstates transfer because it never tests across batch/platform boundaries. This is the systematic
+    generalization of the external-validation checks (TCGA -> METABRIC / lung / HNSC) done one cohort at a
+    time. fit_predict(X_train, y_train, X_test) -> 1-D test scores; default is L2 logistic regression on
+    standardized features. Returns {<cohort>: auroc, ..., 'mean': macro-mean over cohorts, 'n_cohorts': k}.
+    """
+    X = np.asarray(X, dtype=float); y = np.asarray(y); cohort = np.asarray(cohort)
+    from sklearn.metrics import roc_auc_score
+    if fit_predict is None:
+        from sklearn.preprocessing import StandardScaler
+        from sklearn.linear_model import LogisticRegression
+
+        def fit_predict(Xtr, ytr, Xte):
+            sc = StandardScaler().fit(Xtr)
+            clf = LogisticRegression(max_iter=200, C=0.1).fit(sc.transform(Xtr), ytr)
+            return clf.predict_proba(sc.transform(Xte))[:, 1]
+
+    out = {}
+    for c in [c for c in pd.unique(cohort)]:
+        te = cohort == c; tr = ~te
+        if len(np.unique(y[te])) < 2 or len(np.unique(y[tr])) < 2:
+            continue                                      # need both classes on each side to score
+        out[c] = round(float(roc_auc_score(y[te], fit_predict(X[tr], y[tr], X[te]))), 4)
+    if out:
+        out["mean"] = round(float(np.mean(list(out.values()))), 4)
+        out["n_cohorts"] = len(out) - 1
+    return out
+
+
 def anchored_residual_discovery(anchor_score, X, feature_names, y, top_k=30, corr_max=0.6,
                                 cv=5, random_state=0, n_perm=12, inner_repeats=3,
-                                betas=(0.0, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0), screen_top=None):
+                                betas=(0.0, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0), screen_top=None, n_jobs=1,
+                                fdr_q=0.05):
     """Knowledge-anchored residual discovery with a noise gate -- separate the known, keep only real new.
 
     Synthesises the whole toolkit: (1) anchor on a FIXED prior (`anchor_score`), (2) gate the data `X`
@@ -542,6 +591,10 @@ def anchored_residual_discovery(anchor_score, X, feature_names, y, top_k=30, cor
         response| before the gating/permutation steps (scale prep for genome-wide p; default None = off,
         identical results). When active, the whole-pool gate (auroc_combined/delta) and the matched
         random-panel null are computed over the screened pool rather than all features.
+    n_jobs : parallelism for the permutation and random-panel null evaluations (threading backend). Default
+        1 = serial. Results are identical for any n_jobs (permutations/panels are pre-drawn from the RNG).
+    fdr_q : Benjamini-Hochberg FDR level for the additive return key n_fdr = number of anchor-orthogonal
+        features associated with y beyond the anchor at this FDR (scale-friendly complement to top_k).
     Returns dict: auroc_anchor, auroc_combined, delta, perm_p, signal (bool: delta>0 & perm_p<.05),
     novel = [(feature, partial_corr_with_y_given_anchor, corr_with_anchor)], novel_delta, novel_perm_p,
     random_delta (matched control).
@@ -571,8 +624,22 @@ def anchored_residual_discovery(anchor_score, X, feature_names, y, top_k=30, cor
         return anchored_integrate(a.reshape(-1, 1), Xs, yy, betas=betas, cv=cv,
                                   random_state=random_state, inner_repeats=inner_repeats)
 
+    def _gd(Xs, yy):
+        return gate(Xs, yy)["delta"]
+
+    # Permutations/panels are pre-drawn from the single RNG (same consumption order as the sequential
+    # version) so results are identical for any n_jobs; only the independent gate() evaluations run in
+    # parallel. Threading backend: the heavy work is sklearn/BLAS that releases the GIL, and gate is a
+    # closure (not picklable), so threads parallelise without process overhead. n_jobs=1 (default) = serial.
+    def _par(jobs):
+        if n_jobs == 1:
+            return [f() for f in jobs]
+        from joblib import Parallel, delayed
+        return Parallel(n_jobs=n_jobs, prefer="threads")(delayed(f)() for f in jobs)
+
     base = gate(X, y); delta = base["delta"]
-    null = np.array([gate(X, rng.permutation(y))["delta"] for _ in range(n_perm)])
+    perms = [rng.permutation(y) for _ in range(n_perm)]
+    null = np.array(_par([(lambda yy=yy: _gd(X, yy)) for yy in perms]))
     perm_p = (1 + int((null >= delta).sum())) / (n_perm + 1)
     # partial point-biserial correlation of each feature with y, controlling for the anchor.
     # Vectorized residualize-then-correlate: residualize y and every feature on the anchor in a single
@@ -583,17 +650,30 @@ def anchored_residual_discovery(anchor_score, X, feature_names, y, top_k=30, cor
     rXc = rX - rX.mean(axis=0)
     pc = (rXc.T @ rYc) / (np.sqrt((rXc * rXc).sum(axis=0)) * rYn + 1e-12)
     ca = (Xc.T @ azc) / (np.sqrt((Xc * Xc).sum(axis=0)) * np.sqrt(float(azc @ azc)) + 1e-12)
+    # FDR over per-feature partial correlations: how many ANCHOR-ORTHOGONAL features are associated with y
+    # beyond the anchor at a controlled false-discovery rate -- a scale-friendly complement to the fixed
+    # top_k. (Additive: existing outputs unchanged.) t-stat for a partial correlation controls 1 covariate.
+    from scipy.stats import t as _tdist
+    dfree = max(int(len(y)) - 3, 1)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        tstat = pc * np.sqrt(dfree / np.clip(1.0 - pc * pc, 1e-12, None))
+    pvals = 2.0 * _tdist.sf(np.abs(tstat), dfree)
+    pvals = np.where(np.isfinite(pvals), pvals, 1.0)
+    qvals = benjamini_hochberg(pvals)
+    ortho = np.abs(ca) < corr_max
+    n_fdr = int((ortho & np.isfinite(qvals) & (qvals < fdr_q)).sum())
     novel_idx = [j for j in np.argsort(-np.abs(pc)) if abs(ca[j]) < corr_max][:top_k]
     novel = [(names[j], round(float(pc[j]), 3), round(float(ca[j]), 3)) for j in novel_idx]
     nd = gate(X[:, novel_idx], y); novel_delta = nd["delta"]
     # discovery null: is the discovered panel special vs random panels of the SAME size? (the right
     # "not noise" test for a discovery -- more powerful and appropriate than shuffling the labels)
     k = len(novel_idx)
-    rand_deltas = np.array([gate(X[:, list(rng.choice(X.shape[1], k, replace=False))], y)["delta"]
-                            for _ in range(n_perm)])
+    panels = [list(rng.choice(X.shape[1], k, replace=False)) for _ in range(n_perm)]
+    rand_deltas = np.array(_par([(lambda cols=cols: _gd(X[:, cols], y)) for cols in panels]))
     novel_vs_random_p = (1 + int((rand_deltas >= novel_delta).sum())) / (n_perm + 1)
     return dict(auroc_anchor=round(base["auroc_anchor"], 4), auroc_combined=round(base["auroc_combined"], 4),
                 delta=round(float(delta), 4), perm_p=round(perm_p, 4), novel=novel,
                 novel_delta=round(float(novel_delta), 4), random_delta_mean=round(float(rand_deltas.mean()), 4),
                 novel_vs_random_p=round(novel_vs_random_p, 4),
+                n_fdr=n_fdr, fdr_q=fdr_q,
                 signal=bool(novel_delta > rand_deltas.mean() and novel_vs_random_p < 0.05))
