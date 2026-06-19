@@ -200,6 +200,19 @@ def test_residual_discovery_verification_guard():
     assert int(float(v["permuted_real_gt_all_perm"])) == 1
 
 
+def test_discovery_generalization_guard():
+    """Generalization/specificity: on ER status a fixed textbook ER signature is strong and genome-wide
+    data adds ~nothing, so the discovery method correctly returns NO hidden axis (no false discovery) --
+    the complement of the LumA/B basal find. Skip-safe until discovery_er_results.csv exists."""
+    f = REPO / "discovery_er_results.csv"
+    if not f.exists():
+        pytest.skip("discovery_er_results.csv not committed (dmoi_discovery_er.py not run yet)")
+    d = pd.read_csv(f).iloc[0]
+    assert float(d["auroc_anchor"]) >= 0.90              # textbook ER signature is strong (0 trained params)
+    assert abs(float(d["delta"])) <= 0.01                # genome-wide data adds ~0 over the textbook
+    assert float(d["novel_vs_random_p"]) >= 0.10         # no spurious discovery (specificity)
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""

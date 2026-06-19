@@ -1,0 +1,2 @@
+auroc_anchor,auroc_combined,delta,perm_p,novel_delta,random_delta_mean,novel_vs_random_p,signal,n,endpoint,anchor
+0.9383,0.9369,-0.0014,0.3333,-0.0002,0.0,1.0,False,1152,ER_status,ER_luminal_signature_20genes

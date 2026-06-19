@@ -101,6 +101,21 @@ selection leakage; (V2) the basal core (KRT5/6B/14/17, DSG3, DSC3, TP63, SOX10, 
 TRIM29) recurs in 10/10 train splits; (V3) under permuted labels the selected-vs-random advantage collapses
 (real +0.021 > all five permutations), so the method finds the axis only when the signal is real.
 
+*Generalises, and discriminates (a 2nd anchor/endpoint).* Applied to ER status with a fixed textbook
+ER/luminal signature as the anchor (ESR1, GATA3, FOXA1, …; 20 genes, 0 trained parameters, n = 1152), the
+signature alone reaches AUROC 0.938 and genome-wide RNA adds essentially nothing (Δ = −0.001; novel-vs-random
+p = 1.0). So the method is *not* a one-off and does *not* manufacture discoveries: it recovers a real hidden
+axis where the textbook is **incomplete** (LumA/B → basal) and correctly returns **nothing** where the
+textbook is **complete** (ER status is essentially an ESR1-driven phenotype the 20-gene signature already
+captures as well as the whole transcriptome) — a real-data specificity control.
+
+| endpoint | textbook anchor (0 params) | anchor AUROC | data adds (Δ) | verdict |
+|---|---|---|---|---|
+| LumA vs LumB | proliferation index (20 genes) | 0.919 | **+0.029** | textbook incomplete → **basal axis discovered** (verified) |
+| ER status | ER/luminal signature (20 genes) | 0.938 | −0.001 | textbook complete → **no hidden axis** (specificity) |
+
+Runner `reports/dmoi_discovery_er.py`; `discovery_er_results.csv` + `novel_genes_er.csv`.
+
 **The gate is capable, not just safe (positive control).** On a methylation-defined endpoint (mean of
 a held-out CpG set RNA cannot see), a disjoint methylation set scores 0.983 vs RNA 0.795; the gate
 engages strongly (β = 4–8) for a significant **+0.047** over the anchor. So the gate captures real
