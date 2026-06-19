@@ -150,6 +150,23 @@ def test_discordance_signal_guard():
     assert v[("synergy", "auroc_joint_nonlinear")] <= v[("synergy", "auroc_rna")] + 0.01  # joint not above RNA alone
 
 
+def test_knowledge_anchor_guard():
+    """Knowledge-anchored integration: a FIXED textbook signature (zero trained params) is a strong anchor,
+    the gate never falls below it, and genome-wide data adds beyond the textbook where it genuinely helps
+    (proliferation -> LumA/B). Skip-safe until dmoi_knowledge_anchor.py produces the CSV."""
+    f = REPO / "knowledge_anchor_results.csv"
+    if not f.exists():
+        pytest.skip("knowledge_anchor_results.csv not committed (dmoi_knowledge_anchor.py not run yet)")
+    df = pd.read_csv(f).set_index("endpoint")
+    pr = df.loc["LumA_vs_LumB"]
+    assert float(pr["anchor_auroc"]) >= 0.88                                  # 0-param textbook anchor is strong
+    assert float(pr["combined_auroc"]) >= float(pr["anchor_auroc"]) - 0.005   # never below the anchor
+    assert float(pr["delta_over_anchor"]) > 0.01                              # data genuinely adds here
+    if "normal_tissue_age" in df.index:
+        cl = df.loc["normal_tissue_age"]
+        assert float(cl["anchor_auroc"]) >= float(cl["rna_alone_auroc"])      # clock anchor beats RNA
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""

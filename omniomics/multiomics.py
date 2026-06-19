@@ -475,3 +475,51 @@ def auto_integrate(modalities, y, anchor=None, cv=5, random_state=0, **kwargs):
     interpretable per-modality inclusion. Returns the `forward_integrate` result dict.
     """
     return forward_integrate(modalities, y, anchor=anchor, cv=cv, random_state=random_state, **kwargs)
+
+
+def signature_score(expr, genes, weights=None, sign=1.0):
+    """Build a FIXED knowledge anchor score from a curated gene signature (zero trained parameters).
+
+    expr    : DataFrame (samples x genes) or (genes x samples) -- orientation auto-detected from `genes`.
+    genes   : the signature's gene names (textbook / published set).
+    weights : optional {gene: weight}; default equal weighting.
+    sign    : +1 if higher signature -> higher P(y=1), else -1.
+    Returns a 1-D array (one score per sample): the (weighted) mean of per-gene z-scores.
+    """
+    import pandas as _pd
+    df = expr if isinstance(expr, _pd.DataFrame) else _pd.DataFrame(np.asarray(expr))
+    if not set(genes) & set(df.columns) and (set(genes) & set(df.index)):
+        df = df.T                                   # genes were on the index -> transpose to samples x genes
+    use = [g for g in genes if g in df.columns]
+    if not use:
+        raise ValueError("none of the signature genes are present in `expr`")
+    sub = df[use].astype(float)
+    Z = (sub - sub.mean()) / sub.std(ddof=0).replace(0, 1.0)
+    if weights is not None:
+        w = np.array([float(weights.get(g, 0.0)) for g in use])
+        return sign * (Z.values * w).sum(1) / (np.abs(w).sum() + 1e-9)
+    return sign * Z.mean(1).values
+
+
+def knowledge_anchored_integrate(anchor_score, modalities, y,
+                                 betas=(0.0, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0), cv=5, random_state=0,
+                                 gate_margin=0.01, inner_repeats=3, anchor_name="knowledge"):
+    """Anchor on a FIXED external biological prior instead of on the strongest data modality.
+
+    Generalises `auto_integrate` from "anchor = best empirical modality" to "anchor = established
+    knowledge": a textbook gene signature, a published clock (e.g. Horvath), a known driver score, or a
+    clinical marker. The anchor is a 1-D score carrying ZERO trained parameters (only an in-fold
+    1-parameter calibration); each data modality is then gated onto the anchor's residual and kept ONLY
+    where it beats the prior -- so the result is never below the textbook anchor and the gate answers the
+    clinically meaningful question "does the genome-wide data add anything beyond established biology?".
+
+    anchor_score : 1-D array, higher = more likely y=1 (e.g. `signature_score(expr, proliferation_genes)`).
+    modalities   : dict {name: X} of data modalities to gate onto the prior.
+    Returns the `forward_integrate` dict (anchor = the knowledge prior; `added` = which data earned in,
+    `delta` = how much the genome-wide data adds beyond the textbook anchor).
+    """
+    a = np.asarray(anchor_score, dtype=float).reshape(-1, 1)
+    mods = {anchor_name: a}
+    mods.update(modalities if isinstance(modalities, dict) else {f"mod{i}": X for i, X in enumerate(modalities)})
+    return forward_integrate(mods, y, anchor=anchor_name, betas=betas, cv=cv,
+                             random_state=random_state, gate_margin=gate_margin, inner_repeats=inner_repeats)

@@ -160,6 +160,31 @@ def test_forward_integrate_three():
     assert res["auroc_combined"] > res["auroc_anchor"]
 
 
+def test_signature_score():
+    df = pd.DataFrame({"g1": [1.0, 2, 3, 4, 5], "g2": [5.0, 4, 3, 2, 1], "g3": [0.0, 0, 1, 0, 0]},
+                      index=[f"s{i}" for i in range(5)])   # samples x genes
+    s = mo.signature_score(df, ["g1", "g2"])
+    z = (df[["g1", "g2"]] - df[["g1", "g2"]].mean()) / df[["g1", "g2"]].std(ddof=0)
+    assert np.allclose(s, z.mean(1).values)
+    assert np.allclose(mo.signature_score(df.T, ["g1", "g2"]), s)        # genes-on-index auto-transposed
+    assert np.allclose(mo.signature_score(df, ["g1", "g2"], sign=-1.0), -s)
+    assert np.allclose(mo.signature_score(df, ["g1", "g2"], weights={"g1": 1.0, "g2": 0.0}),
+                       ((df["g1"] - df["g1"].mean()) / df["g1"].std(ddof=0)).values)
+
+
+def test_knowledge_anchored_integrate():
+    rng = np.random.default_rng(3); n = 400
+    f1 = rng.normal(size=n); f2 = rng.normal(size=n)
+    y = ((f1 + 0.6 * f2) > 0).astype(int)
+    anchor = f1 + rng.normal(0, 0.3, n)                                  # FIXED external prior tracking f1
+    data = np.column_stack([f2 + rng.normal(0, 0.3, n), rng.normal(0, 1, n)])   # data carries orthogonal f2
+    res = mo.knowledge_anchored_integrate(anchor, {"data": data}, y, cv=5, random_state=0)
+    assert res["anchor"] == "knowledge"                                 # the fixed prior is pinned as anchor
+    assert res["auroc_combined"] >= res["auroc_anchor"] - 1e-9          # never below the textbook anchor
+    assert res["auroc_combined"] > res["auroc_anchor"]                  # orthogonal data earns a gain
+    assert "data" in res["added"]
+
+
 if __name__ == "__main__":
     test_v2_columns_and_interaction()
     test_reliability_weighting_shifts_pole()
