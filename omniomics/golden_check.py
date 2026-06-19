@@ -51,12 +51,43 @@ def evaluate(m) -> list:
         ("ChIP WWD/WT ~1.64 (±0.15)",   abs(m["chip_wwd_wt_ratio"] - 1.64) <= 0.15),
     ]
 
+def modern_de_concordance(repo=None):
+    """Guarded '2015 vs 2026' check on the nf-core/DESeq2 reanalysis (run_modern_de.py output).
+
+    Returns None when the concordance CSV is absent (e.g. CI without the heavy nf-core run), so it is
+    skip-safe. When present, asserts the *direction* the paper established — WWD is the dominant
+    transcriptional responder (WWD >> R, TKO) — rather than exact counts, which legitimately shift
+    with the modern genome (GRCm38 vs mm9) and count-based DESeq2 (vs n=2 FPKM moderated test).
+    """
+    repo = repo or config.repo_dir()
+    f = os.path.join(repo, "modern_de_concordance.csv")
+    if not os.path.exists(f):
+        return None
+    df = pd.read_csv(f)
+    de_col = next(c for c in df.columns if "DESeq2" in c or "padj" in c)
+    tgt_col = next((c for c in df.columns if "target" in c.lower()), None)
+    n = {str(r["contrast"]).split("_")[0]: float(r[de_col]) for _, r in df.iterrows()}
+    wwd, r_, tko = n.get("WWD", 0), n.get("R", 0), n.get("TKO", 0)
+    tgt = 0
+    if tgt_col is not None:
+        row = df[df["contrast"].astype(str).str.startswith("WWD")]
+        tgt = float(row[tgt_col].iloc[0]) if len(row) and pd.notna(row[tgt_col].iloc[0]) else 0
+    return [
+        ("modern WWD is dominant responder (WWD > R, TKO)", wwd > r_ and wwd > tko),
+        ("modern WWD DE nontrivial (>=100)",                wwd >= 100),
+        ("modern named targets sig >=3/6",                  tgt >= 3),
+    ]
+
 def run(data_dir=None, verbose=True):
     m = compute(data_dir); checks = evaluate(m); ok = all(p for _, p in checks)
+    mde = modern_de_concordance()
+    if mde:
+        checks = checks + mde; ok = ok and all(p for _, p in mde)
     if verbose:
         print(f"[golden] matrix {m['matrix_shape']} filtered {m['n_filtered']}; "
               f"DE WWD={m['de']['WWD']} R={m['de']['R']} TKO={m['de']['TKO']}; "
               f"targets {m['named_targets_sig']}/6; ChIP {m['chip_wwd_wt_ratio']:.2f}")
+        if mde: print("  [modern-DE] '2015 vs 2026' concordance present — checked")
         for name, p in checks: print(f"  [{'PASS' if p else 'FAIL'}] {name}")
         print("RESULT:", "ALL PASS ✅" if ok else "FAILURES ❌")
     return ok, m, checks

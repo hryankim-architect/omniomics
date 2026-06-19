@@ -10,12 +10,18 @@ import os, sys, glob
 import numpy as np, pandas as pd
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-COUNTS = os.environ.get("RNASEQ_COUNTS",
+# run_week1.sh writes counts to star_salmon/ (STAR path) or salmon/ (low-RAM --skip_alignment path).
+_DEFAULT_COUNTS = next(
+    (p for p in (
+        os.path.join(ROOT, "nextflow", "results_rnaseq", "star_salmon", "salmon.merged.gene_counts.tsv"),
+        os.path.join(ROOT, "nextflow", "results_rnaseq", "salmon", "salmon.merged.gene_counts.tsv"),
+    ) if os.path.exists(p)),
     os.path.join(ROOT, "nextflow", "results_rnaseq", "star_salmon", "salmon.merged.gene_counts.tsv"))
+COUNTS = os.environ.get("RNASEQ_COUNTS", _DEFAULT_COUNTS)
 MAP = os.path.join(ROOT, "nextflow", "srr_sample_map.csv")
 
 if not os.path.exists(COUNTS):
-    sys.exit(f"[modern-de] counts not found: {COUNTS}\n"
+    sys.exit(f"[modern-de] counts not found under results_rnaseq/{{star_salmon,salmon}}/\n"
              f"  Run nextflow/run_week1.sh on a Docker/Linux node first (Aim 1 Week 1).")
 try:
     from pydeseq2.dds import DeseqDataSet

@@ -1,0 +1,173 @@
+"""Offline unit tests for the DMOI v2 functions in omniomics.multiomics.
+
+No network, no real data — synthetic matrices only. Validates:
+  * dmoi_v2_representation column structure (rna_/meth_/int_ per pole) and int == rna*meth
+  * reliability weighting actually shifts a pole's methylation toward the high-reliability gene
+  * interactions=False / reliability=None degrade gracefully (v1-like main effects)
+  * methylation_reliability: correlated probes -> high score, decorrelated -> low, single probe -> NaN
+"""
+import os, sys
+import numpy as np
+import pandas as pd
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from omniomics import multiomics as mo
+
+
+def _toy(seed=0, n=12):
+    rng = np.random.default_rng(seed)
+    S = [f"s{i}" for i in range(n)]
+    genes = ["A", "B", "C"]
+    rna = pd.DataFrame(rng.normal(size=(len(genes), n)), index=genes, columns=S)
+    meth = pd.DataFrame(rng.normal(size=(len(genes), n)), index=genes, columns=S)
+    poles = {"P": ["GS"]}
+    gmt = {"GS": ["A", "B", "C"]}
+    return rna, meth, poles, gmt, S
+
+
+def test_v2_columns_and_interaction():
+    rna, meth, poles, gmt, S = _toy()
+    F = mo.dmoi_v2_representation(rna, meth, poles, gmt, reliability=None, interactions=True)
+    assert set(F.columns) == {"rna_P", "meth_P", "int_P"}
+    # interaction column is exactly the product of the two main-effect columns
+    assert np.allclose(F["int_P"].values, (F["rna_P"] * F["meth_P"]).values)
+    # no interaction requested -> only main effects, and never the redundant v1 difference
+    F2 = mo.dmoi_v2_representation(rna, meth, poles, gmt, interactions=False)
+    assert set(F2.columns) == {"rna_P", "meth_P"}
+    assert not any(c.startswith("disagree") or c.startswith("diff") for c in F2.columns)
+
+
+def test_reliability_weighting_shifts_pole():
+    rna, meth, poles, gmt, S = _toy(seed=1)
+    # standardized methylation per gene, with meth_sign = -1 baked into the function
+    zA = ((-meth.loc["A"]) - (-meth.loc["A"]).mean()) / (-meth.loc["A"]).std(ddof=0)
+    rel_on_A = {"A": 1.0, "B": 0.0, "C": 0.0}
+    Fw = mo.dmoi_v2_representation(rna, meth, poles, gmt, reliability=rel_on_A)
+    Fe = mo.dmoi_v2_representation(rna, meth, poles, gmt, reliability=None)
+    # weighting onto A makes the pole-methylation track gene A far more than equal weighting does
+    cw = np.corrcoef(Fw["meth_P"].values, zA.values)[0, 1]
+    ce = np.corrcoef(Fe["meth_P"].values, zA.values)[0, 1]
+    assert cw > 0.99 and cw > ce + 0.1
+
+
+def test_methylation_reliability_proxy():
+    rng = np.random.default_rng(2)
+    n = 40
+    base = rng.normal(size=n)
+    cols = [f"s{i}" for i in range(n)]
+    M = pd.DataFrame(
+        [
+            base + rng.normal(scale=0.01, size=n),   # p1  (gene G1)
+            base + rng.normal(scale=0.01, size=n),   # p2  (gene G1) -> ~perfectly correlated
+            rng.normal(size=n),                      # p3  (gene G2)
+            rng.normal(size=n),                      # p4  (gene G2) -> independent
+            rng.normal(size=n),                      # p5  (gene G3, single probe)
+        ],
+        index=["p1", "p2", "p3", "p4", "p5"], columns=cols,
+    )
+    g2p = {"G1": ["p1", "p2"], "G2": ["p3", "p4"], "G3": ["p5"]}
+    rel = mo.methylation_reliability(M, g2p)
+    assert rel["G1"] > 0.8          # consistent probes -> reliable
+    assert rel["G2"] < 0.5          # decorrelated probes -> unreliable
+    assert rel["G3"] != rel["G3"]   # single probe -> NaN (NaN != NaN)
+
+
+def test_genelevel_structure_and_shrinkage():
+    rna, meth, poles, gmt, S = _toy(seed=3)
+    G = mo.dmoi_v2_genelevel(rna, meth, genes=["A", "B", "C"],
+                             reliability={"A": 1.0, "B": 0.0, "C": 0.0})
+    assert set(G.columns) == {f"{a}_{g}" for a in ("rna", "meth", "int") for g in ("A", "B", "C")}
+    assert np.allclose(G["int_A"].values, (G["rna_A"] * G["meth_A"]).values)
+    # a zero-reliability gene's methylation feature is shrunk toward 0 relative to a reliable gene
+    assert G["meth_B"].abs().mean() < 0.05 * G["meth_A"].abs().mean()
+
+
+def test_dmoi_regimes_labels():
+    df = pd.DataFrame(
+        {"occ": [3.0, -3.0, 3.0, 0.1], "meth": [2.0, -2.0, -2.0, 0.1], "expr": [1.0, -1.0, 1.0, 0.1]},
+        index=["up", "down", "mixed", "near0"],
+    )
+    R = mo.dmoi_regimes(df)
+    assert {"concordance", "n_up", "regime"}.issubset(R.columns)
+    assert R.loc["up", "regime"] == "concordant_up" and R.loc["up", "n_up"] == 3
+    assert R.loc["down", "regime"] == "concordant_down" and R.loc["down", "n_up"] == 0
+    assert R.loc["mixed", "regime"] == "discordant"
+
+
+def test_anchored_gate():
+    from sklearn.metrics import roc_auc_score
+    rng = np.random.default_rng(0); n = 500
+    y = (rng.random(n) < 0.5).astype(int)
+    anchor = np.clip(0.5 + 0.12 * (2 * y - 1) + rng.normal(0, 0.15, n), 0.01, 0.99)
+    a0 = roc_auc_score(y, anchor)
+    # an informative secondary -> gate engages (beta>0) and improves on the anchor
+    helpful = (2 * y - 1) + rng.normal(0, 0.4, n)
+    b1, c1 = mo.anchored_gate(anchor, helpful, y)
+    assert b1 > 0 and roc_auc_score(y, c1) > a0
+    # any secondary (even pure noise) can never drag the combiner below the anchor (beta=0 fallback)
+    noise = rng.normal(0, 1, n)
+    b0, c0 = mo.anchored_gate(anchor, noise, y)
+    assert roc_auc_score(y, c0) >= a0 - 1e-9
+
+
+def test_anchored_integrate():
+    rng = np.random.default_rng(0); n = 300
+    y = (rng.random(n) < 0.5).astype(int)
+    sig = (2 * y - 1).astype(float)
+    Xa = np.column_stack([0.6 * sig + rng.normal(0, 1, n), rng.normal(0, 1, n)])   # weak anchor signal
+    Xs = np.column_stack([2.0 * sig + rng.normal(0, 1, n), rng.normal(0, 1, n)])   # strong orthogonal secondary
+    res = mo.anchored_integrate(Xa, Xs, y, cv=5, random_state=0)
+    assert res["auroc_combined"] > res["auroc_anchor"] + 0.02   # informative secondary -> real gain
+    assert max(res["betas"]) > 0                                # gate engaged in >=1 fold
+    # a pure-noise secondary must not meaningfully drag the combiner below the anchor
+    res2 = mo.anchored_integrate(Xa, rng.normal(0, 1, (n, 3)), y, cv=5, random_state=0)
+    assert res2["auroc_combined"] >= res2["auroc_anchor"] - 0.02
+
+
+def test_select_anchor():
+    rng = np.random.default_rng(0); n = 300
+    y = (rng.random(n) < 0.5).astype(int); sig = (2 * y - 1).astype(float)
+    strong = np.column_stack([1.5 * sig + rng.normal(0, 1, n), rng.normal(0, 1, n)])
+    weak = np.column_stack([0.3 * sig + rng.normal(0, 1, n), rng.normal(0, 1, n)])
+    res = mo.select_anchor({"strong": strong, "weak": weak}, y)
+    assert res["anchor"] == "strong"
+    assert res["ranking"][0][1] > res["ranking"][1][1]   # higher mean AUROC ranks first
+
+
+def test_auto_integrate():
+    rng = np.random.default_rng(1); n = 400
+    f1 = rng.normal(size=n); f2 = rng.normal(size=n)
+    y = ((f1 + 0.6 * f2) > 0).astype(int)                      # f1 dominant, f2 orthogonal
+    A = np.column_stack([f1 + rng.normal(0, 0.3, n), rng.normal(0, 1, n)])   # clean f1 -> anchor
+    B = np.column_stack([f2 + rng.normal(0, 0.3, n), rng.normal(0, 1, n)])   # clean f2 -> adds value
+    res = mo.auto_integrate({"A": A, "B": B}, y, cv=5, random_state=0)
+    assert res["anchor"] == "A"                                # picks the dominant modality
+    assert res["auroc_combined"] >= res["auroc_anchor"] - 1e-9 # never below the anchor
+    assert res["auroc_combined"] > res["auroc_anchor"]         # orthogonal B earns a real gain
+    assert "B" in res["added"]                                 # B was added in >=1 fold
+
+
+def test_forward_integrate_three():
+    rng = np.random.default_rng(2); n = 420
+    f1 = rng.normal(size=n); f2 = rng.normal(size=n)
+    y = ((f1 + 0.6 * f2) > 0).astype(int)
+    A = np.column_stack([f1 + rng.normal(0, 0.3, n), rng.normal(0, 1, n)])   # dominant -> anchor
+    B = np.column_stack([f2 + rng.normal(0, 0.3, n), rng.normal(0, 1, n)])   # orthogonal -> added
+    C = rng.normal(size=(n, 3))                                              # pure noise -> dropped
+    res = mo.forward_integrate({"A": A, "B": B, "C": C}, y, cv=5, random_state=0)
+    assert res["anchor"] == "A"
+    assert "B" in res["added"] and "C" not in res["added"]     # B earns its place; C is dropped
+    assert res["auroc_combined"] > res["auroc_anchor"]
+
+
+if __name__ == "__main__":
+    test_v2_columns_and_interaction()
+    test_reliability_weighting_shifts_pole()
+    test_methylation_reliability_proxy()
+    test_genelevel_structure_and_shrinkage()
+    test_dmoi_regimes_labels()
+    test_anchored_gate()
+    test_anchored_integrate()
+    test_select_anchor()
+    test_auto_integrate()
+    print("DMOI v2 unit tests: ALL PASS")

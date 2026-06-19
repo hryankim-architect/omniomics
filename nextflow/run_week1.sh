@@ -10,6 +10,8 @@ cd "$(dirname "$0")"
 # Nextflow 25/26 default to a new strict config parser that rejects nf-core 3.22.2's
 # legacy `if (...) { process {...} }` config syntax. Fall back to the v1 parser.
 export NXF_SYNTAX_PARSER=v1
+# Stream the log line-by-line (the default in-place ANSI log looks "frozen" over SSH).
+export NXF_ANSI_LOG=false
 
 RNASEQ_VER=3.22.2
 FETCHNGS_VER=1.12.0
@@ -38,16 +40,48 @@ nextflow run nf-core/fetchngs -r $FETCHNGS_VER -profile $PROFILE \
 # fetchngs writes FASTQ under sra/fastq/ and a ready samplesheet at sra/samplesheet/samplesheet.csv
 # (our hand-written samplesheet.csv mirrors it with readable sample names.)
 
-echo "== Step 4: nf-core/rnaseq (STAR + Salmon, count-based) =="
+echo "== Step 4: nf-core/rnaseq (count-based) =="
+# Modern nf-core (rnaseq 3.14+) DROPPED --max_cpus/--max_memory. Cap resources via a
+# process.resourceLimits config instead, auto-detected from this node. Without this, TrimGalore
+# requests 12 CPUs and fails on a small node ("req: 12; avail: 4").
+CPUS=$(nproc)
+MEM_GB=$(free -g 2>/dev/null | awk '/^Mem:/{print $2}')
+[ -z "$MEM_GB" ] && MEM_GB=8
+[ "$MEM_GB" -lt 4 ] && MEM_GB=4
+cat > resources.config <<CFG
+process {
+    resourceLimits = [ cpus: ${CPUS}, memory: '${MEM_GB}.GB', time: '240.h' ]
+}
+CFG
+echo "  node: ${CPUS} CPUs, ${MEM_GB} GB RAM -> wrote resources.config"
+
+# STAR alignment of the mouse genome loads the index into ~30 GB RAM. On a small node, default to
+# Salmon selective-alignment quantification only (low RAM, gives gene counts) — the count matrix is
+# equivalent in spirit to STAR+Salmon for our DESeq2 concordance. Force STAR with ALIGNER=star_salmon
+# only if the node has >= 32 GB.
+ALIGNER=${ALIGNER:-auto}
+if [ "$ALIGNER" = "auto" ]; then
+  if [ "$MEM_GB" -ge 32 ]; then ALIGNER=star_salmon; else ALIGNER=salmon_only; fi
+fi
+if [ "$ALIGNER" = "salmon_only" ]; then
+  QUANT="--pseudo_aligner salmon --skip_alignment"
+  COUNTS_DIR=salmon
+  echo "  quant: Salmon only (--skip_alignment) — low-RAM path"
+else
+  QUANT="--aligner star_salmon"
+  COUNTS_DIR=star_salmon
+  echo "  quant: STAR + Salmon"
+fi
+
 nextflow run nf-core/rnaseq -r $RNASEQ_VER -profile $PROFILE \
     --input sra/samplesheet/samplesheet.csv \
     --outdir results_rnaseq \
     --genome $GENOME \
-    --aligner star_salmon \
-    --max_cpus $THREADS --max_memory "$MEM" \
+    $QUANT \
+    -c resources.config \
     -resume
 
 echo "== Step 5: key outputs =="
-echo "  counts: results_rnaseq/star_salmon/salmon.merged.gene_counts.tsv"
-echo "  tpm:    results_rnaseq/star_salmon/salmon.merged.gene_tpm.tsv"
+echo "  counts: results_rnaseq/${COUNTS_DIR}/salmon.merged.gene_counts.tsv"
+echo "  tpm:    results_rnaseq/${COUNTS_DIR}/salmon.merged.gene_tpm.tsv"
 echo "Next (Week 2): DESeq2 on the count matrix vs the paper's FPKM / our n=2 moderated test."

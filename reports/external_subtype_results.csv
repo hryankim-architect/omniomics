@@ -1,0 +1,10 @@
+endpoint,kind,n,pos,anchor,auroc_anchor,auroc_combined,delta,added,ranking,secs
+methC4,methylation-defined,491,150,methylation,0.6833,0.6833,0.0,none,"methylation=0.697, RNA=0.630",0.8
+methC2,methylation-defined,491,98,methylation,0.8812,0.8812,0.0,none,"methylation=0.875, RNA=0.724",0.7
+methC5,methylation-defined,491,93,methylation,0.9693,0.9693,0.0,none,"methylation=0.970, RNA=0.914",0.9
+methC1,methylation-defined,491,78,methylation,0.8232,0.8232,0.0,none,"methylation=0.830, RNA=0.753",0.7
+methC3,methylation-defined,491,72,methylation,0.968,0.968,0.0,none,"methylation=0.966, RNA=0.800",0.9
+PAM50Basal,expression-defined,491,76,RNA,0.993,0.993,0.0,none,"RNA=0.992, methylation=0.991",1.2
+PAM50LumA,expression-defined,491,247,RNA,0.9244,0.9244,0.0,none,"RNA=0.930, methylation=0.832",1.3
+PAM50Her2,expression-defined,491,28,RNA,0.9893,0.9893,0.0,none,"RNA=0.987, methylation=0.961",0.6
+PAM50LumB,expression-defined,491,116,RNA,0.9288,0.9288,0.0,none,"RNA=0.923, methylation=0.821",1.3

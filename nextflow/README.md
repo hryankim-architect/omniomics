@@ -69,3 +69,57 @@ our moderated test. That closes Aim 1's "2015 vs 2026" deliverable.
 - raw reads → STAR + Salmon (vs TopHat/Bowtie + Cufflinks)
 - **counts + DESeq2 negative-binomial** with replicate Set as a covariate (vs FPKM eyeballing / n=2)
 - pinned, containerised, reproducible Nextflow run with MultiQC (vs bespoke scripts)
+
+---
+
+# The other two assays (same study, separate SubSeries)
+
+GSE57577 is a SuperSeries. Each assay was deposited as its own SRA study — all confirmed from the
+NCBI SRA RunInfo (single-end 51 bp HiSeq 2000):
+
+| assay | SubSeries SRA | BioProject | runs | dir |
+|-------|---------------|------------|------|-----|
+| RNA-seq | SRP041895 | PRJNA246728 | SRR1283908–915 (8) | `./` |
+| ChIP-seq | SRP041894 | PRJNA246729 | SRR1283896–906, no 902 (10) | `chipseq/` |
+| RRBS methylation | SRP041896 | PRJNA246727 | SRR1283918–926 (9) | `methylseq/` |
+
+## RRBS → `methylseq/` (nf-core/methylseq 4.2.0, Bismark, `--rrbs`)
+
+9 runs: WT/WWD/R ×2 reps, C (parental control) ×2, TKO. Run from the `nf` env on a Docker/Linux node:
+
+```bash
+conda run -n nf bash methylseq/run_methylseq.sh        # smoke → fetchngs → build sheet → methylseq
+```
+
+Outputs per-cytosine coverage (`results_methylseq/bismark/.../*.cov.gz`) → feed a genotype × context
+(promoter / CGI-shore / enhancer) methylation matrix to compare against the paper's RRBS and the
+HM450-derived contexts used in the DMOI work.
+
+## ChIP-seq → `chipseq/` (nf-core/chipseq 2.1.0, BWA + MACS2)
+
+10 runs: **Dnmt3a2 occupancy** ChIP (WT/WWD/R × clone-1 + bulk — the engineered-ADD redistribution
+signal) and **H3K4me3** ChIP (WT/WWD/R clone-1), with a single **TKO_input** control.
+
+```bash
+conda run -n nf bash chipseq/run_chipseq.sh            # smoke → fetchngs → build sheet → chipseq
+```
+
+> NOTE — the study deposited only **one input** (TKO genotype). nf-core/chipseq needs a control per
+> ChIP, so every ChIP points at `TKO_input`. This is biologically imperfect (the input is from
+> Dnmt-TKO cells); it is recorded transparently here, and an analyst generating new data would use
+> per-genotype inputs. `clone-1` and `bulk` are entered as replicates 1 and 2 of each condition so
+> MACS2 consensus peaks can be called.
+
+Outputs narrowPeak + bigWig (`results_chipseq/bwa/mergedLibrary/macs2/`, `.../bigwig/`) → compare
+Dnmt3a2 occupancy redistribution (WT→WWD→R) at promoters/enhancers against the paper's ADD-targeting figure.
+
+## Shared helper — `build_samplesheet.py`
+
+Both arms download FASTQ with `nf-core/fetchngs`, then `build_samplesheet.py` joins our readable
+`srr_sample_map.csv` to whatever fetchngs named the files (matches on the SRR accession as a
+substring; falls back to a `fastq/<SRR>*` glob). It emits the exact column layout each pipeline
+version expects (methylseq: `sample,fastq_1,fastq_2`; chipseq adds `antibody,control,control_replicate`)
+and **fails loudly**, listing any SRR whose FASTQ it could not locate.
+
+Genome note (all arms): paper used **mm9**; we use **GRCm38 (mm10)** for a modern reference; the
+build difference is recorded in each arm's concordance step.

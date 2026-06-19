@@ -1,0 +1,3 @@
+endpoint,n,anchor,auroc_anchor,auroc_combined,delta,added
+LumA_vs_LumB,417,RNA,0.9403384515570934,0.9403384515570934,0.0,none
+methylation_defined_posctrl,417,methylation_B,0.9795960618329039,0.9795960618329039,0.0,none
