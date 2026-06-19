@@ -107,7 +107,11 @@ not predictively methylation-encoded here.
 n = 1175 LumA/B): the fixed TCGA-discovered panel adds Δ +0.036 over the proliferation prior (combined
 0.960; beats random panels, p = 0.048), and an unbiased re-discovery in METABRIC independently recovers the
 same basal genes (KRT5/14/17/6B, TP63, SOX10, DSG3/DSC3 …), overlapping the TCGA panel 20/30 (hypergeometric
-p ≈ 7×10⁻²⁷). The discovered axis is a reproducible biological signal, not a single-cohort artefact.
+p ≈ 7×10⁻²⁷). The discovered axis is a reproducible biological signal, not a single-cohort artefact. The
+HER2 axis, by contrast, does *not* replicate in METABRIC — there the amplicon anchor is near-complete
+(0.997 vs 0.752 in TCGA), leaving no residual (panel Δ ≈ 0, re-discovery overlap 2/30). Reproducibility
+tracks biological coherence: the pathway-enriched basal axis reproduces; the diffuse HER2 axis was a
+cohort-specific residual.
 
 ## 4. Related work
 
@@ -122,9 +126,10 @@ plus the residual-discovery framing with a matched-random-panel noise control.
 
 Predictive gains over a strong anchor are modest; the method's value is *routing and discovery*, not large
 AUROC wins. Genuine super-additive multi-omics gains are rare on real endpoints (one constructed positive
-control; one real knowledge-anchored gain). The basal discovery is now externally validated in METABRIC
-(replication + independent re-discovery); the HER2 axis and other endpoints still await independent cohorts.
-Discovered axes are candidate hypotheses, not causal claims.
+control; one real knowledge-anchored gain). The basal discovery is externally validated in METABRIC
+(replication + independent re-discovery); the HER2 axis tested negative there (cohort-specific — the amplicon
+anchor is near-complete in METABRIC), so external reproducibility tracks biological coherence. Discovered
+axes are candidate hypotheses, not causal claims.
 
 ## 6. Conclusion
 
