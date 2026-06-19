@@ -551,14 +551,21 @@ def anchored_residual_discovery(anchor_score, X, feature_names, y, top_k=30, cor
     base = gate(X, y); delta = base["delta"]
     null = np.array([gate(X, rng.permutation(y))["delta"] for _ in range(n_perm)])
     perm_p = (1 + int((null >= delta).sum())) / (n_perm + 1)
-    # partial point-biserial correlation of each feature with y, controlling for the anchor
+    # partial point-biserial correlation of each feature with y, controlling for the anchor.
+    # Vectorized residualize-then-correlate: residualize y and every feature on the anchor in a single
+    # matrix pass, then correlate -- numerically identical to a per-feature loop but O(1) passes instead
+    # of O(p), so it scales to hundreds of thousands of features (e.g. genome-wide methylation).
     az = (a - a.mean()) / (a.std() + 1e-9)
-
-    def _resid(v):
-        b = np.polyfit(az, v, 1); return v - (b[0] * az + b[1])
-    ry = _resid(y.astype(float))
-    pc = np.array([np.corrcoef(_resid(X[:, j]), ry)[0, 1] for j in range(X.shape[1])])
-    ca = np.array([np.corrcoef(X[:, j], az)[0, 1] for j in range(X.shape[1])])
+    azc = az - az.mean()
+    den = float(azc @ azc) + 1e-12
+    Xc = X - X.mean(axis=0)
+    rX = Xc - np.outer(azc, (azc @ Xc) / den)            # residual of each feature on the anchor
+    yc = y.astype(float) - y.mean()
+    rY = yc - (float(azc @ yc) / den) * azc              # residual of y on the anchor
+    rXc = rX - rX.mean(axis=0)
+    rYc = rY - rY.mean()
+    pc = (rXc.T @ rYc) / (np.sqrt((rXc * rXc).sum(axis=0)) * np.sqrt(float(rYc @ rYc)) + 1e-12)
+    ca = (Xc.T @ azc) / (np.sqrt((Xc * Xc).sum(axis=0)) * np.sqrt(float(azc @ azc)) + 1e-12)
     novel_idx = [j for j in np.argsort(-np.abs(pc)) if abs(ca[j]) < corr_max][:top_k]
     novel = [(names[j], round(float(pc[j]), 3), round(float(ca[j]), 3)) for j in novel_idx]
     nd = gate(X[:, novel_idx], y); novel_delta = nd["delta"]
