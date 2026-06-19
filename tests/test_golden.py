@@ -269,6 +269,18 @@ def test_external_metabric_guard():
     assert int(float(v["overlap_with_tcga_basal_of30"])) >= 10  # independent re-discovery recovers basal genes
 
 
+def test_external_her2_metabric_guard():
+    """HER2 external validation in METABRIC: an interpretable NEGATIVE -- the amplicon anchor is
+    near-complete there (>=0.95, vs 0.752 in TCGA), so no residual exists and the TCGA HER2 panel adds
+    ~nothing. Reproducibility tracks coherence (basal reproduces; diffuse HER2 is cohort-specific). Skip-safe."""
+    f = REPO / "external_validation_her2_metabric.csv"
+    if not f.exists():
+        pytest.skip("external_validation_her2_metabric.csv not committed")
+    v = pd.read_csv(f).set_index("metric")["value"]
+    assert float(v["amplicon_anchor_auroc_METABRIC"]) >= 0.95     # textbook near-complete in METABRIC
+    assert abs(float(v["tcga_her2_panel_delta"])) <= 0.01         # so no residual; panel adds ~nothing
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""

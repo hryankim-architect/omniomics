@@ -145,6 +145,16 @@ genes KRT5/14/17/6B/16, COL17A1, TP63, SOX10, DSG3/DSC3, KLK5/6/7), overlapping 
 (hypergeometric p ≈ 7×10⁻²⁷). So the discovered axis is a reproducible biological signal, not a TCGA
 artefact. `reports/dmoi_external_metabric.py`; `external_validation_metabric.csv`.
 
+The **HER2 axis, in contrast, does *not* replicate** in METABRIC — for an interpretable reason. There the
+ERBB2 amplicon anchor is near-complete (AUROC 0.997 vs 0.752 in TCGA: METABRIC's HER2 calls are far more
+amplification-concordant), so essentially no residual exists; the TCGA HER2 panel adds Δ +0.000 (p = 1.0)
+and an unbiased re-discovery overlaps the TCGA panel only 2/30 (vs 20/30 for basal). So the discovery's
+reproducibility **tracks its biological coherence**: the clean, pathway-enriched basal/keratinization axis
+reproduces across cohorts, while the diffuse HER2 axis was a *cohort-specific* residual that vanishes where
+the textbook anchor happens to be complete. The method stays well-behaved throughout — it finds nothing
+where there is no residual (METABRIC HER2, like TCGA ER). `reports/dmoi_external_her2_metabric.py`;
+`external_validation_her2_metabric.csv`.
+
 **The gate is capable, not just safe (positive control).** On a methylation-defined endpoint (mean of
 a held-out CpG set RNA cannot see), a disjoint methylation set scores 0.983 vs RNA 0.795; the gate
 engages strongly (β = 4–8) for a significant **+0.047** over the anchor. So the gate captures real
