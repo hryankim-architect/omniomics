@@ -177,6 +177,17 @@ transcriptomic split — random high-variance panels also separate it — so on 
 informative metric is the gene-level replication, which is decisive. `reports/dmoi_external_lung.py`;
 `external_validation_lung.csv`.
 
+*A complement for the saturating null — selection stability.* The panel-vs-random null saturates whenever an
+endpoint is broadly predictable (lung histology above; ER status in the genome-wide methylation run), because
+many panels predict it. `anchored_residual_discovery(stability_reps=N)` adds a robust, difficulty-independent
+signal: the mean recurrence of the discovered panel across 50% subsamples, measured against a permuted-label
+null (subsamples overlap, so raw recurrence is only meaningful relative to label-shuffled data). It returns
+`stability`, `stability_null`, and `stability_gain = stability − stability_null`. On the lung basal axis,
+where panel-vs-random is uninformative (p ≈ 0.22), stability is decisive: the keratinization panel re-selects
+in ~90% of subsamples versus ~1% under permuted labels (**stability_gain ≈ +0.89**), confirming a real,
+reproducible structured axis. The metric ranks real axes far above spurious in-sample noise (≈ +0.7 vs ≈ +0.25
+on synthetic controls), complementing — not replacing — the FDR count and biological coherence.
+
 *Tissue-independence (a third cancer, head & neck).* HNSC is uniformly squamous, so it offers no
 within-cohort histology contrast — but that allows a confound control. Scoring TCGA HNSC (head & neck
 squamous), LUSC (lung squamous) and LUAD (lung adeno) with the breast 30-gene basal panel, the score

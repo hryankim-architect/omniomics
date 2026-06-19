@@ -199,6 +199,27 @@ def test_anchored_residual_discovery():
     assert sum(t.startswith("new") for t in top) >= 3                  # recovers the real new-axis features
     assert all(abs(ca) < 0.6 for _, _, ca in res["novel"])            # all anchor-orthogonal
     assert res["novel_delta"] > res["random_delta_mean"]              # discovery beats matched random panels
+    assert res["stability"] is None                                   # stability off by default (backward-compat)
+
+
+def test_residual_discovery_stability():
+    """Selection-stability statistic: a complement to the panel-vs-random null that stays informative when
+    that null saturates. A planted anchor-orthogonal axis must have stability well above its permuted-label
+    null (large positive stability_gain); the permuted null itself is near chance."""
+    rng = np.random.default_rng(7); n = 400
+    f1 = rng.normal(size=n); f2 = rng.normal(size=n)
+    y = ((f1 + 0.9 * f2) > 0).astype(int)
+    anchor = f1 + rng.normal(0, 0.2, n)
+    true = [f2 + rng.normal(0, 0.5, n) for _ in range(6)]
+    noise = [rng.normal(0, 1, n) for _ in range(40)]
+    X = np.column_stack(true + noise)
+    names = [f"new{i}" for i in range(6)] + [f"noise{i}" for i in range(40)]
+    res = mo.anchored_residual_discovery(anchor, X, names, y, top_k=8, n_perm=8, cv=5, random_state=0,
+                                         stability_reps=20)
+    assert res["stability"] is not None and res["stability_null"] is not None
+    assert res["stability_null"] < 0.3                               # permuted-label null near chance
+    assert res["stability_gain"] > 0.3                               # real axis recurs well above its null
+    assert res["stability"] > res["stability_null"]
 
 
 if __name__ == "__main__":

@@ -576,7 +576,7 @@ def leave_one_cohort_out(X, y, cohort, fit_predict=None):
 def anchored_residual_discovery(anchor_score, X, feature_names, y, top_k=30, corr_max=0.6,
                                 cv=5, random_state=0, n_perm=12, inner_repeats=3,
                                 betas=(0.0, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0), screen_top=None, n_jobs=1,
-                                fdr_q=0.05):
+                                fdr_q=0.05, stability_reps=0):
     """Knowledge-anchored residual discovery with a noise gate -- separate the known, keep only real new.
 
     Synthesises the whole toolkit: (1) anchor on a FIXED prior (`anchor_score`), (2) gate the data `X`
@@ -595,6 +595,11 @@ def anchored_residual_discovery(anchor_score, X, feature_names, y, top_k=30, cor
         1 = serial. Results are identical for any n_jobs (permutations/panels are pre-drawn from the RNG).
     fdr_q : Benjamini-Hochberg FDR level for the additive return key n_fdr = number of anchor-orthogonal
         features associated with y beyond the anchor at this FDR (scale-friendly complement to top_k).
+    stability_reps : if >0, also return `stability` (mean recurrence of the discovered panel across this many
+        50% subsamples), `stability_null` (the same under permuted labels, accounting for subsample overlap),
+        and `stability_gain` = stability - stability_null (default 0 = off, returns None). A complementary
+        signal-vs-noise check that stays informative when the panel-vs-random null saturates on
+        broadly-predictable endpoints: a real axis has a large positive stability_gain, noise ~0.
     Returns dict: auroc_anchor, auroc_combined, delta, perm_p, signal (bool: delta>0 & perm_p<.05),
     novel = [(feature, partial_corr_with_y_given_anchor, corr_with_anchor)], novel_delta, novel_perm_p,
     random_delta (matched control).
@@ -645,11 +650,25 @@ def anchored_residual_discovery(anchor_score, X, feature_names, y, top_k=30, cor
     # Vectorized residualize-then-correlate: residualize y and every feature on the anchor in a single
     # matrix pass, then correlate -- numerically identical to a per-feature loop but O(1) passes instead
     # of O(p), so it scales to hundreds of thousands of features (e.g. genome-wide methylation).
-    Xc = X - X.mean(axis=0)
-    rX = Xc - np.outer(azc, (azc @ Xc) / den)            # residual of each feature on the anchor
-    rXc = rX - rX.mean(axis=0)
-    pc = (rXc.T @ rYc) / (np.sqrt((rXc * rXc).sum(axis=0)) * rYn + 1e-12)
-    ca = (Xc.T @ azc) / (np.sqrt((Xc * Xc).sum(axis=0)) * np.sqrt(float(azc @ azc)) + 1e-12)
+    def _partial(rows=None, yvec=None):
+        """Vectorized (partial corr with y given anchor, corr with anchor) for all features, on a sample
+        subset `rows` (default all) and an optional label vector `yvec` (default y -- used by the stability
+        permutation null). Reused for the discovery ranking and the subsample stability check."""
+        yf = y if yvec is None else yvec
+        Xs = X if rows is None else X[rows]
+        aa = a if rows is None else a[rows]
+        yy = yf if rows is None else yf[rows]
+        azs = (aa - aa.mean()) / (aa.std() + 1e-9); azsc = azs - azs.mean(); ds = float(azsc @ azsc) + 1e-12
+        ryy = (yy.astype(float) - yy.mean()) - (float(azsc @ (yy.astype(float) - yy.mean())) / ds) * azsc
+        ryyc = ryy - ryy.mean(); ryyn = np.sqrt(float(ryyc @ ryyc)) + 1e-12
+        Xsc = Xs - Xs.mean(axis=0)
+        rXs = Xsc - np.outer(azsc, (azsc @ Xsc) / ds)
+        rXsc = rXs - rXs.mean(axis=0)
+        pcs = (rXsc.T @ ryyc) / (np.sqrt((rXsc * rXsc).sum(axis=0)) * ryyn + 1e-12)
+        cas = (Xsc.T @ azsc) / (np.sqrt((Xsc * Xsc).sum(axis=0)) * np.sqrt(ds) + 1e-12)
+        return pcs, cas
+
+    pc, ca = _partial()
     # FDR over per-feature partial correlations: how many ANCHOR-ORTHOGONAL features are associated with y
     # beyond the anchor at a controlled false-discovery rate -- a scale-friendly complement to the fixed
     # top_k. (Additive: existing outputs unchanged.) t-stat for a partial correlation controls 1 covariate.
@@ -664,6 +683,28 @@ def anchored_residual_discovery(anchor_score, X, feature_names, y, top_k=30, cor
     n_fdr = int((ortho & np.isfinite(qvals) & (qvals < fdr_q)).sum())
     novel_idx = [j for j in np.argsort(-np.abs(pc)) if abs(ca[j]) < corr_max][:top_k]
     novel = [(names[j], round(float(pc[j]), 3), round(float(ca[j]), 3)) for j in novel_idx]
+    # Selection STABILITY (additive; default off): how reproducibly the discovered panel is re-selected on
+    # 50% subsamples, measured AGAINST a permuted-label null (subsamples overlap, so raw recurrence is only
+    # meaningful relative to what label-shuffled data produce). This stays informative when the
+    # panel-vs-random null SATURATES on broadly-predictable endpoints (ER status, squamous-vs-adeno): a real
+    # structured axis recurs well above its permuted-label null, noise does not. Cheap (only the vectorized
+    # ranking is recomputed). Returns `stability` and `stability_null` (and `stability_gain` = difference).
+    stability = stability_null = stability_gain = None
+    if stability_reps and stability_reps > 0 and novel_idx:
+        srng = np.random.default_rng(random_state + 9973); m = len(y); nset = set(novel_idx)
+
+        def _recur(yvec):
+            nrec = 0.0
+            for _ in range(int(stability_reps)):
+                rows = srng.choice(m, max(int(0.5 * m), 3), replace=False)
+                pcs, cas = _partial(rows, yvec)
+                sel = set([j for j in np.argsort(-np.abs(pcs)) if abs(cas[j]) < corr_max][:top_k])
+                nrec += len(nset & sel) / len(nset)
+            return nrec / int(stability_reps)
+
+        stability = round(float(_recur(y)), 4)
+        stability_null = round(float(np.mean([_recur(srng.permutation(y)) for _ in range(3)])), 4)
+        stability_gain = round(stability - stability_null, 4)
     nd = gate(X[:, novel_idx], y); novel_delta = nd["delta"]
     # discovery null: is the discovered panel special vs random panels of the SAME size? (the right
     # "not noise" test for a discovery -- more powerful and appropriate than shuffling the labels)
@@ -675,5 +716,6 @@ def anchored_residual_discovery(anchor_score, X, feature_names, y, top_k=30, cor
                 delta=round(float(delta), 4), perm_p=round(perm_p, 4), novel=novel,
                 novel_delta=round(float(novel_delta), 4), random_delta_mean=round(float(rand_deltas.mean()), 4),
                 novel_vs_random_p=round(novel_vs_random_p, 4),
-                n_fdr=n_fdr, fdr_q=fdr_q,
+                n_fdr=n_fdr, fdr_q=fdr_q, stability=stability, stability_null=stability_null,
+                stability_gain=stability_gain,
                 signal=bool(novel_delta > rand_deltas.mean() and novel_vs_random_p < 0.05))
