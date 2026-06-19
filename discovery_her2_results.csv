@@ -1,0 +1,2 @@
+auroc_anchor,auroc_combined,delta,perm_p,novel_delta,random_delta_mean,novel_vs_random_p,signal,n,endpoint,anchor
+0.7521,0.8064,0.0543,0.2222,0.0853,0.0230,0.0244,True,808,HER2_status,ERBB2_amplicon_9genes

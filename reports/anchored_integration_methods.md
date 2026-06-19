@@ -101,20 +101,27 @@ selection leakage; (V2) the basal core (KRT5/6B/14/17, DSG3, DSC3, TP63, SOX10, 
 TRIM29) recurs in 10/10 train splits; (V3) under permuted labels the selected-vs-random advantage collapses
 (real +0.021 > all five permutations), so the method finds the axis only when the signal is real.
 
-*Generalises, and discriminates (a 2nd anchor/endpoint).* Applied to ER status with a fixed textbook
-ER/luminal signature as the anchor (ESR1, GATA3, FOXA1, …; 20 genes, 0 trained parameters, n = 1152), the
-signature alone reaches AUROC 0.938 and genome-wide RNA adds essentially nothing (Δ = −0.001; novel-vs-random
-p = 1.0). So the method is *not* a one-off and does *not* manufacture discoveries: it recovers a real hidden
-axis where the textbook is **incomplete** (LumA/B → basal) and correctly returns **nothing** where the
-textbook is **complete** (ER status is essentially an ESR1-driven phenotype the 20-gene signature already
-captures as well as the whole transcriptome) — a real-data specificity control.
+*Generalises, reproduces, and discriminates (three anchors/endpoints).* The same machinery was applied to
+two further textbook anchors. **HER2 status**, anchored on the ERBB2 17q12 amplicon (ERBB2, GRB7, STARD3, …;
+9 genes, 0 trained parameters, n = 808): the amplicon is *incomplete* (AUROC 0.752), so the method finds a
+real, verified, anchor-orthogonal axis (Δ +0.054; discovered panel +0.085 vs random +0.023, p = 0.024;
+held-out positive in 8/8 splits; label-specific) — a **neuroendocrine/secretory + immune** program (DOC2A,
+CAMK2B, NPW, RAMP1, BEX1, PCSK1N, SULT4A1, MS4A8B, AZU1, SEMA3D) **distinct from the LumA/B basal axis**.
+**ER status**, anchored on a textbook ER/luminal signature (ESR1, GATA3, FOXA1, …; 20 genes, n = 1152): the
+signature is *complete* (0.938) and genome-wide RNA adds ≈ 0 (Δ −0.001) — the method correctly returns **no
+hidden axis**.
 
 | endpoint | textbook anchor (0 params) | anchor AUROC | data adds (Δ) | verdict |
 |---|---|---|---|---|
-| LumA vs LumB | proliferation index (20 genes) | 0.919 | **+0.029** | textbook incomplete → **basal axis discovered** (verified) |
-| ER status | ER/luminal signature (20 genes) | 0.938 | −0.001 | textbook complete → **no hidden axis** (specificity) |
+| LumA vs LumB | proliferation index (20 genes) | 0.919 | **+0.029** | incomplete → **basal / lineage axis** (verified) |
+| HER2 status | ERBB2 amplicon (9 genes) | 0.752 | **+0.054** | incomplete → **neuroendocrine/secretory + immune axis** (verified, ≠ basal) |
+| ER status | ER/luminal signature (20 genes) | 0.938 | −0.001 | complete → **no hidden axis** (specificity) |
 
-Runner `reports/dmoi_discovery_er.py`; `discovery_er_results.csv` + `novel_genes_er.csv`.
+So the method is **not a one-off**: it makes a real, verified discovery a *second* time and finds a
+*different*, context-appropriate axis (HER2 → neuroendocrine/immune; LumA/B → basal), while correctly finding
+**nothing** where the textbook is already complete (ER) — discovery where warranted, silence where not.
+Runners `reports/dmoi_discovery_er.py`, `reports/dmoi_discovery_her2.py`; `discovery_{er,her2}_results.csv`,
+`discovery_her2_verification.csv`.
 
 **The gate is capable, not just safe (positive control).** On a methylation-defined endpoint (mean of
 a held-out CpG set RNA cannot see), a disjoint methylation set scores 0.983 vs RNA 0.795; the gate

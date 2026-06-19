@@ -213,6 +213,26 @@ def test_discovery_generalization_guard():
     assert float(d["novel_vs_random_p"]) >= 0.10         # no spurious discovery (specificity)
 
 
+def test_her2_discovery_guard():
+    """2nd POSITIVE discovery (HER2): the ERBB2 amplicon textbook is incomplete, the method finds a real,
+    verified, anchor-orthogonal axis (distinct from basal), beating random panels and held-out + label-
+    specific. Skip-safe until discovery_her2_results.csv exists."""
+    f = REPO / "discovery_her2_results.csv"
+    if not f.exists():
+        pytest.skip("discovery_her2_results.csv not committed (dmoi_discovery_her2.py not run yet)")
+    d = pd.read_csv(f).iloc[0]
+    assert float(d["auroc_anchor"]) < 0.85                       # amplicon textbook is incomplete
+    assert float(d["delta"]) > 0.02                              # data adds a real gain over the anchor
+    assert float(d["novel_delta"]) > float(d["random_delta_mean"])
+    assert float(d["novel_vs_random_p"]) <= 0.05                 # discovery is significant
+    v = REPO / "discovery_her2_verification.csv"
+    if v.exists():
+        vv = pd.read_csv(v).set_index("check")["value"]
+        assert float(vv["heldout_selected_delta_mean"]) > float(vv["heldout_random_delta_mean"])  # held-out
+        assert float(vv["heldout_frac_splits_positive"]) >= 0.9
+        assert int(float(vv["permuted_real_gt_all_perm"])) == 1                                   # label-specific
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""
