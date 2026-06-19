@@ -6,7 +6,7 @@ date: "2026"
 
 **Running title:** Knowledge-anchored residual discovery
 
-**Author:** H. Ryan Kim¹ *(ORCID: 0000-0000-0000-0000 — to be confirmed at submission)*
+**Author:** H. Ryan Kim¹ ([ORCID: 0000-0002-1869-0412](https://orcid.org/0000-0002-1869-0412))
 
 **¹** Independent researcher (omniomics project).
 
@@ -52,10 +52,12 @@ biological coherence.
 ## 1. Introduction
 
 The prevailing premise that adding omics layers improves prediction is contradicted by careful benchmarks:
-a large TCGA survival study found adding data types most often *hurt* performance, with mRNA (±miRNA)
-sufficient for most cancers [1]; flexible late-fusion shows the dominant modality is task-specific and
-pan-cancer multi-omics barely exceeds the best single view [2]; and naive concatenation routinely
-underperforms structured fusion [3]. The honest objective is therefore not "always fuse" but to *never do
+a large-scale TCGA benchmark across 14 cancers found that adding data types most often *hurt* survival
+prediction, with mRNA (±miRNA) sufficient for most cancers [1]; multimodal survival models often fail to
+beat a small two-modality subset, so the useful combination is task-specific and narrow [2]; and naive
+concatenation underperforms — a principal-component baseline is hard to beat, so adaptive weighting is
+needed to realise any gain from fusion [3,4]. The honest objective
+is therefore not "always fuse" but to *never do
 worse than the best single modality, and improve on it only where another modality carries signal the leader
 cannot.* We formalise such an integrator, generalise its anchor from a data modality to established
 knowledge, and repurpose the construction as an interpretable discovery engine — then ask, in an independent
@@ -75,7 +77,7 @@ preference.
 Luminal A vs B is, by textbook, a proliferation distinction. A 20-gene proliferation index with zero trained
 parameters reaches AUROC 0.919 — close to the fully trained 1,500-gene model (0.942) — and gating
 genome-wide data onto this fixed prior reaches 0.947 (Δ +0.029), exceeding the pure data model. With the
-Horvath epigenetic clock as the anchor for normal-tissue age, the clock alone (0.947) already beats RNA
+Horvath epigenetic clock [9] as the anchor for normal-tissue age, the clock alone (0.947) already beats RNA
 (0.911) and data adds ≈ 0: the textbook suffices and the gate says so.
 
 **The residual names a verified new axis.** Mining the proliferation-anchored residual surfaces the basal /
@@ -128,9 +130,9 @@ value is finding real, robust biology, not inflated clinical claims.
 ## 3. Discussion
 
 The method instantiates and unifies three established traditions — clinical-offset / incremental-value
-modelling (an established model as offset, omics on the residual; the closest methodological twin) [4];
-biologically-informed models that bake known biology into structure [5,6]; and machine learning on
-established gene signatures [7]. Its specific contribution is a packaged, never-below-anchor, margin-gated
+modelling (an established model as offset, omics on the residual; the closest methodological twin) [5];
+biologically-informed models that bake known biology into structure [6,7]; and machine learning on
+established gene signatures [8]. Its specific contribution is a packaged, never-below-anchor, margin-gated
 residual on a *zero-parameter* prior, plus a residual-discovery framing with an explicit noise control, and
 a demonstration that the discovered axes' external reproducibility is predictable from their biological
 coherence. The honest scope: predictive gains over a strong anchor are modest — the value is *routing and
@@ -194,12 +196,14 @@ the discovered biology, not a cohort artefact.](figs/discovery_summary.png)
 
 ## References
 
-1. Li et al. Does combining numerous data types improve or hinder survival prediction? *BMC Med Inform Decis Mak* (2024).
-2. Nikolaou et al. Flexible late-fusion for multi-omics survival. *Cancer Res* (2023).
-3. Makrodimitris et al. Linear vs non-linear joint embedding for multi-omics. *Brief Bioinform* (2023).
-4. Volkmann et al. A plea for taking all available clinical information into account when assessing the predictive value of omics data. *BMC Med Res Methodol* (2019).
-5. Elmarakeby et al. Biologically informed deep neural network for prostate cancer discovery (P-NET). *Nature* (2021).
-6. Liu et al. Pathformer: a pathway-informed transformer for multi-omics. *Bioinformatics* (2024).
-7. Sarafidis et al. A machine-learning model on established signatures for early breast cancer. *ESMO Open* (2024).
-8. Ding, Li, Narasimhan & Tibshirani. Cooperative learning for multiview analysis. *PNAS* (2022).
-9. Horvath. DNA methylation age of human tissues and cell types. *Genome Biology* (2013).
+*References verified against PubMed; DOIs link to the source.*
+
+1. Li Y, Herold T, Mansmann U, Hornung R. Does combining numerous data types in multi-omics data improve or hinder performance in survival prediction? Insights from a large-scale benchmark study. *BMC Med Inform Decis Mak* 2024;24(1):244. doi:[10.1186/s12911-024-02642-9](https://doi.org/10.1186/s12911-024-02642-9).
+2. Ellen JG, Jacob E, Nikolaou N, Markuzon N. Autoencoder-based multimodal prediction of non-small cell lung cancer survival. *Sci Rep* 2023;13(1):15761. doi:[10.1038/s41598-023-42365-x](https://doi.org/10.1038/s41598-023-42365-x).
+3. Makrodimitris S, Pronk B, Abdelaal T, Reinders M. An in-depth comparison of linear and non-linear joint embedding methods for bulk and single-cell multi-omics. *Brief Bioinform* 2023;25(1):bbad416. doi:[10.1093/bib/bbad416](https://doi.org/10.1093/bib/bbad416).
+4. Ding DY, Li S, Narasimhan B, Tibshirani R. Cooperative learning for multiview analysis. *Proc Natl Acad Sci USA* 2022;119(38):e2202113119. doi:[10.1073/pnas.2202113119](https://doi.org/10.1073/pnas.2202113119).
+5. Volkmann A, De Bin R, Sauerbrei W, Boulesteix AL. A plea for taking all available clinical information into account when assessing the predictive value of omics data. *BMC Med Res Methodol* 2019;19(1):162. doi:[10.1186/s12874-019-0802-0](https://doi.org/10.1186/s12874-019-0802-0).
+6. Elmarakeby HA, et al. Biologically informed deep neural network for prostate cancer discovery. *Nature* 2021;598(7880):348–352. doi:[10.1038/s41586-021-03922-4](https://doi.org/10.1038/s41586-021-03922-4).
+7. Liu X, et al. Pathformer: a biological pathway informed transformer for disease diagnosis and prognosis using multi-omics data. *Bioinformatics* 2024;40(5):btae316. doi:[10.1093/bioinformatics/btae316](https://doi.org/10.1093/bioinformatics/btae316).
+8. Boscolo Bielo L, et al. A machine learning assay to predict disease recurrence in hormone receptor-positive breast cancer. *ESMO Open* 2026;11(3):106064. doi:[10.1016/j.esmoop.2026.106064](https://doi.org/10.1016/j.esmoop.2026.106064).
+9. Horvath S. DNA methylation age of human tissues and cell types. *Genome Biol* 2013;14(10):R115. doi:[10.1186/gb-2013-14-10-r115](https://doi.org/10.1186/gb-2013-14-10-r115).

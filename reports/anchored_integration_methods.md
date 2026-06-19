@@ -284,7 +284,7 @@ into a never-below-anchor tool, with a clean curated-biomarker demonstration of 
 | Prior study | Finding | Relation to this work |
 |---|---|---|
 | Li et al., *BMC Med Inform Decis Mak* 2024 — 31-combination TCGA survival benchmark | Adding omics types most often *hurt* prediction; mRNA (±miRNA) sufficient for most cancers; methylation helped only some | Independent confirmation of our headline: one modality dominates per endpoint; curated methylation helps only on specific tasks |
-| Nikolaou et al., *Cancer Res* 2023 — flexible late fusion | Dominant modality is task-specific; weight by individual CV success; pan-cancer multi-omics barely above the best single modality | Empirical basis for `select_anchor` (per-task, CV-chosen anchor) |
+| Ellen, Nikolaou et al., *Sci Rep* 2023 — autoencoder multimodal NSCLC survival | Best multimodal model rarely beats a small two-modality subset; useful combination is task-specific and narrow | Empirical basis for `select_anchor` (per-task, CV-chosen anchor) |
 | Makrodimitris et al., *Brief Bioinform* 2023; Montesinos-López et al., *Front Genet* 2025 | Naive/early concatenation underperforms; PC-concatenation is hard to beat | Why we anchor and gate the residual rather than concatenate |
 | Ding, Li, Narasimhan & Tibshirani, *PNAS* 2022 — cooperative learning | Degree of fusion (early↔late) chosen adaptively by CV via an agreement penalty | `anchored_gate` is a constrained, never-below-anchor special case of this |
 | Tong et al., *BMC Med Inform Decis Mak* 2020; Spooner et al., *Brief Bioinform* 2024 | Complementary modalities + structured/ensemble late fusion give modest gains | The Δ > 0 regime the gate is designed to capture when it genuinely exists |
@@ -296,11 +296,20 @@ results align with the skeptical-benchmark camp (esp. Li 2024, Nikolaou 2023) an
 never-below-anchor gated integrator plus a clean curated-biomarker (Horvath-clock) case of methylation
 genuinely winning.
 
+> **Citation note.** The canonical, PubMed-verified, DOI-linked reference list for this work is in
+> `reports/anchored_integration_manuscript.md` (§References). Two earlier entries were corrected on
+> re-verification: the late-fusion NSCLC-survival paper is **Ellen, Jacob, Nikolaou & Markuzon, *Sci Rep*
+> 2023** (10.1038/s41598-023-42365-x) — not *Cancer Res* — and the joint-embedding comparison is
+> **Makrodimitris et al., *Brief Bioinform* 2023** (10.1093/bib/bbad416). A third earlier entry
+> ("Sarafidis, *ESMO Open* 2024") was a mis-citation and is replaced in the manuscript by Boscolo Bielo
+> et al., *ESMO Open* 2026 (10.1016/j.esmoop.2026.106064).
+
 *References:* Li et al., Does combining numerous data types improve or hinder survival prediction? A
-large-scale benchmark, *BMC Med Inform Decis Mak* 2024; Nikolaou et al., Flexible late-fusion for
-multi-omics survival, *Cancer Res* 2023; Makrodimitris et al., Linear vs non-linear joint embedding for
-multi-omics, *Brief Bioinform* 2023; Ding, Li, Narasimhan & Tibshirani, Cooperative learning for
-multiview analysis, *PNAS* 2022 (10.1073/pnas.2202113119); Hauptmann et al., Fair comparison of
+large-scale benchmark, *BMC Med Inform Decis Mak* 2024 (10.1186/s12911-024-02642-9); Ellen, Jacob, Nikolaou
+& Markuzon, Autoencoder-based multimodal prediction of non-small cell lung cancer survival, *Sci Rep* 2023
+(10.1038/s41598-023-42365-x); Makrodimitris et al., An in-depth comparison of linear and non-linear joint
+embedding methods for bulk and single-cell multi-omics, *Brief Bioinform* 2023 (10.1093/bib/bbad416); Ding,
+Li, Narasimhan & Tibshirani, Cooperative learning for multiview analysis, *PNAS* 2022 (10.1073/pnas.2202113119); Hauptmann et al., Fair comparison of
 multi-omics integration architectures, *BMC Bioinformatics* 2022; Montesinos-López et al., Genomic
 prediction powered by multi-omics, *Front. Genet.* 2025; Tong et al., Deep-learning feature-level
 integration for breast-cancer survival, *BMC Med Inform Decis Mak* 2020; Spooner et al., Benchmarking
