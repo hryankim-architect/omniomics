@@ -233,6 +233,30 @@ def test_her2_discovery_guard():
         assert int(float(vv["permuted_real_gt_all_perm"])) == 1                                   # label-specific
 
 
+def test_discovery_enrichment_guard():
+    """Biological characterization: the basal discovery panel is significantly enriched for the
+    keratinization / cornified-envelope / epidermis program (a real coherent signature). Skip-safe."""
+    f = REPO / "discovery_enrichment.csv"
+    if not f.exists():
+        pytest.skip("discovery_enrichment.csv not committed")
+    df = pd.read_csv(f)
+    basal = df[df["panel"] == "basal_LumAB"]
+    assert len(basal) >= 3
+    assert float(basal["p_adj"].min()) < 1e-6
+    assert basal["term"].str.contains("ornif|eratin|pidermis|skin", case=False, regex=True).any()
+
+
+def test_methylation_modality_guard():
+    """Modality generalization: the discovery runs on methylation features (modality-agnostic) and
+    correctly finds no axis beyond the RNA anchor on LumA/B (both data variants Δ ≈ 0). Skip-safe."""
+    f = REPO / "methylation_discovery_results.csv"
+    if not f.exists():
+        pytest.skip("methylation_discovery_results.csv not committed")
+    df = pd.read_csv(f)
+    assert (df["anchor_auroc"].astype(float) >= 0.88).all()
+    assert (df["delta"].astype(float).abs() <= 0.02).all()       # no methylation axis beyond the RNA anchor
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""

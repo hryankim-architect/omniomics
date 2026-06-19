@@ -101,6 +101,13 @@ selection leakage; (V2) the basal core (KRT5/6B/14/17, DSG3, DSC3, TP63, SOX10, 
 TRIM29) recurs in 10/10 train splits; (V3) under permuted labels the selected-vs-random advantage collapses
 (real +0.021 > all five permutations), so the method finds the axis only when the signal is real.
 
+*Biological characterization.* g:Profiler over-representation confirms the basal panel is a coherent
+program — **cornified-envelope formation / keratinization / epidermis development** (Reactome p ≈ 8×10⁻¹¹;
+9/30 genes in the cornified-envelope set) — i.e. a textbook basal/squamous-lineage signature, not a
+statistical fluke. The HER2 panel, by contrast, is verified-predictive but shows **no single enriched
+pathway** (a diffuse, multi-program set — neuroendocrine/secretory and immune by individual-gene function),
+an honest reminder that a verified predictive axis need not map to one annotated pathway. `discovery_enrichment.csv`.
+
 *Generalises, reproduces, and discriminates (three anchors/endpoints).* The same machinery was applied to
 two further textbook anchors. **HER2 status**, anchored on the ERBB2 17q12 amplicon (ERBB2, GRB7, STARD3, …;
 9 genes, 0 trained parameters, n = 808): the amplicon is *incomplete* (AUROC 0.752), so the method finds a
@@ -122,6 +129,13 @@ So the method is **not a one-off**: it makes a real, verified discovery a *secon
 **nothing** where the textbook is already complete (ER) — discovery where warranted, silence where not.
 Runners `reports/dmoi_discovery_er.py`, `reports/dmoi_discovery_her2.py`; `discovery_{er,her2}_results.csv`,
 `discovery_her2_verification.csv`.
+
+*Modality-agnostic.* The discovery operates on any feature matrix, not just RNA. Run with the DATA modality
+set to DNA methylation (450K CpGs) and the same RNA proliferation prior, on LumA/B, it runs unchanged but
+correctly finds **no methylation axis**: random genome-wide CpGs add ≈ 0 (Δ −0.001) and even basal-gene-
+targeted CpGs add ≈ 0 (Δ +0.000; basal methylation alone only 0.756). So the basal/lineage axis is a
+*transcriptional* signal, not predictively methylation-encoded for this endpoint — and the method does not
+manufacture a methylation discovery. `reports/dmoi_discovery_methylation.py`; `methylation_discovery_results.csv`.
 
 **The gate is capable, not just safe (positive control).** On a methylation-defined endpoint (mean of
 a held-out CpG set RNA cannot see), a disjoint methylation set scores 0.983 vs RNA 0.795; the gate
