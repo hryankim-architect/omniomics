@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "omniomics"
-version = "0.2.0"
-description = "Anchored multi-omics integration + knowledge-anchored residual discovery (never below the best single view), distilled from a GSE57577 reproduction"
+version = "0.3.0"
+description = "Anchored multi-omics integration + knowledge-anchored residual discovery (never below the best single view), with out-of-core scaling and gated learned-representation adoption"
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }

@@ -5,4 +5,4 @@ analysis into reusable components that run on any dataset described by a manifes
 and harmonizes many studies onto a common feature space for cross-study analysis.
 """
 __all__ = ["geo", "loaders", "expression", "harmonize", "multiomics", "scale", "representations"]
-__version__ = "0.2.0"
+__version__ = "0.3.0"
