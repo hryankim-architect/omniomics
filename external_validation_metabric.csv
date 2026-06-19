@@ -1,0 +1,10 @@
+test,metric,value,note
+replication,n,1175,METABRIC LumA/B (independent expression cohort)
+replication,proliferation_anchor_auroc,0.925,zero-param proliferation anchor (matches TCGA 0.919)
+replication,tcga_basal_panel_combined,0.960,TCGA-discovered basal panel gated onto the anchor
+replication,tcga_basal_panel_delta,0.036,TCGA basal panel adds beyond proliferation in METABRIC (no selection leakage: panel fixed in TCGA)
+replication,random_panel_mean_delta,0.009,matched random 28-gene panels
+replication,basal_vs_random_p,0.048,0/20 random panels beat the basal panel
+rediscovery,novel_delta,0.047,METABRIC unbiased re-discovery (proliferation anchor)
+rediscovery,overlap_with_tcga_basal_of30,20,top-30 novel = KRT5/14/17/6B/16 COL17A1 TP63 SOX10 DSG3 DSC3 KLK5/6/7 TRIM29 MIA ...
+rediscovery,overlap_hypergeometric_p,6.85e-27,independent re-ranking recovers the same basal genes
