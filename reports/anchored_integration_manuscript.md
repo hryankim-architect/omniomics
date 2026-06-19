@@ -34,9 +34,14 @@ replicate in METABRIC because the amplicon anchor is near-complete there (0.997)
 breast-cancer- or expression-specific: on an NSCLC anti-PD-1 immunotherapy cohort (n = 227, mutation/clinical
 features), anchored on the textbook biomarker tumour mutational burden, the residual independently recovers
 the field's other established biomarkers — PD-L1 (orthogonal to TMB), EGFR and STK11 mutation (resistance)
-(panel Δ +0.061 vs +0.006, p = 0.038). **Conclusion.** Anchor on
+(panel Δ +0.061 vs +0.006, p = 0.038). Finally, the discovered axis replicates across *cancers*: in TCGA
+lung (LUAD vs LUSC, n = 1,129), the same proliferation-anchored residual recovers the squamous/keratinization
+program, overlapping the breast basal panel 10/30 (p ≈ 3×10⁻¹⁶) — the same genes in a different cancer.
+**Conclusion.** Anchor on
 established biology and let a gate decide, honestly, whether genome-wide data beats it; where it does, the
-residual names the new axis. External reproducibility tracks biological coherence.
+residual names the new axis — one that reproduces across cohorts (METABRIC) and across cancers (lung), and
+generalises to a different disease and feature type (NSCLC immunotherapy). External reproducibility tracks
+biological coherence.
 
 ## 1. Introduction
 
@@ -138,7 +143,10 @@ adds a real axis where the textbook is incomplete (LumA/B proliferation → basa
 neuroendocrine/immune, +0.054) and nothing where it is complete (ER signature, −0.001; specificity).
 **(B)** In the independent METABRIC cohort, an unbiased re-discovery recovers the basal axis (20/30 overlap
 with the TCGA panel; direct replication Δ +0.036, p = 0.048) but not the HER2 axis (2/30), because the
-amplicon anchor is already complete in METABRIC.](figs/discovery_summary.png)
+amplicon anchor is already complete in METABRIC. **(C)** Cross-cancer replication: in TCGA lung (LUAD vs
+LUSC, n = 1,129) the same proliferation-anchored residual re-discovers the squamous/keratinization program,
+overlapping the breast basal panel 10/30 (KRT5/14/6B, TP63, DSG3/DSC3, FAT2…; hypergeometric p ≈ 3×10⁻¹⁶) —
+the discovered biology, not a cohort artefact.](figs/discovery_summary.png)
 
 ## References
 
