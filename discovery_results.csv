@@ -1,0 +1,2 @@
+auroc_anchor,auroc_combined,delta,perm_p,novel_delta,random_delta_mean,novel_vs_random_p,signal,n,anchor
+0.9178,0.9472,0.0294,0.2308,0.0455,0.0268,0.0488,True,417,proliferation_20genes

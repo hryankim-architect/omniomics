@@ -81,6 +81,20 @@ age, the clock alone scores 0.947 — already above RNA's 0.911 — and gating R
 the textbook suffices and the gate says so. Packaged as `knowledge_anchored_integrate` + `signature_score`;
 runner `reports/dmoi_knowledge_anchor.py`; `knowledge_anchor_results.csv`.
 
+**Knowledge-anchored residual discovery — separate the known, keep the real new.** The capstone combines
+the whole toolkit (`anchored_residual_discovery`): anchor on the textbook prior, gate the data onto its
+residual, test that the residual is signal-not-noise, and surface the features driving it that are
+*orthogonal* to the anchor — candidate biology *beyond* the textbook. On LumA/B (anchor = proliferation),
+the top anchor-orthogonal genes are unambiguous and coherent: **KRT5/14/17/6B, TP63, DSG3/DSC3, SOX10,
+COL17A1, KLK5/7/8** — the classic **basal / squamous-lineage axis** (partial correlations ≈ 0.46 controlling
+for proliferation). So beyond the textbook "LumA/B = proliferation" the data recovers a real *lineage* axis;
+the discovered 30-gene panel gated onto the prior reaches 0.963 and beats matched random panels of the same
+size (Δ +0.045 vs +0.027; only 1/40 random panels match it, p ≈ 0.05). Honest scope: the *predictive gain*
+is modest (the candidate pool is itself subtype-enriched, so random panels also add ~+0.027 and the
+label-permutation null on the raw gain is non-significant) — the method's value is **interpretable
+discovery** (it reliably isolates a coherent, anchor-orthogonal new axis) more than a large AUROC win.
+Runner `reports/dmoi_residual_discovery.py`; `discovery_results.csv` + `novel_genes.csv`.
+
 **The gate is capable, not just safe (positive control).** On a methylation-defined endpoint (mean of
 a held-out CpG set RNA cannot see), a disjoint methylation set scores 0.983 vs RNA 0.795; the gate
 engages strongly (β = 4–8) for a significant **+0.047** over the anchor. So the gate captures real

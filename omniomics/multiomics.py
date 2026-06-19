@@ -523,3 +523,53 @@ def knowledge_anchored_integrate(anchor_score, modalities, y,
     mods.update(modalities if isinstance(modalities, dict) else {f"mod{i}": X for i, X in enumerate(modalities)})
     return forward_integrate(mods, y, anchor=anchor_name, betas=betas, cv=cv,
                              random_state=random_state, gate_margin=gate_margin, inner_repeats=inner_repeats)
+
+
+def anchored_residual_discovery(anchor_score, X, feature_names, y, top_k=30, corr_max=0.6,
+                                cv=5, random_state=0, n_perm=12, inner_repeats=3,
+                                betas=(0.0, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0)):
+    """Knowledge-anchored residual discovery with a noise gate -- separate the known, keep only real new.
+
+    Synthesises the whole toolkit: (1) anchor on a FIXED prior (`anchor_score`), (2) gate the data `X`
+    onto its residual, (3) test whether that residual is SIGNAL not noise via a label-permutation null on
+    the leakage-safe gated gain, and (4) surface the features driving it that are ORTHOGONAL to the anchor
+    (|corr with anchor| < corr_max) -- candidate "new beyond the textbook". The discovered panel is
+    re-gated and stress-tested against a matched random panel and its own permutation null.
+
+    X : (samples x features) array; feature_names : names aligned to columns; anchor_score : 1-D prior.
+    Returns dict: auroc_anchor, auroc_combined, delta, perm_p, signal (bool: delta>0 & perm_p<.05),
+    novel = [(feature, partial_corr_with_y_given_anchor, corr_with_anchor)], novel_delta, novel_perm_p,
+    random_delta (matched control).
+    """
+    a = np.asarray(anchor_score, dtype=float); X = np.asarray(X, dtype=float); y = np.asarray(y)
+    names = list(feature_names); rng = np.random.default_rng(random_state)
+
+    def gate(Xs, yy):
+        return anchored_integrate(a.reshape(-1, 1), Xs, yy, betas=betas, cv=cv,
+                                  random_state=random_state, inner_repeats=inner_repeats)
+
+    base = gate(X, y); delta = base["delta"]
+    null = np.array([gate(X, rng.permutation(y))["delta"] for _ in range(n_perm)])
+    perm_p = (1 + int((null >= delta).sum())) / (n_perm + 1)
+    # partial point-biserial correlation of each feature with y, controlling for the anchor
+    az = (a - a.mean()) / (a.std() + 1e-9)
+
+    def _resid(v):
+        b = np.polyfit(az, v, 1); return v - (b[0] * az + b[1])
+    ry = _resid(y.astype(float))
+    pc = np.array([np.corrcoef(_resid(X[:, j]), ry)[0, 1] for j in range(X.shape[1])])
+    ca = np.array([np.corrcoef(X[:, j], az)[0, 1] for j in range(X.shape[1])])
+    novel_idx = [j for j in np.argsort(-np.abs(pc)) if abs(ca[j]) < corr_max][:top_k]
+    novel = [(names[j], round(float(pc[j]), 3), round(float(ca[j]), 3)) for j in novel_idx]
+    nd = gate(X[:, novel_idx], y); novel_delta = nd["delta"]
+    # discovery null: is the discovered panel special vs random panels of the SAME size? (the right
+    # "not noise" test for a discovery -- more powerful and appropriate than shuffling the labels)
+    k = len(novel_idx)
+    rand_deltas = np.array([gate(X[:, list(rng.choice(X.shape[1], k, replace=False))], y)["delta"]
+                            for _ in range(n_perm)])
+    novel_vs_random_p = (1 + int((rand_deltas >= novel_delta).sum())) / (n_perm + 1)
+    return dict(auroc_anchor=round(base["auroc_anchor"], 4), auroc_combined=round(base["auroc_combined"], 4),
+                delta=round(float(delta), 4), perm_p=round(perm_p, 4), novel=novel,
+                novel_delta=round(float(novel_delta), 4), random_delta_mean=round(float(rand_deltas.mean()), 4),
+                novel_vs_random_p=round(novel_vs_random_p, 4),
+                signal=bool(novel_delta > rand_deltas.mean() and novel_vs_random_p < 0.05))

@@ -167,6 +167,23 @@ def test_knowledge_anchor_guard():
         assert float(cl["anchor_auroc"]) >= float(cl["rna_alone_auroc"])      # clock anchor beats RNA
 
 
+def test_residual_discovery_guard():
+    """Knowledge-anchored residual discovery: the gate stays >= the textbook anchor, the discovered
+    anchor-orthogonal panel beats matched random panels, and it is biologically coherent (the LumA/B
+    residual recovers basal/lineage markers). Skip-safe until dmoi_residual_discovery.py produces the CSVs."""
+    f = REPO / "discovery_results.csv"
+    if not f.exists():
+        pytest.skip("discovery_results.csv not committed (dmoi_residual_discovery.py not run yet)")
+    d = pd.read_csv(f).iloc[0]
+    assert float(d["auroc_anchor"]) >= 0.88                                   # textbook anchor is strong
+    assert float(d["auroc_combined"]) >= float(d["auroc_anchor"]) - 0.005     # never below the anchor
+    assert float(d["novel_delta"]) > float(d["random_delta_mean"])           # discovery beats random panels
+    nf = REPO / "novel_genes.csv"
+    if nf.exists():
+        genes = set(pd.read_csv(nf)["gene"])
+        assert len(genes & {"TP63", "KRT5", "KRT14", "KRT17", "KRT6B", "SOX10", "DSG3", "DSC3"}) >= 2
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""

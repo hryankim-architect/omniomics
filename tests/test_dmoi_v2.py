@@ -185,6 +185,22 @@ def test_knowledge_anchored_integrate():
     assert "data" in res["added"]
 
 
+def test_anchored_residual_discovery():
+    rng = np.random.default_rng(5); n = 500
+    f1 = rng.normal(size=n); f2 = rng.normal(size=n)                    # independent known/new axes
+    y = ((f1 + 0.9 * f2) > 0).astype(int)
+    anchor = f1 + rng.normal(0, 0.2, n)                                 # fixed prior tracks the KNOWN axis f1
+    true = [f2 + rng.normal(0, 0.5, n) for _ in range(5)]              # 5 features carry the NEW axis f2
+    noise = [rng.normal(0, 1, n) for _ in range(25)]                   # 25 pure-noise features
+    X = np.column_stack(true + noise)
+    names = [f"new{i}" for i in range(5)] + [f"noise{i}" for i in range(25)]
+    res = mo.anchored_residual_discovery(anchor, X, names, y, top_k=5, n_perm=12, cv=5, random_state=0)
+    top = [g for g, _, _ in res["novel"]]
+    assert sum(t.startswith("new") for t in top) >= 3                  # recovers the real new-axis features
+    assert all(abs(ca) < 0.6 for _, _, ca in res["novel"])            # all anchor-orthogonal
+    assert res["novel_delta"] > res["random_delta_mean"]              # discovery beats matched random panels
+
+
 if __name__ == "__main__":
     test_v2_columns_and_interaction()
     test_reliability_weighting_shifts_pole()
