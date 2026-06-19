@@ -1,0 +1,3 @@
+cohort,endpoint,n,events,basal_HR,basal_HR_p,basal_HR_adj_prolif,basal_adj_p,prolif_HR_adj,prolif_adj_p,km_logrank_p,note
+TCGA-BRCA,overall_survival,866,132,1.012,0.8933,0.922,0.3589,0.765,0.0011,0.2875,basal/keratinization score vs OS; adjusted model tests independence from the proliferation anchor
+TCGA-BRCA,ER_negative_status,1152,260,,,,,,,,"clinical correlate (POSITIVE): basal score marks ER-negative/basal-like disease, AUROC=0.699"

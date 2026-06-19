@@ -318,6 +318,35 @@ def test_external_lung_guard():
         assert len(genes & {"KRT5", "KRT14", "KRT6B", "TP63", "DSG3", "DSC3"}) >= 3
 
 
+def test_external_hnsc_guard():
+    """Third cross-cancer test (head & neck): the breast basal panel is a TISSUE-INDEPENDENT squamous
+    marker -- it separates squamous (HNSC+LUSC) from adeno (LUAD), with HNSC (head & neck) and LUSC (lung),
+    two different tissues, both scoring high; and within HNSC it tracks differentiation grade (G1>G3).
+    Skip-safe until dmoi_external_hnsc.py produces the CSV."""
+    f = REPO / "external_validation_hnsc.csv"
+    if not f.exists():
+        pytest.skip("external_validation_hnsc.csv not committed (dmoi_external_hnsc.py not run yet)")
+    d = pd.read_csv(f).iloc[0]
+    assert float(d["auroc_squamous_vs_adeno"]) >= 0.85               # basal panel marks squamous lineage
+    assert float(d["median_HNSC"]) > float(d["median_LUAD"])        # head&neck squamous scores above lung adeno
+    assert float(d["median_LUSC"]) > float(d["median_LUAD"])        # lung squamous too (tissue-independent)
+    assert float(d["within_hnsc_G1gtG3_p"]) <= 0.05                 # tracks differentiation grade
+
+
+def test_clinical_survival_guard():
+    """Clinical significance (honest negative locked): the basal/keratinization axis is NOT prognostic for
+    overall survival in TCGA-BRCA (univariate Cox p not significant, adjusted for proliferation also n.s.),
+    while it does mark ER-negative/basal-like disease -- identity, not outcome. Skip-safe."""
+    f = REPO / "clinical_basal_survival.csv"
+    if not f.exists():
+        pytest.skip("clinical_basal_survival.csv not committed (dmoi_clinical_survival.py not run yet)")
+    d = pd.read_csv(f)
+    os_row = d[d["endpoint"] == "overall_survival"].iloc[0]
+    assert float(os_row["basal_HR_p"]) > 0.05         # basal axis not prognostic for OS (honest negative)
+    assert float(os_row["basal_adj_p"]) > 0.05        # nor independently of proliferation
+    assert "ER_negative_status" in set(d["endpoint"])  # positive identity correlate recorded
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""

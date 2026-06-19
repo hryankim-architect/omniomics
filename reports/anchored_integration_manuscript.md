@@ -6,7 +6,13 @@ date: "2026"
 
 **Running title:** Knowledge-anchored residual discovery
 
-**Affiliation:** Independent (omniomics-prototype). Correspondence: ryan.kim2112@gmail.com.
+**Author:** H. Ryan Kim¹ *(ORCID: 0000-0000-0000-0000 — to be confirmed at submission)*
+
+**¹** Independent researcher (omniomics project).
+
+**Corresponding author:** H. Ryan Kim, ryan.kim2112@gmail.com.
+
+**Subject areas (bioRxiv):** Bioinformatics; Cancer Biology.
 
 **Keywords:** multi-omics integration; prior-informed machine learning; gene signatures; breast cancer; TCGA; METABRIC; immunotherapy biomarkers; interpretable discovery.
 
@@ -102,6 +108,23 @@ checkpoint-blockade resistance). The discovered panel adds Δ +0.061 versus +0.0
 (p = 0.038). Anchored on the textbook biomarker, the procedure rediscovers the known complementary biomarkers
 of a different disease.
 
+**Cross-cancer replication and tissue-independence of the basal axis.** The strongest test that a discovered
+axis is real biology, not a cohort artefact, is to seek it in a *different cancer*. In TCGA lung
+(LUAD adeno vs LUSC squamous, n = 1,129), the same proliferation-anchored residual recovers the
+squamous/keratinization program and overlaps the breast basal panel 10/30 (hypergeometric p ≈ 3×10⁻¹⁶) —
+the same genes, a different cancer. (On this near-trivial histology split the panel-vs-random margin
+saturates, so gene-level overlap is the informative metric.) Adding head & neck (HNSC), the breast panel
+separates squamous (HNSC + LUSC) from adeno (LUAD) at AUROC 0.96 with HNSC and LUSC — two different tissues —
+both scoring high and LUAD low, and within HNSC the score tracks differentiation grade (G1 > G3,
+p ≈ 2×10⁻⁴): the axis is a tissue-independent squamous-differentiation marker.
+
+**Clinical significance: identity, not outcome (an honest negative).** A reproducible axis need not be
+prognostic. In TCGA-BRCA (n = 866, 132 events) the basal score is not associated with overall survival
+(Cox HR 1.01, p = 0.89; adjusted for proliferation p = 0.36; KM log-rank p = 0.29), whereas the proliferation
+score is (p = 0.001). The basal axis does mark ER-negative/basal-like disease (AUROC 0.70). The discovered
+axis therefore captures lineage *identity* rather than outcome — reported plainly, because the method's
+value is finding real, robust biology, not inflated clinical claims.
+
 ## 3. Discussion
 
 The method instantiates and unifies three established traditions — clinical-offset / incremental-value
@@ -132,8 +155,29 @@ g:Profiler. All functions are in `omniomics.multiomics`; runners and recorded me
 ## 5. Data and Code Availability
 
 Code, runners, recorded metrics, unit tests and continuous-integration guards: the `omniomics` repository
-(`reports/dmoi_*.py`, `*_results.csv`, `tests/`). Full methods note: `reports/anchored_integration_methods.md`.
-Data are public (TCGA via UCSC Xena; METABRIC via cBioPortal).
+(`reports/dmoi_*.py`, `*_results.csv`, `tests/`). Key runners: `dmoi_knowledge_anchor.py`,
+`dmoi_residual_discovery.py`, `dmoi_discovery_{er,her2}.py`, `dmoi_external_{metabric,her2_metabric}.py`,
+`dmoi_external_lung.py`, `dmoi_external_hnsc.py`, `dmoi_discovery_nsclc_io.py`, `dmoi_clinical_survival.py`.
+Full methods note: `reports/anchored_integration_methods.md`. All data are public and de-identified: TCGA
+(BRCA, LUAD, LUSC, HNSC) via UCSC Xena; METABRIC via cBioPortal; the NSCLC anti-PD-1 cohort from Hellmann
+et al. (MSK 2018) via cBioPortal.
+
+## Declarations
+
+**Competing interests.** The author declares no competing interests.
+
+**Funding.** No external funding was received for this work.
+
+**Author contributions.** H.R.K. conceived the method, performed all analyses, and wrote the manuscript.
+
+**Ethics.** This study uses only publicly available, de-identified data from established repositories
+(TCGA/UCSC Xena, cBioPortal); no new human-subjects data were collected, so no additional ethics approval
+was required.
+
+**License.** This preprint is made available under a CC-BY 4.0 International license.
+
+**AI assistance.** Analyses and drafting were carried out with the assistance of an AI coding agent under the
+author's direction; all results are reproducible from the cited runners.
 
 ## Figure
 

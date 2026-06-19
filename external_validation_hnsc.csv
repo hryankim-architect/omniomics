@@ -1,0 +1,2 @@
+test,basal_genes,auroc_squamous_vs_adeno,median_HNSC,median_LUSC,median_LUAD,within_hnsc_G1_med,within_hnsc_G3_med,within_hnsc_G1gtG3_p,note
+tissue_independence,30,0.962,0.626,0.179,-0.692,0.664,0.557,2.18e-04,breast basal panel = tissue-independent squamous-differentiation marker (HNSC~LUSC>>LUAD; tracks HNSC grade)

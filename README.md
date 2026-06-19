@@ -50,6 +50,8 @@ anchored_residual_discovery(score, X, names, y) # discover anchor-orthogonal axe
 | **external validation (METABRIC)** | basal axis **reproduces** (Δ+0.036; independent re-discovery 20/30, p≈7e-27); HER2 cohort-specific (amplicon already complete there) |
 | **cross-domain (NSCLC anti-PD1)** | anchor on textbook **TMB** → residual recovers the other IO biomarkers: PD-L1 (orthogonal +), EGFR & STK11 (resistance); Δ+0.061 vs random +0.006, p=0.038 — not breast/expression-specific |
 | **cross-cancer (TCGA lung)** | the breast basal/keratinization axis **re-discovers** in lung (LUAD vs LUSC, n=1129): residual overlaps the breast panel 10/30 (KRT5/14/6B, TP63, DSG3/DSC3…), hypergeometric p≈3e-16 — the discovered biology, not a cohort artefact |
+| **tissue-independence (TCGA HNSC)** | breast basal panel separates squamous (HNSC+LUSC) vs adeno (LUAD) AUROC 0.96; HNSC (head&neck) ~ LUSC (lung) >> LUAD — a tissue-independent squamous marker; within HNSC tracks grade (G1>G3, p≈2e-4) |
+| **clinical significance (honest negative)** | the basal axis is **not** prognostic for OS in TCGA-BRCA (HR 1.01, p=0.89; adj p=0.36) — it's a lineage/identity marker (tracks ER-negative/basal-like, AUROC 0.70), not an outcome driver |
 
 **Reproduce:**
 ```bash
@@ -62,6 +64,8 @@ python reports/dmoi_external_metabric.py      # external validation: basal repro
 python reports/dmoi_external_her2_metabric.py # external validation: HER2 cohort-specific
 NSCLC_TABLE=.../patient_table.csv python reports/dmoi_discovery_nsclc_io.py  # cross-domain: NSCLC anti-PD1 (TMB anchor)
 python reports/dmoi_external_lung.py          # cross-cancer: basal axis re-discovers in TCGA lung (downloads Xena)
+python reports/dmoi_external_hnsc.py          # tissue-independence: basal panel in HNSC + lung (downloads Xena)
+BRCA_DIR=.../tcga_brca python reports/dmoi_clinical_survival.py  # clinical significance: basal axis vs OS (honest negative)
 ```
 Recorded metrics: `{auto_integrate,external_subtype,knowledge_anchor,discovery,discovery_{er,her2},
 fusion_gain,immune_axis,discordance_test,external_validation{,_her2}_metabric}_results.csv`; CI guards in

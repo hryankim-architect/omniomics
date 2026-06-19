@@ -177,6 +177,24 @@ transcriptomic split — random high-variance panels also separate it — so on 
 informative metric is the gene-level replication, which is decisive. `reports/dmoi_external_lung.py`;
 `external_validation_lung.csv`.
 
+*Tissue-independence (a third cancer, head & neck).* HNSC is uniformly squamous, so it offers no
+within-cohort histology contrast — but that allows a confound control. Scoring TCGA HNSC (head & neck
+squamous), LUSC (lung squamous) and LUAD (lung adeno) with the breast 30-gene basal panel, the score
+separates squamous from adeno at AUROC 0.96, and HNSC (head & neck) and LUSC (lung) — two *different
+tissues* — both score high while LUAD scores low (median 0.63, 0.18 vs −0.69). So the discovered axis tracks
+squamous *lineage*, not tissue of origin. Within HNSC it also tracks the textbook biology: well-differentiated
+(G1, keratinizing) tumours score higher than poorly differentiated (G3) (one-sided p ≈ 2×10⁻⁴).
+`reports/dmoi_external_hnsc.py`; `external_validation_hnsc.csv`.
+
+*Clinical significance — an honest separation of identity from outcome.* A reproducible axis need not be
+prognostic. In TCGA-BRCA (n = 866, 132 events) the basal/keratinization score is **not** associated with
+overall survival (univariate Cox HR 1.01, p = 0.89; adjusted for the proliferation anchor p = 0.36; KM
+median-split log-rank p = 0.29), whereas the proliferation score is (p = 0.001) — so the discovered axis
+captures lineage *identity*, not outcome. It is clinically coherent on identity: the score marks ER-negative
+/ basal-like disease (AUROC 0.70). Reporting this negative honestly matters — the method finds real, robust
+biology, and that biology happens to be a differentiation marker rather than a survival driver.
+`reports/dmoi_clinical_survival.py`; `clinical_basal_survival.csv`.
+
 **The gate is capable, not just safe (positive control).** On a methylation-defined endpoint (mean of
 a held-out CpG set RNA cannot see), a disjoint methylation set scores 0.983 vs RNA 0.795; the gate
 engages strongly (β = 4–8) for a significant **+0.047** over the anchor. So the gate captures real
