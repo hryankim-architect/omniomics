@@ -40,6 +40,7 @@ Issues = "https://github.com/hryankim-architect/omniomics/issues"
 enrichment = ["gseapy>=1.0"]   # GO/pathway enrichment (run_go.py)
 modern = ["pydeseq2>=0.4"]     # count-based DESeq2 reanalysis (run_modern_de.py, Aim 1)
 scale = ["pyarrow>=12", "h5py>=3"]   # out-of-core parquet / HDF5 backends for omniomics.scale
+deep = ["scvi-tools>=1.0"]           # large-n VAE backend for representations.make_encoder('vae')
 test = ["pytest>=7"]
 
 [project.scripts]
