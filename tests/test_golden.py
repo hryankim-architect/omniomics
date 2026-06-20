@@ -419,6 +419,40 @@ def test_hypothesis_screen_guard():
     assert int((d["verdict"] == "SUPPORTED").sum()) >= 3                         # a real set of orthogonal axes
 
 
+def test_hypothesis_screen_robust_guard():
+    """Robust hypothesis screen (anchor-family agreement + FDR): requiring support under BOTH proliferation
+    anchors tightens the SUPPORTED set, and both estrogen-response programs survive as the robust LumA/B axis
+    while proliferation hallmarks stay EXPLAINED. Skip-safe."""
+    f = REPO / "hypothesis_screen_robust.csv"
+    if not f.exists():
+        pytest.skip("hypothesis_screen_robust.csv not committed (dmoi_hypothesis_screen_robust.py not run yet)")
+    d = pd.read_csv(f).set_index("hypothesis")
+    for er in ["HALLMARK_ESTROGEN_RESPONSE_LATE", "HALLMARK_ESTROGEN_RESPONSE_EARLY"]:
+        if er in d.index:
+            assert d.loc[er, "robust_verdict"] == "SUPPORTED" and bool(d.loc[er, "both_anchors_support"])
+    for prolif in ["HALLMARK_E2F_TARGETS", "HALLMARK_G2M_CHECKPOINT"]:
+        if prolif in d.index:
+            assert d.loc[prolif, "robust_verdict"] != "SUPPORTED"
+            assert float(d.loc[prolif, "mean_delta"]) <= 0.005
+    nsup = int((d["robust_verdict"] == "SUPPORTED").sum())
+    assert 2 <= nsup <= 9                                       # agreement filter tightens vs single-anchor
+
+
+def test_hypothesis_screen_endpoints_guard():
+    """Hypothesis screen on other endpoints (specificity): HER2 (ERBB2-amplicon anchor) and ER (ER-signature
+    anchor) have COMPLETE textbook anchors here, so the screen surfaces ~no SUPPORTED hallmarks -- it does not
+    manufacture hypotheses beyond a saturated anchor (the complement of the incomplete-anchor LumA/B case).
+    Skip-safe."""
+    files = [REPO / f"hypothesis_screen_{ep}.csv" for ep in ("her2", "er")]
+    if not any(f.exists() for f in files):
+        pytest.skip("endpoint screen CSVs not committed (dmoi_hypothesis_screen_endpoints.py not run yet)")
+    for f in files:
+        if f.exists():
+            d = pd.read_csv(f)
+            assert int((d["verdict"] == "SUPPORTED").sum()) <= 2        # complete anchor -> no false discoveries
+            assert float(d["delta_beyond_textbook"].max()) <= 0.02      # nothing adds materially beyond it
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""

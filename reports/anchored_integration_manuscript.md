@@ -127,6 +127,19 @@ score is (p = 0.001). The basal axis does mark ER-negative/basal-like disease (A
 axis therefore captures lineage *identity* rather than outcome — reported plainly, because the method's
 value is finding real, robust biology, not inflated clinical claims.
 
+**Hypothesis-as-anchor — confirming, explaining-away, or refuting a hypothesis (Figure 2).** The frame also
+inverts cleanly: a *hypothesis* is expressed as a candidate anchor and tested against the textbook anchor on
+real data, gating it onto the textbook residual for a three-way verdict — SUPPORTED (adds beyond the
+textbook), EXPLAINED_BY_TEXTBOOK (predicts alone but redundant once the dominant prior is controlled), or
+REFUTED. This operationalises Venet et al. [10]: a signature is a novel mechanism only if it survives
+adjustment for the dominant prior. On Luminal A vs B against the proliferation anchor (Figure 2A), the
+basal/keratinization hypothesis is SUPPORTED (Δ +0.039, β = 8), an immune/cytotoxic hypothesis is REFUTED
+(AUROC 0.51, adds 0.000), and a random 30-gene set is EXPLAINED_BY_TEXTBOOK (predicts at 0.63 alone but adds
+≈ 0). Scaled to a whole library (`rank_hypotheses` over the 50 MSigDB Hallmark sets; Figure 2B), the screen
+is self-validating: the proliferation-type hallmarks (E2F, G2M, MYC) add exactly 0 beyond the anchor
+(EXPLAINED — they *are* the anchor's axis), while the SUPPORTED hits are the orthogonal lineage programs led
+by estrogen-response (early & late) — matching the known LumA/B biology of proliferation plus ER signalling.
+
 ## 3. Discussion
 
 The method instantiates and unifies three established traditions — clinical-offset / incremental-value
@@ -206,6 +219,15 @@ LUSC, n = 1,129) the same proliferation-anchored residual re-discovers the squam
 overlapping the breast basal panel 10/30 (KRT5/14/6B, TP63, DSG3/DSC3, FAT2…; hypergeometric p ≈ 3×10⁻¹⁶) —
 the discovered biology, not a cohort artefact.](figs/discovery_summary.png)
 
+![**Figure 2. Hypothesis-as-anchor: confirm, explain-away, or refute.** **(A)** On TCGA-BRCA Luminal A vs B,
+three hypotheses tested against the textbook proliferation anchor by the signal each adds beyond it: the
+basal/keratinization hypothesis is SUPPORTED (Δ +0.039), an immune/cytotoxic hypothesis is REFUTED (adds
+0.000), and a random 30-gene set is EXPLAINED_BY_TEXTBOOK (predicts alone but adds ≈ 0 once proliferation is
+controlled). **(B)** Screening all 50 MSigDB Hallmark gene sets as candidate hypotheses: the
+proliferation-type hallmarks (E2F, G2M, MYC) add exactly 0 beyond the anchor (EXPLAINED — the same axis),
+while the SUPPORTED hits are the orthogonal lineage programs led by estrogen-response, matching known LumA/B
+biology.](figs/hypothesis_anchor.png)
+
 ## References
 
 *References verified against PubMed; DOIs link to the source.*
@@ -219,3 +241,4 @@ the discovered biology, not a cohort artefact.](figs/discovery_summary.png)
 7. Liu X, et al. Pathformer: a biological pathway informed transformer for disease diagnosis and prognosis using multi-omics data. *Bioinformatics* 2024;40(5):btae316. doi:[10.1093/bioinformatics/btae316](https://doi.org/10.1093/bioinformatics/btae316).
 8. Boscolo Bielo L, et al. A machine learning assay to predict disease recurrence in hormone receptor-positive breast cancer. *ESMO Open* 2026;11(3):106064. doi:[10.1016/j.esmoop.2026.106064](https://doi.org/10.1016/j.esmoop.2026.106064).
 9. Horvath S. DNA methylation age of human tissues and cell types. *Genome Biol* 2013;14(10):R115. doi:[10.1186/gb-2013-14-10-r115](https://doi.org/10.1186/gb-2013-14-10-r115).
+10. Venet D, Dumont JE, Detours V. Most random gene expression signatures are significantly associated with breast cancer outcome. *PLoS Comput Biol* 2011;7(10):e1002240. doi:[10.1371/journal.pcbi.1002240](https://doi.org/10.1371/journal.pcbi.1002240).

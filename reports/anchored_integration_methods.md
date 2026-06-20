@@ -224,6 +224,21 @@ anchor's axis). The SUPPORTED hits (11/50) are the genuinely orthogonal lineage 
 known biology (LumA vs LumB differ in proliferation *and* ER signalling). `reports/dmoi_hypothesis_screen.py`;
 `hypothesis_screen_results.csv`.
 
+A **robust** variant (`reports/dmoi_hypothesis_screen_robust.py`) adds two safeguards: anchor-family
+averaging (require support beyond *both* the curated and meta-PCNA proliferation anchors) and Benjamini-
+Hochberg FDR. Requiring agreement across anchors tightens the set from 11 to **4** robust hits —
+ESTROGEN_RESPONSE (late & early), APICAL_SURFACE, P53 — i.e. the ER lineage axis is the anchor-robust biology
+for LumA/B, while WNT/NOTCH/myogenesis were anchor-dependent and drop out. (The empirical-null FDR is liberal
+here because the null is very tight, so anchor-family agreement is the binding robustness gate.)
+`hypothesis_screen_robust.csv`.
+
+Repeating the screen on **other endpoints** is a specificity check (`reports/dmoi_hypothesis_screen_endpoints.py`).
+For HER2 (anchored on the ERBB2 17q12 amplicon, AUROC 0.92 here) and ER (anchored on a textbook ER/luminal
+signature, 0.94) the textbook anchor is already *complete*, and the screen correctly surfaces **0/50**
+SUPPORTED hallmarks — it does not manufacture hypotheses beyond a saturated anchor, the complement of the
+incomplete-anchor LumA/B case where the ER lineage axis is SUPPORTED. `hypothesis_screen_her2.csv`,
+`hypothesis_screen_er.csv`.
+
 *Tissue-independence (a third cancer, head & neck).* HNSC is uniformly squamous, so it offers no
 within-cohort histology contrast — but that allows a confound control. Scoring TCGA HNSC (head & neck
 squamous), LUSC (lung squamous) and LUAD (lung adeno) with the breast 30-gene basal panel, the score
