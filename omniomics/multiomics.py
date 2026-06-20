@@ -501,6 +501,37 @@ def signature_score(expr, genes, weights=None, sign=1.0):
     return sign * Z.mean(1).values
 
 
+def marker_correlated_anchor(expr, marker="PCNA", top_frac=0.01, top_k=None, exclude_marker=False):
+    """Data-driven, reproducible anchor gene set: the genes most correlated with a canonical marker.
+
+    Implements the Venet/Dumont/Detours (2011, PLoS Comput Biol; doi:10.1371/journal.pcbi.1002240)
+    "meta-PCNA" recipe as a standardized, hand-curation-free way to DEFINE an anchor: select the top fraction
+    of genes most positively correlated with a canonical marker (default PCNA, the proliferation reference)
+    across a compendium of samples -- ideally a *normal-tissue* compendium to avoid circularity. Returns the
+    selected gene list (use with signature_score to get the anchor score).
+
+    expr : DataFrame (samples x genes) or (genes x samples) -- orientation auto-detected from `marker`.
+    marker : reference gene (default 'PCNA'). top_frac : fraction of genes to keep (default 1%). top_k :
+    optional absolute count (overrides top_frac). exclude_marker : drop the marker itself from the set.
+    """
+    import pandas as _pd
+    df = expr if isinstance(expr, _pd.DataFrame) else _pd.DataFrame(np.asarray(expr))
+    if marker not in df.columns and marker in df.index:
+        df = df.T                                       # genes were on the index -> samples x genes
+    if marker not in df.columns:
+        raise ValueError(f"marker {marker!r} not found in expression")
+    X = df.astype(float)
+    m = X[marker].values; mc = m - m.mean(); mn = np.sqrt(float(mc @ mc)) + 1e-12
+    Xc = X.values - X.values.mean(0)
+    corr = (Xc.T @ mc) / (np.sqrt((Xc * Xc).sum(0)) * mn + 1e-12)   # corr of each gene with the marker
+    order = np.argsort(-corr)                                       # most positively correlated first
+    k = int(top_k) if top_k else max(1, int(round(top_frac * X.shape[1])))
+    genes = [df.columns[i] for i in order[:k + (1 if exclude_marker else 0)]]
+    if exclude_marker:
+        genes = [g for g in genes if g != marker][:k]
+    return genes
+
+
 def knowledge_anchored_integrate(anchor_score, modalities, y,
                                  betas=(0.0, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0), cv=5, random_state=0,
                                  gate_margin=0.01, inner_repeats=3, anchor_name="knowledge"):

@@ -222,6 +222,21 @@ def test_residual_discovery_stability():
     assert res["stability"] > res["stability_null"]
 
 
+def test_marker_correlated_anchor():
+    """Data-driven (Venet 2011 meta-PCNA) anchor recipe: the top genes correlated with a canonical marker
+    are exactly the ones that co-vary with it -- a reproducible, hand-curation-free anchor definition."""
+    import pandas as pd
+    rng = np.random.default_rng(0); n, p = 120, 200
+    prolif = rng.normal(size=n)
+    X = rng.normal(size=(n, p)); X[:, 0] = prolif
+    for j in range(1, 11):
+        X[:, j] += 1.4 * prolif                       # 10 genes correlated with the marker
+    df = pd.DataFrame(X, columns=["PCNA"] + [f"g{j}" for j in range(1, p)])
+    genes = mo.marker_correlated_anchor(df, marker="PCNA", top_k=12, exclude_marker=True)
+    assert "PCNA" not in genes
+    assert sum(g.startswith("g") and int(g[1:]) <= 10 for g in genes) >= 8   # recovers the correlated set
+
+
 if __name__ == "__main__":
     test_v2_columns_and_interaction()
     test_reliability_weighting_shifts_pole()

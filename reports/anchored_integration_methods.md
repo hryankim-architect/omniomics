@@ -188,6 +188,19 @@ in ~90% of subsamples versus ~1% under permuted labels (**stability_gain ≈ +0.
 reproducible structured axis. The metric ranks real axes far above spurious in-sample noise (≈ +0.7 vs ≈ +0.25
 on synthetic controls), complementing — not replacing — the FDR count and biological coherence.
 
+*Anchor standardization — robustness to the choice of textbook anchor.* The discovery's honesty depends on
+the anchor's provenance, which was hand-picked. Following Venet et al. (2011, *PLoS Comput Biol*) — most
+random signatures predict outcome, and adjusting for a proliferation meta-gene removes the effect — we (a)
+added a reproducible, data-driven anchor recipe (`marker_correlated_anchor`, the meta-PCNA construction: top
+genes correlated with a canonical marker), and (b) ran the LumA/B discovery across a *family* of
+biologically-equivalent proliferation priors (our 20-gene curated index, MSigDB `HALLMARK_E2F_TARGETS` /
+`G2M_CHECKPOINT` / `MYC_TARGETS_V1`, and meta-PCNA) as a vibration-of-effects check. The basal/keratinization
+axis is robust to anchor choice: **every** anchor re-recovers the basal core (KRT5/14/17/6B, TP63, DSG3, DSC3)
+7/7 and 21–26/30 of the reference panel; mean pairwise Jaccard of the discovered panels **0.69**; 24 genes
+are consensus across ≥4/5 anchors (21 in the basal panel). So the discovery is not an artifact of a single
+hand-picked anchor. `reports/dmoi_anchor_family_voe.py`; `anchor_family_voe.csv`, `anchor_family_consensus.csv`;
+full rationale in `reports/anchor_standardization_discussion.md`.
+
 *Tissue-independence (a third cancer, head & neck).* HNSC is uniformly squamous, so it offers no
 within-cohort histology contrast — but that allows a confound control. Scoring TCGA HNSC (head & neck
 squamous), LUSC (lung squamous) and LUAD (lung adeno) with the breast 30-gene basal panel, the score

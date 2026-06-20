@@ -1,0 +1,6 @@
+anchor,n_anchor_genes,anchor_auroc,overlap_basal_of30,basal_core_hits
+curated_prolif,20,0.919,26,7
+HALLMARK_E2F_TARGETS,187,0.914,24,7
+HALLMARK_G2M_CHECKPOINT,184,0.894,23,7
+HALLMARK_MYC_TARGETS_V1,187,0.802,21,7
+meta_PCNA,50,0.926,26,7

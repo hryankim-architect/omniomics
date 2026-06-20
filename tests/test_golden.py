@@ -369,6 +369,24 @@ def test_meth_genomewide_guard():
         assert "PGR" in set(pd.read_csv(nf)["gene"].astype(str))   # textbook ER-coregulated gene recovered
 
 
+def test_anchor_family_voe_guard():
+    """Anchor-standardization robustness: the basal discovery survives the choice of (textbook) anchor. Across
+    a family of proliferation priors (curated, MSigDB E2F/G2M/MYC hallmarks, data-driven meta-PCNA) every
+    anchor re-recovers the basal core and most of the reference panel; many genes are consensus across anchors
+    -- empirically answering the cherry-picking concern. Skip-safe until dmoi_anchor_family_voe.py runs."""
+    f = REPO / "anchor_family_voe.csv"
+    if not f.exists():
+        pytest.skip("anchor_family_voe.csv not committed (dmoi_anchor_family_voe.py not run yet)")
+    d = pd.read_csv(f)
+    assert len(d) >= 4                                              # a real family of anchors
+    assert (d["basal_core_hits"].astype(int) >= 6).all()           # every anchor recovers the basal core
+    assert (d["overlap_basal_of30"].astype(int) >= 15).all()       # and most of the reference panel
+    c = REPO / "anchor_family_consensus.csv"
+    if c.exists():
+        cc = pd.read_csv(c)
+        assert int(cc["in_basal_panel"].astype(bool).sum()) >= 15  # large consensus core across anchors
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""
