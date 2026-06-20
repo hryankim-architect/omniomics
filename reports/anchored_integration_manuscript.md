@@ -10,7 +10,7 @@ date: "2026"
 
 **¹** Independent researcher (omniomics project).
 
-**Corresponding author:** H. Ryan Kim, ryan.kim2112@gmail.com.
+**Corresponding author:** H. Ryan Kim, hryankim1221@gmail.com.
 
 **Subject areas (bioRxiv):** Bioinformatics; Cancer Biology.
 
@@ -165,22 +165,28 @@ mediated by the amplicon). Across the two endpoints the framework cleanly separa
 (ER in TCGA Luminal A/B), *redundant/collinear* (ER in METABRIC Luminal A/B and HER2), and *absent/weak* (ER
 for HER2 in TCGA).
 
-Extending this to a four-endpoint × two-cohort panel (Figure 3) makes the practical payload explicit: of four
-endpoints, two transport and two do not. The transportable pairs are orthogonal, biologically robust axes — a
-basal/keratinization anchor with an immune hypothesis is NOVEL in *both* cohorts (immune infiltration adds a
-real axis beyond the basal lineage program), and an ER-signature anchor with a proliferation hypothesis
-carries a small but genuine unique proliferation slice in both. The two that do *not* transport are exactly the
-ER-collinearity cases above (proliferation→ER on Luminal A/B; amplicon→ER on HER2). The transportability caveat
-is therefore specific and predictable: it attaches to hypotheses whose collinearity with the anchor is itself
-cohort-dependent, while genuinely anchor-orthogonal axes transport cleanly.
+Extending this to a four-endpoint × three-column panel (Figure 3) — TCGA RNA-seq, TCGA Agilent microarray
+(the *same* patients on a different platform), and METABRIC (an independent cohort) — makes the practical
+payload explicit: of four endpoints, two transport and two do not. The transportable pairs are orthogonal,
+biologically robust axes — a basal/keratinization anchor with an immune hypothesis is NOVEL in *all three*
+columns (immune infiltration adds a real axis beyond the basal lineage program), and an ER-signature anchor
+with a proliferation hypothesis carries a small but genuine unique proliferation slice in all three. The two
+that do *not* transport are exactly the ER-collinearity cases above (proliferation→ER on Luminal A/B;
+amplicon→ER on HER2). Strikingly, Luminal A/B is NOVEL on TCGA RNA-seq yet REDUNDANT on TCGA Agilent — the
+same patients — so the collinearity label can flip on a platform change alone, before any change of cohort. The
+transportability caveat is therefore specific and predictable: it attaches to hypotheses whose collinearity
+with the anchor is itself measurement-dependent, while genuinely anchor-orthogonal axes transport cleanly
+across both platform and cohort.
 
-![**Figure 3. Anchored hypothesis labels across four endpoints × two cohorts.** Each cell is one
-(anchor → hypothesis) test in one cohort, coloured by the commonality label (NOVEL = carries variance unique
-to the hypothesis beyond the anchor; REDUNDANT = predicts but collinear/mediated; INERT = no appreciable
-signal), with the cross-validated verdict and the redundancy below it. Rows are endpoints (anchor → hypothesis);
-✓transports/✗differs marks whether the label is concordant across TCGA and METABRIC. Basal→immune and
-ER-status→proliferation transport (NOVEL in both); the two ER-collinearity endpoints (Luminal A/B, HER2) do
-not.](figs/endpoint_panel.png)
+![**Figure 3. Anchored hypothesis labels across four endpoints × three columns (TCGA RNA-seq, TCGA Agilent,
+METABRIC).** Each cell is one (anchor → hypothesis) test in one column, coloured by the commonality label
+(NOVEL = carries variance unique to the hypothesis beyond the anchor; REDUNDANT = predicts but
+collinear/mediated; INERT = no appreciable signal), with the cross-validated verdict and the redundancy below
+it. TCGA Agilent is the *same patients* as TCGA RNA-seq measured on a different platform (a platform-
+transportability check); METABRIC is an independent cohort. ✓transports/✗differs marks whether the label is
+concordant across all three columns. Basal→immune and ER-status→proliferation transport (NOVEL everywhere); the
+two ER-collinearity endpoints (Luminal A/B, HER2) do not — and Luminal A/B even flips NOVEL→REDUNDANT between
+the two TCGA platforms on the same patients.](figs/endpoint_panel.png)
 
 ## 3. Discussion
 

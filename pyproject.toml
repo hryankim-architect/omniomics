@@ -9,7 +9,7 @@ description = "Anchored multi-omics integration + knowledge-anchored residual di
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
-authors = [{ name = "H. Ryan Kim", email = "ryan.kim2112@gmail.com" }]
+authors = [{ name = "H. Ryan Kim", email = "hryankim1221@gmail.com" }]
 keywords = ["multi-omics", "integration", "bioinformatics", "gene-signature", "prior-informed", "TCGA", "epigenetics", "discovery"]
 classifiers = [
   "Development Status :: 4 - Beta",
