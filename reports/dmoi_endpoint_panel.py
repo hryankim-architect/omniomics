@@ -64,13 +64,18 @@ def _cell(cohort, endpoint, E, y):
     ag, alab, hg, hlab = ENDPOINTS[endpoint]
     A = _score(E, ag); H = _score(E, hg)
     r = mo.hypothesis_anchor_test(A, H, y, cv=4, random_state=0, inner_repeats=1)
+    bc = mo.bootstrap_commonality(A, H, y, reps=300, seed=0)   # 95% CIs for unique_r2 and corr(anchor,hyp)
     return dict(endpoint=endpoint, cohort=cohort, n=int(len(y)), pos=int(y.sum()),
                 anchor=alab, hypothesis=hlab,
                 auroc_anchor=round(max(roc_auc_score(y, A), 1 - roc_auc_score(y, A)), 3),
                 auroc_hyp=round(max(roc_auc_score(y, H), 1 - roc_auc_score(y, H)), 3),
-                corr_anchor_hyp=r["corr_textbook_hypothesis"], delta_beyond=r["delta_hyp_given_textbook"],
-                verdict=r["verdict"], unique_r2=r["unique_hypothesis_r2"], redundancy=r["redundancy"],
-                prop_mediated=r["prop_mediated"], collinearity_label=r["collinearity_label"])
+                corr_anchor_hyp=r["corr_textbook_hypothesis"],
+                corr_lo=bc["corr_lo"], corr_hi=bc["corr_hi"],
+                delta_beyond=r["delta_hyp_given_textbook"],
+                verdict=r["verdict"], unique_r2=r["unique_hypothesis_r2"],
+                unique_r2_lo=bc["unique_r2_lo"], unique_r2_hi=bc["unique_r2_hi"],
+                redundancy=r["redundancy"], prop_mediated=r["prop_mediated"],
+                collinearity_label=r["collinearity_label"])
 
 
 def _tcga_cohort(name, ex, cl):
@@ -147,16 +152,29 @@ def main():
     cohorts = [c for c in ["TCGA_RNAseq", "TCGA_Agilent", "METABRIC", "SCAN-B"] if c in set(df["cohort"])]
     # transportability concordance per endpoint (same collinearity_label across ALL cohorts present)
     lab = df.pivot(index="endpoint", columns="cohort", values="collinearity_label")
+    corr = df.pivot(index="endpoint", columns="cohort", values="corr_anchor_hyp")
+    from itertools import combinations
+
+    def _score(e):
+        labs = [lab.loc[e, c] for c in cohorts]
+        pairs = list(combinations(range(len(labs)), 2))
+        concord = sum(labs[i] == labs[j] for i, j in pairs) / max(1, len(pairs))   # fraction of cohort-pairs agreeing
+        cs = [float(corr.loc[e, c]) for c in cohorts]
+        return concord, round(max(cs) - min(cs), 3), bool(len({1 if v > 0 else (-1 if v < 0 else 0) for v in cs}) == 1)
+    sc = {e: _score(e) for e in lab.index}
     df["transports"] = df["endpoint"].map(lambda e: bool(lab.loc[e, cohorts].nunique() == 1))
+    df["transport_score"] = df["endpoint"].map(lambda e: round(sc[e][0], 3))      # 1.0 = label identical in all cohorts
+    df["corr_spread"] = df["endpoint"].map(lambda e: sc[e][1])                    # max-min corr(anchor,hyp) across cohorts
+    df["corr_sign_consistent"] = df["endpoint"].map(lambda e: sc[e][2])
     df = df.sort_values(["endpoint", "cohort"]).reset_index(drop=True)
     df.to_csv(os.path.join(REPO, "endpoint_panel.csv"), index=False)
-    print(df[["endpoint", "cohort", "anchor", "hypothesis", "verdict", "collinearity_label",
-              "redundancy", "transports"]].to_string(index=False))
+    print(df[["endpoint", "cohort", "verdict", "collinearity_label", "corr_anchor_hyp", "corr_lo", "corr_hi",
+              "transport_score", "corr_spread"]].to_string(index=False))
 
     # label grid figure
     order = list(ENDPOINTS)
     COL = {"NOVEL": "#2c7fb8", "REDUNDANT": "#d95f5f", "INERT": "#bdbdbd"}
-    fig, ax = plt.subplots(figsize=(5.2 + 1.9 * len(cohorts), 4.9))
+    fig, ax = plt.subplots(figsize=(4.3 + 1.9 * len(cohorts), 5.0))
     for i, ep in enumerate(order):
         for j, ch in enumerate(cohorts):
             r = df[(df.endpoint == ep) & (df.cohort == ch)].iloc[0]
@@ -175,13 +193,17 @@ def main():
                 ha="right", va="center", fontsize=8.5)
     for j, ch in enumerate(cohorts):
         ax.text(j + 0.5, len(order) + 0.08, ch.replace("_", "\n"), ha="center", va="bottom", fontsize=9.5, fontweight="bold")
-    ax.set_xlim(-2.4, len(cohorts)); ax.set_ylim(0, len(order) + 0.45); ax.axis("off")
+    # Symmetric x-limits about the grid centre (mirror the label width with equal right padding) and NO tight
+    # crop, so the coloured grid is centred horizontally in the saved image (not pushed right by the labels).
+    gc = len(cohorts) / 2.0; halfspan = gc + 2.0
+    ax.set_xlim(gc - halfspan, gc + halfspan); ax.set_ylim(0, len(order) + 0.7); ax.axis("off")
     handles = [plt.Rectangle((0, 0), 1, 1, fc=c) for c in COL.values()]
-    ax.legend(handles, list(COL), loc="lower left", bbox_to_anchor=(-0.55, -0.1), ncol=3, fontsize=8.5, frameon=False)
-    ax.set_title(f"Anchored hypothesis labels across {len(order)} endpoints × {len(cohorts)} cohorts",
-                 fontsize=12, fontweight="bold")
-    fig.tight_layout()
-    fig.savefig(os.path.join(HERE, "figs", "endpoint_panel.png"), dpi=150, bbox_inches="tight")
+    ax.legend(handles, list(COL), loc="upper center", bbox_to_anchor=(0.5, -0.02),
+              ncol=3, fontsize=8.5, frameon=False)
+    ax.text(gc, len(order) + 0.62, f"Anchored hypothesis labels across {len(order)} endpoints × {len(cohorts)} cohorts",
+            ha="center", va="bottom", fontsize=12, fontweight="bold")
+    fig.subplots_adjust(left=0.03, right=0.97, top=0.93, bottom=0.07)
+    fig.savefig(os.path.join(HERE, "figs", "endpoint_panel.png"), dpi=150, facecolor="white")
     nt = int(df.drop_duplicates("endpoint")["transports"].sum())
     print(f"\n{nt}/{len(order)} endpoints transport (same label across all {len(cohorts)} cohorts). "
           "wrote endpoint_panel.csv and figs/endpoint_panel.png")

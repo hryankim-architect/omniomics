@@ -209,7 +209,7 @@ check); METABRIC (microarray) and SCAN-B (GSE96058, RNA-seq) are independent coh
 marks whether the label is concordant across all four columns. Basal→immune and ER-status→proliferation
 transport (NOVEL everywhere, including the independent SCAN-B); the two ER-collinearity endpoints (Luminal A/B,
 HER2) do not — and for Luminal A/B the label tracks measurement technology, NOVEL on the two RNA-seq columns
-(TCGA RNA-seq, SCAN-B) but REDUNDANT on the two microarrays (TCGA Agilent, METABRIC).](figs/endpoint_panel.png)
+(TCGA RNA-seq, SCAN-B) but REDUNDANT on the two microarrays (TCGA Agilent, METABRIC).](figs/endpoint_panel.png){ width=100% }
 
 **The platform effect is a sign flip in the nuisance correlation (Figure 4).** The transportability sweep
 predicts that the Luminal A/B verdict is governed by corr(proliferation, ER); the four columns let us read
@@ -219,7 +219,11 @@ collinear in the Luminal B direction, so ER retains suppression/unique variance 
 negative on both microarrays (TCGA Agilent −0.10, METABRIC −0.17) — where Luminal B's lower ER aligns with its
 higher proliferation, so ER's signal is collinear and is labelled REDUNDANT. Because the flip occurs even on
 the *same* TCGA patients between their RNA-seq and Agilent measurements, it is a property of the measurement,
-not of the patients. This locates the transportability caveat precisely: the nuisance correlation that decides
+not of the patients. The flip is statistically grounded in the two large cohorts: the bootstrap 95 % CI of
+corr(proliferation, ER) is wholly positive in SCAN-B (0.04–0.15) and wholly negative in METABRIC (−0.24 to
+−0.12), non-overlapping. A per-endpoint transport score (fraction of cohort-pairs with the same commonality
+label) is 1.0 for the anchor-orthogonal axes (basal→immune; ER-status→proliferation) and only 0.17–0.33 for the
+two ER-collinearity endpoints. This locates the transportability caveat precisely: the nuisance correlation that decides
 a collinear hypothesis's verdict can itself be set by the assay, so such labels must be read within a fixed
 platform — whereas the anchor-orthogonal axes (basal→immune, ER-status→proliferation) are immune to this and
 reproduce across both platform and cohort.
@@ -229,7 +233,7 @@ Luminal A vs B endpoint, the proliferation–ER correlation that governs the ver
 coloured by platform family. It is positive on the two RNA-seq cohorts (TCGA RNA-seq, SCAN-B) → ER carries
 unique/suppression variance → NOVEL, and negative on the two microarray cohorts (TCGA Agilent, METABRIC) → ER
 collinear with proliferation → REDUNDANT. The sign flips even between the two TCGA platforms on the same
-patients, so it is a measurement property.](figs/platform_corr.png)
+patients, so it is a measurement property.](figs/platform_corr.png){ width=80% }
 
 **Results at a glance.** Table 1 summarises the anchored discoveries and their external status.
 
@@ -336,7 +340,7 @@ with the TCGA panel; direct replication Δ +0.036, p = 0.048) but not the HER2 a
 amplicon anchor is already complete in METABRIC. **(C)** Cross-cancer replication: in TCGA lung (LUAD vs
 LUSC, n = 1,129) the same proliferation-anchored residual re-discovers the squamous/keratinization program,
 overlapping the breast basal panel 10/30 (KRT5/14/6B, TP63, DSG3/DSC3, FAT2…; hypergeometric p ≈ 3×10⁻¹⁶) —
-the discovered biology, not a cohort artefact.](figs/discovery_summary.png)
+the discovered biology, not a cohort artefact.](figs/discovery_summary.png){ width=100% }
 
 ![**Figure 2. Hypothesis-as-anchor: confirm, explain-away, or refute.** **(A)** On TCGA-BRCA Luminal A vs B,
 three hypotheses tested against the textbook proliferation anchor by the signal each adds beyond it: the
