@@ -165,28 +165,31 @@ mediated by the amplicon). Across the two endpoints the framework cleanly separa
 (ER in TCGA Luminal A/B), *redundant/collinear* (ER in METABRIC Luminal A/B and HER2), and *absent/weak* (ER
 for HER2 in TCGA).
 
-Extending this to a four-endpoint × three-column panel (Figure 3) — TCGA RNA-seq, TCGA Agilent microarray
-(the *same* patients on a different platform), and METABRIC (an independent cohort) — makes the practical
-payload explicit: of four endpoints, two transport and two do not. The transportable pairs are orthogonal,
-biologically robust axes — a basal/keratinization anchor with an immune hypothesis is NOVEL in *all three*
-columns (immune infiltration adds a real axis beyond the basal lineage program), and an ER-signature anchor
-with a proliferation hypothesis carries a small but genuine unique proliferation slice in all three. The two
-that do *not* transport are exactly the ER-collinearity cases above (proliferation→ER on Luminal A/B;
-amplicon→ER on HER2). Strikingly, Luminal A/B is NOVEL on TCGA RNA-seq yet REDUNDANT on TCGA Agilent — the
-same patients — so the collinearity label can flip on a platform change alone, before any change of cohort. The
-transportability caveat is therefore specific and predictable: it attaches to hypotheses whose collinearity
-with the anchor is itself measurement-dependent, while genuinely anchor-orthogonal axes transport cleanly
-across both platform and cohort.
+Extending this to a four-endpoint × four-column panel (Figure 3) — TCGA RNA-seq, TCGA Agilent microarray
+(the *same* patients on a different platform), METABRIC (an independent microarray cohort), and SCAN-B
+(GSE96058, a fully independent Swedish RNA-seq cohort of ~3,400 tumours) — makes the practical payload
+explicit: of four endpoints, two transport and two do not. The transportable pairs are orthogonal, biologically
+robust axes — a basal/keratinization anchor with an immune hypothesis is NOVEL in *all four* columns (immune
+infiltration adds a real axis beyond the basal lineage program), and an ER-signature anchor with a
+proliferation hypothesis carries a small but genuine unique proliferation slice in all four — robust across
+platform *and* independent cohort. The two that do *not* transport are exactly the ER-collinearity cases above
+(proliferation→ER on Luminal A/B; amplicon→ER on HER2), and the four columns expose why: for Luminal A/B the
+label tracks *measurement technology* — NOVEL on both RNA-seq cohorts (TCGA RNA-seq and the independent SCAN-B)
+yet REDUNDANT on both microarrays (TCGA Agilent and METABRIC), flipping even on the same TCGA patients between
+their RNA-seq and Agilent measurements. The transportability caveat is therefore specific and predictable: it
+attaches to hypotheses whose collinearity with the anchor is itself measurement-dependent, while genuinely
+anchor-orthogonal axes transport cleanly across platform and cohort.
 
-![**Figure 3. Anchored hypothesis labels across four endpoints × three columns (TCGA RNA-seq, TCGA Agilent,
-METABRIC).** Each cell is one (anchor → hypothesis) test in one column, coloured by the commonality label
-(NOVEL = carries variance unique to the hypothesis beyond the anchor; REDUNDANT = predicts but
+![**Figure 3. Anchored hypothesis labels across four endpoints × four columns (TCGA RNA-seq, TCGA Agilent,
+METABRIC, SCAN-B).** Each cell is one (anchor → hypothesis) test in one column, coloured by the commonality
+label (NOVEL = carries variance unique to the hypothesis beyond the anchor; REDUNDANT = predicts but
 collinear/mediated; INERT = no appreciable signal), with the cross-validated verdict and the redundancy below
-it. TCGA Agilent is the *same patients* as TCGA RNA-seq measured on a different platform (a platform-
-transportability check); METABRIC is an independent cohort. ✓transports/✗differs marks whether the label is
-concordant across all three columns. Basal→immune and ER-status→proliferation transport (NOVEL everywhere); the
-two ER-collinearity endpoints (Luminal A/B, HER2) do not — and Luminal A/B even flips NOVEL→REDUNDANT between
-the two TCGA platforms on the same patients.](figs/endpoint_panel.png)
+it. TCGA Agilent is the *same patients* as TCGA RNA-seq on a different platform (a platform-transportability
+check); METABRIC (microarray) and SCAN-B (GSE96058, RNA-seq) are independent cohorts. ✓transports/✗differs
+marks whether the label is concordant across all four columns. Basal→immune and ER-status→proliferation
+transport (NOVEL everywhere, including the independent SCAN-B); the two ER-collinearity endpoints (Luminal A/B,
+HER2) do not — and for Luminal A/B the label tracks measurement technology, NOVEL on the two RNA-seq columns
+(TCGA RNA-seq, SCAN-B) but REDUNDANT on the two microarrays (TCGA Agilent, METABRIC).](figs/endpoint_panel.png)
 
 ## 3. Discussion
 

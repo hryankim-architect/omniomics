@@ -545,13 +545,27 @@ def test_endpoint_panel_guard():
     for col in ["endpoint", "cohort", "collinearity_label", "verdict", "redundancy", "transports"]:
         assert col in d.columns
     g = d.set_index(["endpoint", "cohort"])["collinearity_label"]
-    # Basal->immune: NOVEL in both -> transports
-    assert g[("Basal_vs_rest", "TCGA")] == "NOVEL" and g[("Basal_vs_rest", "METABRIC")] == "NOVEL"
-    # the two ER-collinearity endpoints do not transport (label differs across cohorts)
-    assert g[("LumA_vs_LumB", "TCGA")] != g[("LumA_vs_LumB", "METABRIC")]
-    assert g[("HER2_pos_vs_neg", "TCGA")] != g[("HER2_pos_vs_neg", "METABRIC")]
+    tcga = "TCGA_RNAseq" if ("Basal_vs_rest", "TCGA_RNAseq") in g.index else "TCGA"
+    # Basal->immune: NOVEL in the TCGA RNA-seq cohort and in METABRIC -> a robustly transportable orthogonal axis
+    assert g[("Basal_vs_rest", tcga)] == "NOVEL" and g[("Basal_vs_rest", "METABRIC")] == "NOVEL"
+    # the two ER-collinearity endpoints do not transport (label differs TCGA RNA-seq -> METABRIC)
+    assert g[("LumA_vs_LumB", tcga)] != g[("LumA_vs_LumB", "METABRIC")]
+    assert g[("HER2_pos_vs_neg", tcga)] != g[("HER2_pos_vs_neg", "METABRIC")]
     # METABRIC LumA/B is the REDUNDANT case
     assert g[("LumA_vs_LumB", "METABRIC")] == "REDUNDANT"
+    # if the Agilent platform column is present: same TCGA patients, but the ER-collinearity label can flip by
+    # PLATFORM (LumA/B is NOVEL on RNA-seq, REDUNDANT on Agilent) while the orthogonal axes stay NOVEL.
+    if ("Basal_vs_rest", "TCGA_Agilent") in g.index:
+        assert g[("Basal_vs_rest", "TCGA_Agilent")] == "NOVEL"
+        assert g[("ER_pos_vs_neg", "TCGA_Agilent")] == "NOVEL"
+        assert g[("LumA_vs_LumB", "TCGA_Agilent")] != g[("LumA_vs_LumB", "TCGA_RNAseq")]
+    # if the fully-independent SCAN-B cohort is present: the orthogonal axes stay NOVEL there too, and the
+    # LumA/B collinearity label tracks measurement technology (NOVEL on RNA-seq like TCGA_RNAseq, not microarray)
+    if ("Basal_vs_rest", "SCAN-B") in g.index:
+        assert g[("Basal_vs_rest", "SCAN-B")] == "NOVEL"
+        assert g[("ER_pos_vs_neg", "SCAN-B")] == "NOVEL"
+        assert g[("LumA_vs_LumB", "SCAN-B")] == g[("LumA_vs_LumB", "TCGA_RNAseq")] == "NOVEL"
+        assert g[("LumA_vs_LumB", "SCAN-B")] != g[("LumA_vs_LumB", "METABRIC")]
 
 
 def test_modern_de_concordance_guard():

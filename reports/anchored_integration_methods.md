@@ -297,17 +297,24 @@ correlation. So across two endpoints the framework distinguishes all three failu
 TCGA-LumA/B), *redundant/collinear* (ER in METABRIC-LumA/B and HER2), and *absent/weak* (ER for HER2 in TCGA)
 — rather than collapsing them into a single "fails to add."
 
-*A multi-endpoint × cohort panel.* Scaling the characterisation to four breast-cancer endpoints in both
-cohorts (each anchored on its textbook driver and tested against a secondary hypothesis) yields a compact map
-of where the label transports. Two endpoints transport, two do not. The transportable ones are biologically
-robust: **Basal-vs-rest** with a basal/keratinization anchor and an immune hypothesis is **NOVEL in both
-cohorts** (immune infiltration adds a real axis beyond the basal lineage program), and **ER-status** with the
-ER-signature anchor and a proliferation hypothesis carries a small but real unique proliferation slice (NOVEL)
-in both. The two that do *not* transport are exactly the ER-collinearity cases studied above — **LumA-vs-LumB**
-(proliferation→ER: NOVEL in TCGA, REDUNDANT in METABRIC) and **HER2** (amplicon→ER: INERT in TCGA, REDUNDANT
-in METABRIC). So the transportability caveat is specific and predictable: it attaches to hypotheses whose
-collinearity with the anchor is itself cohort-dependent, while orthogonal axes (basal→immune) transport
-cleanly. Runner: `reports/dmoi_endpoint_panel.py` (`endpoint_panel.csv`, `figs/endpoint_panel.png`).
+*A multi-endpoint × cohort panel.* Scaling the characterisation to four breast-cancer endpoints across four
+columns — TCGA RNA-seq, **TCGA Agilent microarray (the same patients on a different platform)**, METABRIC
+(an independent microarray cohort), and **SCAN-B (GSE96058, a fully independent Swedish RNA-seq cohort of
+~3,400 tumours)** — yields a compact map of where the label transports. Two endpoints transport, two do not.
+The transportable ones are biologically robust: **Basal-vs-rest** with a basal/keratinization anchor and an
+immune hypothesis is **NOVEL in all four columns** (immune infiltration adds a real axis beyond the basal
+lineage program), and **ER-status** with the ER-signature anchor and a proliferation hypothesis carries a small
+but real unique proliferation slice (NOVEL) in all four — robust across platform *and* independent cohort. The
+two that do *not* transport are exactly the ER-collinearity cases studied above — **LumA-vs-LumB**
+(proliferation→ER) and **HER2** (amplicon→ER). The four-column view exposes the mechanism cleanly: for
+LumA-vs-LumB the label tracks **measurement technology**, NOVEL on *both* RNA-seq cohorts (TCGA RNA-seq and the
+independent SCAN-B) yet REDUNDANT on *both* microarrays (TCGA Agilent and METABRIC) — it even flips on the same
+TCGA patients between their RNA-seq and Agilent measurements, before any change of cohort. So the
+transportability caveat is specific and predictable: it attaches to hypotheses whose collinearity with the
+anchor is itself measurement-dependent, while genuinely anchor-orthogonal axes (basal→immune) transport cleanly
+across platform and cohort. Runner: `reports/dmoi_endpoint_panel.py` (`endpoint_panel.csv`,
+`figs/endpoint_panel.png`); the Agilent column auto-adds when AgilentG4502A_07_3.gz (UCSC Xena) is present and
+the SCAN-B column when the pre-extracted GSE96058 marker matrix + phenotype are in SCANB_DIR.
 
 *Tissue-independence (a third cancer, head & neck).* HNSC is uniformly squamous, so it offers no
 within-cohort histology contrast — but that allows a confound control. Scoring TCGA HNSC (head & neck

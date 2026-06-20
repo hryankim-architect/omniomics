@@ -132,12 +132,16 @@ in TCGA (unique R² 0.038) but REDUNDANT in METABRIC (redundancy 1.00, 96 % medi
 controlled transportability sweep — fixing both marginal effects and varying only the anchor–hypothesis
 correlation — shows the *same* ER effect is 100 % NOVEL at TCGA's correlation (+0.19) yet collapses into the
 collinear/suppression valley at METABRIC's (−0.17): the verdict is a covariate-distribution (transportability)
-property, not a change in biology. A four-endpoint × two-cohort panel makes the payload concrete: two endpoints
-transport and two do not. The transportable ones are orthogonal axes (basal→immune is NOVEL in both cohorts;
-ER-status→proliferation carries a small unique slice in both), while the two non-transporting ones are exactly
-the ER-collinearity cases (proliferation→ER on Luminal A/B; amplicon→ER on HER2). So the caveat attaches
-specifically to hypotheses whose anchor-collinearity is itself cohort-dependent — anchor-orthogonal axes
-transport cleanly.
+property, not a change in biology. A four-endpoint panel across four columns (TCGA RNA-seq, TCGA Agilent
+microarray — the same patients on a different platform — the independent METABRIC microarray cohort, and
+SCAN-B, a fully independent RNA-seq cohort of ~3,400 tumours) makes the payload concrete: two endpoints
+transport and two do not. The transportable ones are orthogonal axes (basal→immune is NOVEL in all four;
+ER-status→proliferation carries a small unique slice in all four — robust across platform and independent
+cohort), while the two non-transporting ones are exactly the ER-collinearity cases (proliferation→ER on Luminal
+A/B; amplicon→ER on HER2). For Luminal A/B the label tracks measurement technology — NOVEL on both RNA-seq
+cohorts (TCGA RNA-seq, SCAN-B) but REDUNDANT on both microarrays (TCGA Agilent, METABRIC), flipping even on the
+same TCGA patients. So the caveat attaches specifically to hypotheses whose anchor-collinearity is itself
+measurement-dependent — anchor-orthogonal axes transport cleanly across platform and cohort.
 
 ## 4. Related work
 

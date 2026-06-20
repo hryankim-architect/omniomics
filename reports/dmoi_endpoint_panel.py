@@ -14,6 +14,16 @@ Endpoints (endpoint | anchor -> hypothesis):
   ER_pos_vs_neg    ER signature -> proliferation(near-complete anchor; expect nothing to add)
   Basal_vs_rest    basal/keratinization -> immune(does the immune program add beyond the basal axis?)
 
+A third column (TCGA_Agilent) is added automatically when an Agilent microarray matrix is present in BRCA_DIR
+(AgilentG4502A_07_3.gz from UCSC Xena: https://tcga.xenahubs.net/download/TCGA.BRCA.sampleMap/AgilentG4502A_07_3.gz).
+It uses the SAME TCGA patients on a different platform, so its agreement with TCGA_RNAseq is a platform-
+transportability check, and its agreement with METABRIC is cohort-transportability. If the file is absent the
+runner simply produces the two-cohort panel.
+
+A fourth column (SCAN-B) is added when SCANB_DIR holds scanb_markers.csv + scanb_pheno.csv — a fully
+independent Swedish RNA-seq cohort (GEO GSE96058, ~3,400 tumours). These are pre-extracted from the public
+GSE96058 gene-expression matrix (marker rows only) and the series-matrix phenotype (pam50/er/her2).
+
 Writes endpoint_panel.csv and reports/figs/endpoint_panel.png.
 
 Run:  BRCA_DIR=/path/to/tcga_brca METABRIC_DIR=/path/to/metabric python reports/dmoi_endpoint_panel.py
@@ -63,17 +73,28 @@ def _cell(cohort, endpoint, E, y):
                 prop_mediated=r["prop_mediated"], collinearity_label=r["collinearity_label"])
 
 
-def _tcga():
-    ex = pd.read_csv(os.path.join(B, "HiSeqV2.gz"), sep="\t", index_col=0); ex = ex[~ex.index.duplicated()]
-    cl = pd.read_csv(os.path.join(B, "BRCA_clinicalMatrix.tsv"), sep="\t", index_col=0)
+def _tcga_cohort(name, ex, cl):
+    """Run the four endpoints for one TCGA expression matrix (RNA-seq or Agilent) against the shared clinical."""
+    ex = ex[~ex.index.duplicated()]
     pam = cl["PAM50Call_RNAseq"].reindex(ex.columns)
     er = cl["breast_carcinoma_estrogen_receptor_status"].reindex(ex.columns)
     her2 = cl["HER2_Final_Status_nature2012"].reindex(ex.columns)
     out = []
-    m = pam.isin(["LumA", "LumB"]); out.append(_cell("TCGA", "LumA_vs_LumB", ex.loc[:, m], (pam[m] == "LumB").astype(int).values))
-    m = her2.isin(["Positive", "Negative"]); out.append(_cell("TCGA", "HER2_pos_vs_neg", ex.loc[:, m], (her2[m] == "Positive").astype(int).values))
-    m = er.isin(["Positive", "Negative"]); out.append(_cell("TCGA", "ER_pos_vs_neg", ex.loc[:, m], (er[m] == "Positive").astype(int).values))
-    m = pam.isin(["LumA", "LumB", "Basal", "Her2", "Normal"]); out.append(_cell("TCGA", "Basal_vs_rest", ex.loc[:, m], (pam[m] == "Basal").astype(int).values))
+    m = pam.isin(["LumA", "LumB"]); out.append(_cell(name, "LumA_vs_LumB", ex.loc[:, m], (pam[m] == "LumB").astype(int).values))
+    m = her2.isin(["Positive", "Negative"]); out.append(_cell(name, "HER2_pos_vs_neg", ex.loc[:, m], (her2[m] == "Positive").astype(int).values))
+    m = er.isin(["Positive", "Negative"]); out.append(_cell(name, "ER_pos_vs_neg", ex.loc[:, m], (er[m] == "Positive").astype(int).values))
+    m = pam.isin(["LumA", "LumB", "Basal", "Her2", "Normal"]); out.append(_cell(name, "Basal_vs_rest", ex.loc[:, m], (pam[m] == "Basal").astype(int).values))
+    return out
+
+
+def _tcga():
+    cl = pd.read_csv(os.path.join(B, "BRCA_clinicalMatrix.tsv"), sep="\t", index_col=0)
+    out = _tcga_cohort("TCGA_RNAseq", pd.read_csv(os.path.join(B, "HiSeqV2.gz"), sep="\t", index_col=0), cl)
+    ag = os.environ.get("AGILENT_FILE", os.path.join(B, "AgilentG4502A_07_3.gz"))
+    if os.path.exists(ag):   # third column: same patients, Agilent microarray platform (platform-transportability)
+        am = pd.read_csv(ag, sep="\t", index_col=0)
+        am = am.apply(pd.to_numeric, errors="coerce"); am = am.T.fillna(am.mean(1)).T
+        out += _tcga_cohort("TCGA_Agilent", am, cl)
     return out
 
 
@@ -98,22 +119,44 @@ def _metabric():
     return out
 
 
+def _scanb():
+    """Fourth column: SCAN-B (GSE96058), a fully independent Swedish RNA-seq cohort (~3,400 tumours).
+    Reads the pre-extracted marker-gene matrix (scanb_markers.csv) and phenotype (scanb_pheno.csv) from
+    SCANB_DIR; returns [] if absent. ER/HER2 are IHC status (1=pos, 0=neg); pam50 is the gene-expression call."""
+    sd = os.environ.get("SCANB_DIR", os.path.join(os.path.dirname(B.rstrip("/")), "scanb"))
+    mk = os.path.join(sd, "scanb_markers.csv"); ph = os.path.join(sd, "scanb_pheno.csv")
+    if not (os.path.exists(mk) and os.path.exists(ph)):
+        return []
+    E = pd.read_csv(mk, index_col=0); E = E[~E.index.duplicated()]
+    pk = pd.read_csv(ph).set_index("sample")
+    pam = pk["pam50"].astype(str).reindex(E.columns)
+    er = pd.to_numeric(pk["er"], errors="coerce").reindex(E.columns)      # 1=positive, 0=negative, NaN=unknown
+    her2 = pd.to_numeric(pk["her2"], errors="coerce").reindex(E.columns)
+    out = []
+    m = pam.isin(["LumA", "LumB"]); out.append(_cell("SCAN-B", "LumA_vs_LumB", E.loc[:, m], (pam[m] == "LumB").astype(int).values))
+    m = her2.isin([0, 1]); out.append(_cell("SCAN-B", "HER2_pos_vs_neg", E.loc[:, m], (her2[m] == 1).astype(int).values))
+    m = er.isin([0, 1]); out.append(_cell("SCAN-B", "ER_pos_vs_neg", E.loc[:, m], (er[m] == 1).astype(int).values))
+    m = pam.isin(["LumA", "LumB", "Basal", "Her2", "Normal"]); out.append(_cell("SCAN-B", "Basal_vs_rest", E.loc[:, m], (pam[m] == "Basal").astype(int).values))
+    return out
+
+
 def main():
     assert B and os.path.isdir(B) and M and os.path.isdir(M), "set BRCA_DIR and METABRIC_DIR"
-    rows = _tcga() + _metabric()
+    rows = _tcga() + _metabric() + _scanb()
     df = pd.DataFrame(rows)
-    # transportability concordance per endpoint (same collinearity_label in both cohorts)
+    cohorts = [c for c in ["TCGA_RNAseq", "TCGA_Agilent", "METABRIC", "SCAN-B"] if c in set(df["cohort"])]
+    # transportability concordance per endpoint (same collinearity_label across ALL cohorts present)
     lab = df.pivot(index="endpoint", columns="cohort", values="collinearity_label")
-    df["transports"] = df["endpoint"].map(lambda e: bool(lab.loc[e, "TCGA"] == lab.loc[e, "METABRIC"]))
+    df["transports"] = df["endpoint"].map(lambda e: bool(lab.loc[e, cohorts].nunique() == 1))
     df = df.sort_values(["endpoint", "cohort"]).reset_index(drop=True)
     df.to_csv(os.path.join(REPO, "endpoint_panel.csv"), index=False)
     print(df[["endpoint", "cohort", "anchor", "hypothesis", "verdict", "collinearity_label",
               "redundancy", "transports"]].to_string(index=False))
 
     # label grid figure
-    order = list(ENDPOINTS); cohorts = ["TCGA", "METABRIC"]
+    order = list(ENDPOINTS)
     COL = {"NOVEL": "#2c7fb8", "REDUNDANT": "#d95f5f", "INERT": "#bdbdbd"}
-    fig, ax = plt.subplots(figsize=(8.6, 4.8))
+    fig, ax = plt.subplots(figsize=(5.2 + 1.9 * len(cohorts), 4.9))
     for i, ep in enumerate(order):
         for j, ch in enumerate(cohorts):
             r = df[(df.endpoint == ep) & (df.cohort == ch)].iloc[0]
@@ -131,15 +174,16 @@ def main():
         ax.text(-0.06, len(order) - 1 - i + 0.5, f"{ep}\n{alab}→{hlab}  {'✓transports' if tp else '✗differs'}",
                 ha="right", va="center", fontsize=8.5)
     for j, ch in enumerate(cohorts):
-        ax.text(j + 0.5, len(order) + 0.08, ch, ha="center", va="bottom", fontsize=11, fontweight="bold")
-    ax.set_xlim(-2.2, len(cohorts)); ax.set_ylim(0, len(order) + 0.3); ax.axis("off")
+        ax.text(j + 0.5, len(order) + 0.08, ch.replace("_", "\n"), ha="center", va="bottom", fontsize=9.5, fontweight="bold")
+    ax.set_xlim(-2.4, len(cohorts)); ax.set_ylim(0, len(order) + 0.45); ax.axis("off")
     handles = [plt.Rectangle((0, 0), 1, 1, fc=c) for c in COL.values()]
-    ax.legend(handles, list(COL), loc="lower left", bbox_to_anchor=(-0.62, -0.12), ncol=3, fontsize=8.5, frameon=False)
-    ax.set_title("Anchored hypothesis labels across 4 endpoints × 2 cohorts", fontsize=12, fontweight="bold")
+    ax.legend(handles, list(COL), loc="lower left", bbox_to_anchor=(-0.55, -0.1), ncol=3, fontsize=8.5, frameon=False)
+    ax.set_title(f"Anchored hypothesis labels across {len(order)} endpoints × {len(cohorts)} cohorts",
+                 fontsize=12, fontweight="bold")
     fig.tight_layout()
     fig.savefig(os.path.join(HERE, "figs", "endpoint_panel.png"), dpi=150, bbox_inches="tight")
     nt = int(df.drop_duplicates("endpoint")["transports"].sum())
-    print(f"\n{nt}/{len(order)} endpoints transport (same label in both cohorts). "
+    print(f"\n{nt}/{len(order)} endpoints transport (same label across all {len(cohorts)} cohorts). "
           "wrote endpoint_panel.csv and figs/endpoint_panel.png")
 
 
