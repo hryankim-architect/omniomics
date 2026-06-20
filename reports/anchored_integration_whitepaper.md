@@ -105,11 +105,11 @@ and two do not:
 
 | Endpoint (anchor → hypothesis) | TCGA RNA-seq | TCGA Agilent | METABRIC | SCAN-B | Transports? |
 | :-- | :-- | :-- | :-- | :-- | :-- |
-| Basal vs rest (basal → immune) | NOVEL | NOVEL | NOVEL | NOVEL | ✓ |
-| ER status (ER → proliferation) | NOVEL | NOVEL | NOVEL | NOVEL | ✓ |
-| HER2-subtype vs rest (amplicon → immune) | NOVEL | NOVEL | NOVEL | NOVEL | ✓ |
-| LumA vs LumB (proliferation → ER) | NOVEL | REDUNDANT | REDUNDANT | NOVEL | ✗ |
-| HER2 status (amplicon → ER) | INERT | INERT | REDUNDANT | NOVEL | ✗ |
+| Basal vs rest (basal → immune) | NOVEL | NOVEL | NOVEL | NOVEL | yes |
+| ER status (ER → proliferation) | NOVEL | NOVEL | NOVEL | NOVEL | yes |
+| HER2-subtype vs rest (amplicon → immune) | NOVEL | NOVEL | NOVEL | NOVEL | yes |
+| LumA vs LumB (proliferation → ER) | NOVEL | REDUNDANT | REDUNDANT | NOVEL | no |
+| HER2 status (amplicon → ER) | INERT | INERT | REDUNDANT | NOVEL | no |
 
 For Luminal A/B the label tracks **measurement technology**: corr(proliferation, ER) is positive on both
 RNA-seq cohorts (+0.19, +0.10 → NOVEL) and negative on both microarrays (−0.10, −0.17 → REDUNDANT), flipping
