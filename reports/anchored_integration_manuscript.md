@@ -148,7 +148,13 @@ the same genes, a different cancer. (On this near-trivial histology split the pa
 saturates, so gene-level overlap is the informative metric.) Adding head & neck (HNSC), the breast panel
 separates squamous (HNSC + LUSC) from adeno (LUAD) at AUROC 0.96 with HNSC and LUSC — two different tissues —
 both scoring high and LUAD low, and within HNSC the score tracks differentiation grade (G1 > G3,
-p ≈ 2×10⁻⁴): the axis is a tissue-independent squamous-differentiation marker.
+p ≈ 2×10⁻⁴): the axis is a tissue-independent squamous-differentiation marker. A fourth cancer (oesophagus,
+TCGA ESCA, ESCC vs EAC) is an honest *partial* replication that also marks a limit of de-novo rediscovery: the
+fixed breast basal panel transfers strongly (AUROC 0.91; KRT5/TP63 strongly up in ESCC, so the keratinization
+axis is plainly present), yet unbiased residual rediscovery names the *adenocarcinoma* counter-pole
+(HNF4A/HNF1A/B, MUC13, VIL1) rather than the squamous keratins, leaving the 30-gene overlap at 0 — the same
+squamous/adeno axis, but the opposite pole surfaced. Panel transfer and de-novo rediscovery can therefore point
+to opposite ends of one axis depending on which pole carries the cleaner anchor-orthogonal signal.
 
 **Clinical significance: identity, not outcome (an honest negative).** A reproducible axis need not be
 prognostic. In TCGA-BRCA (n = 866, 132 events) the basal score is not associated with overall survival

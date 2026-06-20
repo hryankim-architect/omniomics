@@ -320,6 +320,23 @@ def test_external_lung_guard():
         assert len(genes & {"KRT5", "KRT14", "KRT6B", "TP63", "DSG3", "DSC3"}) >= 3
 
 
+def test_external_esca_guard():
+    """Cross-CANCER (oesophagus) — an honest, partial replication. The breast basal/keratinization panel
+    TRANSFERS strongly to TCGA ESCA squamous-vs-adeno (fixed-panel AUROC ~0.91; KRT5/TP63 strongly up in ESCC),
+    so the axis is present; but unbiased residual rediscovery names the ADENOCARCINOMA counter-pole
+    (HNF4A/HNF1A/B, MUC13, VIL1), so the 30-gene overlap is 0 — same axis, opposite pole. Skip-safe."""
+    f = REPO / "external_validation_esca.csv"
+    if not f.exists():
+        pytest.skip("external_validation_esca.csv not committed (dmoi_external_esca.py not run yet)")
+    d = pd.read_csv(f).iloc[0]
+    assert float(d["basal_panel_transfer_auroc"]) >= 0.85       # the keratinization panel transfers (axis present)
+    assert int(d["overlap_with_brca_basal_of30"]) == 0         # rediscovery names the adeno counter-pole here
+    nf = REPO / "novel_genes_esca.csv"
+    if nf.exists():
+        genes = set(pd.read_csv(nf)["gene"])
+        assert len(genes & {"HNF4A", "HNF1A", "HNF1B", "MUC13", "VIL1", "TSPAN8"}) >= 2   # adeno pole
+
+
 def test_external_hnsc_guard():
     """Third cross-cancer test (head & neck): the breast basal panel is a TISSUE-INDEPENDENT squamous
     marker -- it separates squamous (HNSC+LUSC) from adeno (LUAD), with HNSC (head & neck) and LUSC (lung),

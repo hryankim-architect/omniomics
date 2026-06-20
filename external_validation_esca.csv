@@ -1,0 +1,2 @@
+dataset,endpoint,n,textbook_anchor,anchor_auroc,basal_panel_transfer_auroc,combined,delta,novel_delta,random_delta_mean,novel_vs_random_p,overlap_with_brca_basal_of30,overlap_hyper_p,rediscovered_pole,stability_gain,shared_genes
+TCGA_ESCA_ESCC_vs_EAC,histology_squamous_vs_adeno,196,proliferation_20gene,0.617,0.913,0.99,0.372,0.367,0.37,0.909,0,1.00e+00,"adenocarcinoma (HNF4A/HNF1A/B, MUC13, VIL1)",0.84,
