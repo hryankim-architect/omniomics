@@ -316,6 +316,14 @@ across platform and cohort. Runner: `reports/dmoi_endpoint_panel.py` (`endpoint_
 `figs/endpoint_panel.png`); the Agilent column auto-adds when AgilentG4502A_07_3.gz (UCSC Xena) is present and
 the SCAN-B column when the pre-extracted GSE96058 marker matrix + phenotype are in SCANB_DIR.
 
+The mechanism is concrete and quantitative (`reports/fig_platform_corr.py`, `figs/platform_corr.png`): for
+LumA-vs-LumB the **sign of corr(proliferation, ER) flips by platform** — it is **positive on RNA-seq**
+(TCGA RNA-seq +0.19, SCAN-B +0.10), where ER carries suppression/unique variance → NOVEL, and **negative on
+microarray** (TCGA Agilent −0.10, METABRIC −0.17), where LumB's lower ER is collinear with its higher
+proliferation → REDUNDANT. This is exactly the dependence the transportability sweep predicts (the verdict is a
+function of corr(anchor, hypothesis)); here that nuisance correlation is itself set by the measurement
+platform, which is why the label is best read within a fixed assay.
+
 *Tissue-independence (a third cancer, head & neck).* HNSC is uniformly squamous, so it offers no
 within-cohort histology contrast — but that allows a confound control. Scoring TCGA HNSC (head & neck
 squamous), LUSC (lung squamous) and LUAD (lung adeno) with the breast 30-gene basal panel, the score

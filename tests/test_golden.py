@@ -568,6 +568,30 @@ def test_endpoint_panel_guard():
         assert g[("LumA_vs_LumB", "SCAN-B")] != g[("LumA_vs_LumB", "METABRIC")]
 
 
+def test_platform_corr_sign_guard():
+    """Mechanism behind the LumA/B label split: corr(proliferation, ER) flips SIGN by platform family.
+    RNA-seq cohorts (TCGA_RNAseq, SCAN-B) have a positive correlation and are labelled NOVEL; microarray
+    cohorts (TCGA_Agilent, METABRIC) have a negative correlation and are labelled REDUNDANT. Skip-safe; only
+    asserts for the cohorts present in the committed panel."""
+    f = REPO / "endpoint_panel.csv"
+    if not f.exists():
+        pytest.skip("endpoint_panel.csv not committed")
+    d = pd.read_csv(f)
+    lum = d[d["endpoint"] == "LumA_vs_LumB"].set_index("cohort")
+    platform = {"TCGA_RNAseq": "rna", "SCAN-B": "rna", "TCGA_Agilent": "array", "METABRIC": "array"}
+    seen = 0
+    for ch, fam in platform.items():
+        if ch not in lum.index:
+            continue
+        seen += 1
+        c = float(lum.loc[ch, "corr_anchor_hyp"]); lab = lum.loc[ch, "collinearity_label"]
+        if fam == "rna":
+            assert c > 0 and lab == "NOVEL", (ch, c, lab)
+        else:
+            assert c < 0 and lab == "REDUNDANT", (ch, c, lab)
+    assert seen >= 2                                            # at least one of each family in practice
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""
