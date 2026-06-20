@@ -2,6 +2,9 @@
 title: "Anchored multi-omics integration and knowledge-anchored residual discovery: a never-below-the-best-view integrator that finds what the known biology misses"
 author: "H. Ryan Kim"
 date: "2026"
+header-includes:
+  - \usepackage{caption}
+  - \captionsetup{labelformat=empty}
 ---
 
 **Running title:** Knowledge-anchored residual discovery
@@ -205,8 +208,8 @@ METABRIC, SCAN-B).** Each cell is one (anchor → hypothesis) test in one column
 label (NOVEL = carries variance unique to the hypothesis beyond the anchor; REDUNDANT = predicts but
 collinear/mediated; INERT = no appreciable signal), with the cross-validated verdict and the redundancy below
 it. TCGA Agilent is the *same patients* as TCGA RNA-seq on a different platform (a platform-transportability
-check); METABRIC (microarray) and SCAN-B (GSE96058, RNA-seq) are independent cohorts. ✓transports/✗differs
-marks whether the label is concordant across all four columns. Basal→immune and ER-status→proliferation
+check); METABRIC (microarray) and SCAN-B (GSE96058, RNA-seq) are independent cohorts. The "transports/differs"
+tag marks whether the label is concordant across all four columns. Basal→immune and ER-status→proliferation
 transport (NOVEL everywhere, including the independent SCAN-B); the two ER-collinearity endpoints (Luminal A/B,
 HER2) do not — and for Luminal A/B the label tracks measurement technology, NOVEL on the two RNA-seq columns
 (TCGA RNA-seq, SCAN-B) but REDUNDANT on the two microarrays (TCGA Agilent, METABRIC).](figs/endpoint_panel.png){ width=100% }
