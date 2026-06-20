@@ -165,6 +165,23 @@ mediated by the amplicon). Across the two endpoints the framework cleanly separa
 (ER in TCGA Luminal A/B), *redundant/collinear* (ER in METABRIC Luminal A/B and HER2), and *absent/weak* (ER
 for HER2 in TCGA).
 
+Extending this to a four-endpoint × two-cohort panel (Figure 3) makes the practical payload explicit: of four
+endpoints, two transport and two do not. The transportable pairs are orthogonal, biologically robust axes — a
+basal/keratinization anchor with an immune hypothesis is NOVEL in *both* cohorts (immune infiltration adds a
+real axis beyond the basal lineage program), and an ER-signature anchor with a proliferation hypothesis
+carries a small but genuine unique proliferation slice in both. The two that do *not* transport are exactly the
+ER-collinearity cases above (proliferation→ER on Luminal A/B; amplicon→ER on HER2). The transportability caveat
+is therefore specific and predictable: it attaches to hypotheses whose collinearity with the anchor is itself
+cohort-dependent, while genuinely anchor-orthogonal axes transport cleanly.
+
+![**Figure 3. Anchored hypothesis labels across four endpoints × two cohorts.** Each cell is one
+(anchor → hypothesis) test in one cohort, coloured by the commonality label (NOVEL = carries variance unique
+to the hypothesis beyond the anchor; REDUNDANT = predicts but collinear/mediated; INERT = no appreciable
+signal), with the cross-validated verdict and the redundancy below it. Rows are endpoints (anchor → hypothesis);
+✓transports/✗differs marks whether the label is concordant across TCGA and METABRIC. Basal→immune and
+ER-status→proliferation transport (NOVEL in both); the two ER-collinearity endpoints (Luminal A/B, HER2) do
+not.](figs/endpoint_panel.png)
+
 ## 3. Discussion
 
 The method instantiates and unifies three established traditions — clinical-offset / incremental-value
