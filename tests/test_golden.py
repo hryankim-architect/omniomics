@@ -592,6 +592,34 @@ def test_platform_corr_sign_guard():
     assert seen >= 2                                            # at least one of each family in practice
 
 
+def test_manuscript_numbers_match_csvs_guard():
+    """Submission integrity: the transportability numbers cited in the manuscript must match the recorded CSVs
+    (no drift between text and data). Skip-safe if the manuscript or any CSV is absent."""
+    man = REPO / "reports" / "anchored_integration_manuscript.md"
+    ep_f = REPO / "endpoint_panel.csv"; di_f = REPO / "hypothesis_metabric_diagnosis.csv"
+    h_f = REPO / "transportability_her2_diag.csv"
+    if not (man.exists() and ep_f.exists() and di_f.exists() and h_f.exists()):
+        pytest.skip("manuscript or a transportability CSV not present")
+    M = man.read_text()
+    ep = pd.read_csv(ep_f).set_index(["endpoint", "cohort"])["collinearity_label"]
+    # panel labels the manuscript asserts
+    assert ep[("Basal_vs_rest", "TCGA_RNAseq")] == "NOVEL" and ep[("Basal_vs_rest", "SCAN-B")] == "NOVEL"
+    assert ep[("LumA_vs_LumB", "TCGA_RNAseq")] == "NOVEL" and ep[("LumA_vs_LumB", "SCAN-B")] == "NOVEL"
+    assert ep[("LumA_vs_LumB", "TCGA_Agilent")] == "REDUNDANT" and ep[("LumA_vs_LumB", "METABRIC")] == "REDUNDANT"
+    # platform corr values cited in text (2dp, manuscript uses a unicode minus for negatives)
+    lum = pd.read_csv(ep_f); lum = lum[lum.endpoint == "LumA_vs_LumB"].set_index("cohort")["corr_anchor_hyp"]
+    for c, txt in {"TCGA_RNAseq": "+0.19", "SCAN-B": "+0.10", "TCGA_Agilent": "−0.10", "METABRIC": "−0.17"}.items():
+        assert f"{lum[c]:+.2f}".replace("-", "−") == txt and txt in M, (c, lum[c])
+    # METABRIC ER diagnosis
+    d = pd.read_csv(di_f).set_index("cohort")
+    assert abs(d.loc["TCGA", "unique_er_r2"] - 0.038) < 0.003 and "0.038" in M
+    assert round(d.loc["METABRIC", "redundancy"], 2) == 1.00 and round(d.loc["METABRIC", "prop_mediated"] * 100) == 96 and "96" in M
+    # HER2 diagnosis
+    h = pd.read_csv(h_f).set_index("cohort")
+    assert h.loc["TCGA", "collinearity_label"] == "INERT" and h.loc["METABRIC", "collinearity_label"] == "REDUNDANT"
+    assert round(h.loc["METABRIC", "redundancy"], 2) == 0.89 and round(h.loc["METABRIC", "prop_mediated"] * 100) == 66
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""
