@@ -40,6 +40,10 @@ def bars(ax, cx, base, heights, colors, bw=0.16, gap=0.07):
         ax.add_patch(plt.Rectangle((x, base), bw, h, facecolor=c, edgecolor="none")); x += bw + gap
 
 
+def glabel(ax, cx, text):
+    ax.text(cx, YB + 0.13, text, ha="center", va="center", fontsize=6.7, color=SUB, style="italic")
+
+
 def arrow(ax, x0, x1):
     ax.add_patch(FancyArrowPatch((x0, YB + H / 2), (x1, YB + H / 2), arrowstyle="-|>",
                                  mutation_scale=16, linewidth=2, color="#8aa0b3"))
@@ -54,18 +58,20 @@ def main():
     # 1 · anchor — a gene-signature glyph (several bars)
     cx = draw_box(ax, XS[0], BLUE, ["1 · Anchor on", "known biology"],
                   ["zero-parameter", "textbook prior"])
-    bars(ax, cx, YB + 0.28, [0.40, 0.62, 0.30, 0.52, 0.36], [BLUE] * 5)
+    bars(ax, cx, YB + 0.30, [0.40, 0.62, 0.30, 0.52, 0.36], [BLUE] * 5); glabel(ax, cx, "gene signature")
 
     # 2 · gate — anchor bar (tall) + small gated residual on top
     cx = draw_box(ax, XS[1], "#5b6b7a", ["2 · Gate the", "residual (β ≥ 0)"],
                   ["never below the", "best single view"])
-    bars(ax, cx, YB + 0.28, [0.70, 0.16], ["#5b6b7a", GREY], bw=0.34, gap=0.10)
+    bars(ax, cx, YB + 0.30, [0.70, 0.16], ["#5b6b7a", GREY], bw=0.34, gap=0.10)
+    glabel(ax, cx, "anchor + gated Δ")
 
     # 3 · discover — anchor bar + orthogonal increment highlighted
     cx = draw_box(ax, XS[2], BLUE, ["3 · Discover", "orthogonal axis"],
                   ["mine what the", "anchor misses"])
-    ax.add_patch(plt.Rectangle((cx - 0.17, YB + 0.28), 0.34, 0.55, facecolor=GREY, edgecolor="none"))
-    ax.add_patch(plt.Rectangle((cx - 0.17, YB + 0.83), 0.34, 0.22, facecolor=BLUE, edgecolor="none"))
+    ax.add_patch(plt.Rectangle((cx - 0.17, YB + 0.30), 0.34, 0.55, facecolor=GREY, edgecolor="none"))
+    ax.add_patch(plt.Rectangle((cx - 0.17, YB + 0.85), 0.34, 0.22, facecolor=BLUE, edgecolor="none"))
+    glabel(ax, cx, "anchor + new axis")
 
     # 4 · transportability — same effect, opposite label by platform (two labelled bars, inside the box)
     cx = draw_box(ax, XS[3], RED, ["4 · Read", "transportability"],
@@ -75,6 +81,7 @@ def main():
     ax.add_patch(plt.Rectangle((cx + 0.55 - 0.13, YB + 0.40), 0.26, 0.45, facecolor=RED, edgecolor="none"))
     ax.text(bx, YB + 0.26, "RNA-seq", ha="center", va="center", fontsize=6.6, color=BLUE, fontweight="bold")
     ax.text(cx + 0.55, YB + 0.26, "array", ha="center", va="center", fontsize=6.6, color=RED, fontweight="bold")
+    glabel(ax, cx, "same effect, opposite label")
 
     for i in range(3):
         arrow(ax, XS[i] + W + 0.04, XS[i + 1] - 0.04)
