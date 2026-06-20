@@ -387,6 +387,21 @@ def test_anchor_family_voe_guard():
         assert int(cc["in_basal_panel"].astype(bool).sum()) >= 15  # large consensus core across anchors
 
 
+def test_hypothesis_anchor_guard():
+    """Hypothesis-as-anchor demo (LumA/B vs textbook proliferation): the basal/keratinization hypothesis is
+    SUPPORTED (adds beyond the textbook), immune is REFUTED (≈chance, adds nothing), and a random gene set is
+    EXPLAINED_BY_TEXTBOOK (predicts alone but redundant once proliferation is controlled — the Venet logic).
+    Skip-safe until dmoi_hypothesis_anchor.py produces the CSV."""
+    f = REPO / "hypothesis_anchor_results.csv"
+    if not f.exists():
+        pytest.skip("hypothesis_anchor_results.csv not committed (dmoi_hypothesis_anchor.py not run yet)")
+    d = pd.read_csv(f).set_index("hypothesis")
+    assert d.loc["basal_keratinization", "verdict"] == "SUPPORTED"
+    assert float(d.loc["basal_keratinization", "delta_hyp_given_textbook"]) > 0.01
+    assert d.loc["random_30genes", "verdict"] in ("EXPLAINED_BY_TEXTBOOK", "REFUTED")   # not a novel mechanism
+    assert float(d.loc["random_30genes", "delta_hyp_given_textbook"]) <= 0.01           # adds ~nothing beyond textbook
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""

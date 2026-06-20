@@ -201,6 +201,19 @@ are consensus across ≥4/5 anchors (21 in the basal panel). So the discovery is
 hand-picked anchor. `reports/dmoi_anchor_family_voe.py`; `anchor_family_voe.csv`, `anchor_family_consensus.csv`;
 full rationale in `reports/anchor_standardization_discussion.md`.
 
+*Hypothesis-as-anchor — confirm / explain-away / refute a hypothesis with the textbook anchor + real data.*
+The same frame turns a hypothesis into a *candidate anchor* and tests it against the established textbook
+anchor: `hypothesis_anchor_test` gates the hypothesis onto the textbook anchor's residual and returns a
+3-way verdict — **SUPPORTED** (adds signal beyond the textbook → candidate novel mechanism),
+**EXPLAINED_BY_TEXTBOOK** (predicts on its own but is redundant once the textbook prior is controlled), or
+**REFUTED** (neither). This operationalizes Venet et al. (2011): a signature is a novel mechanism only if it
+survives adjustment for the dominant prior. On LumA-vs-LumB with the proliferation textbook anchor, the
+**basal/keratinization** hypothesis is SUPPORTED (Δ +0.039 beyond the anchor, β = 8; AUROC 0.78, orthogonal
+to proliferation), **immune/cytotoxic** is REFUTED (AUROC 0.51 ≈ chance, adds 0.000 — immune does not
+separate LumA/B), and a **random 30-gene** set is EXPLAINED_BY_TEXTBOOK (predicts alone at 0.63 but adds
+≈ 0 once proliferation is controlled — exactly the Venet artifact). `reports/dmoi_hypothesis_anchor.py`;
+`hypothesis_anchor_results.csv`.
+
 *Tissue-independence (a third cancer, head & neck).* HNSC is uniformly squamous, so it offers no
 within-cohort histology contrast — but that allows a confound control. Scoring TCGA HNSC (head & neck
 squamous), LUSC (lung squamous) and LUAD (lung adeno) with the breast 30-gene basal panel, the score

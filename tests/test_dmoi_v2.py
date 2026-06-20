@@ -237,6 +237,25 @@ def test_marker_correlated_anchor():
     assert sum(g.startswith("g") and int(g[1:]) <= 10 for g in genes) >= 8   # recovers the correlated set
 
 
+def test_hypothesis_anchor_test():
+    """Hypothesis-as-anchor 3-way verdict: a hypothesis orthogonal to the textbook that adds signal is
+    SUPPORTED; pure noise is REFUTED; a hypothesis that only echoes the textbook is EXPLAINED_BY_TEXTBOOK."""
+    rng = np.random.default_rng(0); n = 500
+    a = rng.normal(size=n)                              # textbook axis
+    b = rng.normal(size=n)                              # a real, orthogonal novel axis
+    y = ((a + b) > 0).astype(int)
+    T = a + 0.2 * rng.normal(size=n)                    # textbook anchor tracks a
+    supported = b + 0.3 * rng.normal(size=n)            # tracks the orthogonal axis -> should add beyond T
+    refuted = rng.normal(size=n)                        # pure noise
+    explained = a + 0.3 * rng.normal(size=n)            # echoes the textbook axis -> predicts but redundant
+    vs = mo.hypothesis_anchor_test(T, supported, y, cv=4, inner_repeats=1)["verdict"]
+    vr = mo.hypothesis_anchor_test(T, refuted, y, cv=4, inner_repeats=1)["verdict"]
+    ve = mo.hypothesis_anchor_test(T, explained, y, cv=4, inner_repeats=1)["verdict"]
+    assert vs == "SUPPORTED"
+    assert vr == "REFUTED"
+    assert ve == "EXPLAINED_BY_TEXTBOOK"
+
+
 if __name__ == "__main__":
     test_v2_columns_and_interaction()
     test_reliability_weighting_shifts_pole()

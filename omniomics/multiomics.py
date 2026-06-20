@@ -532,6 +532,43 @@ def marker_correlated_anchor(expr, marker="PCNA", top_frac=0.01, top_k=None, exc
     return genes
 
 
+def hypothesis_anchor_test(textbook_score, hypothesis_score, y, cv=5, random_state=0, inner_repeats=3,
+                           betas=(0.0, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0), add_thresh=0.01, predict_thresh=0.6):
+    """Test a HYPOTHESIS (expressed as a candidate anchor score) against an established TEXTBOOK anchor on
+    real data — confirm, explain-away, or refute it.
+
+    Following Venet et al. (2011, doi:10.1371/journal.pcbi.1002240): a hypothesis is a *novel mechanism* only
+    if it adds signal BEYOND the dominant textbook prior, not merely predicts on its own (many irrelevant
+    signatures predict because they correlate with proliferation). We gate the hypothesis onto the textbook
+    anchor's residual (leakage-safe, never-below-anchor) and read a 3-way verdict.
+
+    Returns dict: auroc_textbook, auroc_hypothesis (orientation-agnostic), corr_textbook_hypothesis,
+    delta_hyp_given_textbook (signal H adds beyond the textbook), beta_hyp_given_textbook,
+    delta_textbook_given_hyp (the reverse), verdict ∈ {SUPPORTED, EXPLAINED_BY_TEXTBOOK, REFUTED}.
+    """
+    from sklearn.metrics import roc_auc_score
+    T = np.asarray(textbook_score, float); Hh = np.asarray(hypothesis_score, float); y = np.asarray(y)
+    aT = roc_auc_score(y, T); aH = roc_auc_score(y, Hh)
+    aT = max(aT, 1 - aT); aH = max(aH, 1 - aH)         # a signature may be anti-correlated with y
+    Tc = T - T.mean(); Hc = Hh - Hh.mean()
+    corr = float((Tc @ Hc) / (np.sqrt(Tc @ Tc) * np.sqrt(Hc @ Hc) + 1e-12))
+    gTH = anchored_integrate(T.reshape(-1, 1), Hh.reshape(-1, 1), y, betas=betas, cv=cv,
+                             random_state=random_state, inner_repeats=inner_repeats)
+    gHT = anchored_integrate(Hh.reshape(-1, 1), T.reshape(-1, 1), y, betas=betas, cv=cv,
+                             random_state=random_state, inner_repeats=inner_repeats)
+    dHT = float(gTH["delta"]); dTH = float(gHT["delta"])
+    bh = gTH.get("betas"); beta_h = round(float(np.mean(bh)), 3) if bh else None
+    if dHT >= add_thresh:
+        verdict = "SUPPORTED"                          # adds beyond the textbook -> candidate novel mechanism
+    elif aH >= predict_thresh:
+        verdict = "EXPLAINED_BY_TEXTBOOK"              # predicts alone but redundant once textbook controlled
+    else:
+        verdict = "REFUTED"                            # neither predicts nor adds
+    return dict(auroc_textbook=round(aT, 4), auroc_hypothesis=round(aH, 4),
+                corr_textbook_hypothesis=round(corr, 4), delta_hyp_given_textbook=round(dHT, 4),
+                beta_hyp_given_textbook=beta_h, delta_textbook_given_hyp=round(dTH, 4), verdict=verdict)
+
+
 def knowledge_anchored_integrate(anchor_score, modalities, y,
                                  betas=(0.0, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0), cv=5, random_state=0,
                                  gate_margin=0.01, inner_repeats=3, anchor_name="knowledge"):

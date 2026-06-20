@@ -1,0 +1,4 @@
+hypothesis,n_genes,textbook,auroc_textbook,auroc_hypothesis,corr_textbook_hypothesis,delta_hyp_given_textbook,beta_hyp_given_textbook,delta_textbook_given_hyp,verdict
+basal_keratinization,9,proliferation_20gene,0.9193,0.7798,-0.1376,0.0391,8.0,0.1812,SUPPORTED
+immune_cytotoxic,10,proliferation_20gene,0.9193,0.5121,0.1105,0.0,0.0,0.4273,REFUTED
+random_30genes,30,proliferation_20gene,0.9193,0.6294,-0.1782,-0.006,1.6,0.299,EXPLAINED_BY_TEXTBOOK
