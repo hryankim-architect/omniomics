@@ -127,21 +127,51 @@ residual in those cancers should partially re-discover the same genes.
 | 3 | ESCA ESCC/EAC | 196 | Histology: squamous vs adeno | **0.913** | 0/30 | Adenocarcinoma counter-pole (HNF4A, MUC13) | Molecular |
 | 4A | BLCA Non-Pap/Pap | 421 | Clinical subtype (mixed) | 0.633 | 0/30 | Stromal/invasiveness (SFRP2, ROR2) | **Clinical (mixed)** |
 | 4B | BLCA Basal/Luminal | 72 | Molecular subtype (pure) | **0.967** | 1/30 (KRT6B) | Luminal/urothelial (PPARG, SLC14A1) | Molecular |
+| 5 | CESC Sq/Adeno | 301 | Histology: squamous vs endocervical adeno | **0.938** | **6/30** (p=1.5×10⁻⁸) | Squamous/keratinization (TP63, KRT5/6A, DSG3, CLCA2, PKP1) | Molecular |
+
+---
+
+### 2.5  Validation #5: Cervix (CESC) — SQUAMOUS POLE PATTERN (LUNG ANALOGUE)
+
+| Parameter | Value |
+|-----------|-------|
+| Dataset | TCGA CESC (UCSC Xena HiSeqV2) |
+| Endpoint | Histology: squamous (y=1, n=253) vs endocervical adenocarcinoma (y=0, n=48), total n=301 |
+| Excluded | Adenosquamous (n=7) |
+| Anchor AUROC (prolif vs histology) | 0.582 |
+| **Breast basal panel transfer AUROC** | **0.938** |
+| Residual overlap with BRCA basal panel | **6/30** (p=1.5×10⁻⁸) |
+| Shared genes | ANXA8, CALML3, DSC3, DSG3, KRT5, TP63 |
+| Top residual genes | TP63, GPR87, CLCA2, PKP1, HNF1A (rank 5), KRT6A, DSG3, ANXA8 |
+| Rediscovered pole | **Squamous/keratinization** — lung pattern, NOT ESCA/BLCA counter-pole |
+
+**Key interpretation:**
+CESC squamous (HPV-driven) has an extremely pure keratinization program. TP63, KRT5, KRT6A, CLCA2, PKP1, DSG3 dominate the post-anchor residual — the same axis as breast and lung, not the adeno counter-pole. HNF1A appears at rank 5 (the ESCA adeno marker) — showing the adeno counter-pole signal is *present but subdominant*. This completes a 2×2 pattern:
+
+| Cancer | Squamous programme purity | Pole named by residual |
+|--------|--------------------------|------------------------|
+| Lung LUAD/LUSC | High (simple histology split) | Squamous (10/30) |
+| ESCA ESCC/EAC | Moderate | Adeno counter-pole (HNF4A, 0/30) |
+| BLCA Basal/Luminal | High (molecular clusters) | Luminal/urothelial counter-pole (PPARG, 1/30) |
+| CESC Sq/Adeno | Very high (HPV-driven) | **Squamous** (6/30) |
+
+**Pole-selection rule emerging:** Residual discovery surfaces the squamous pole when the squamous programme is the dominant post-anchor dimension (lung: simple histology axis; CESC: HPV amplifies squamous purity). It surfaces the opposing lineage's tissue-specific TF programme when that programme is more organ-specific than the squamous keratins (ESCA: hepatic HNF4A; BLCA: urothelial PPARG).
 
 ---
 
 ## 4. Key Scientific Principles Illustrated
 
 ### 4.1  Pan-epithelial keratinization axis
-The breast basal panel (30 genes discovered in breast cancer) transfers at AUROC ≥ 0.91 wherever the endpoint is defined by *molecular* squamous vs non-squamous identity — in lung (0.96 implied), oesophagus (0.91), and bladder (0.97). This is not a breast-specific artifact; it is a pan-epithelial transcriptional program encoding squamous lineage identity, conserved across at least four organ systems.
+The breast basal panel (30 genes discovered in breast cancer) transfers at AUROC ≥ 0.91 wherever the endpoint is defined by *molecular* squamous vs non-squamous identity — in lung (0.96 implied), oesophagus (0.91), bladder (0.97), and cervix (0.94). This is not a breast-specific artifact; it is a pan-epithelial transcriptional program encoding squamous lineage identity, conserved across at least five organ systems.
 
-### 4.2  Residual discovery names a tissue-specific counter-pole
+### 4.2  Residual discovery names either the squamous pole or a tissue-specific counter-pole
 De-novo unbiased residual discovery does not simply re-discover the breast panel. Instead:
 - **Lung**: Names the SQUAMOUS pole (10/30 overlap — same pole as breast)
 - **ESCA**: Names the ADENO counter-pole (HNF4A, MUC13, VIL1 — 0/30 overlap)
 - **BLCA**: Names the LUMINAL/UROTHELIAL counter-pole (PPARG, SLC14A1 — 1/30 overlap)
+- **CESC**: Names the SQUAMOUS pole again (TP63, KRT5/6A, DSG3, CLCA2 — 6/30, p=1.5×10⁻⁸)
 
-The residual surfaces whichever pole carries the *cleanest anchor-orthogonal signal* in each tissue. In lung, squamous keratinization is the most novel dimension relative to proliferation; in ESCA and BLCA, the opposing luminal/adeno lineage TFs are more anchor-orthogonal.
+**Pole-selection rule:** The residual surfaces the squamous pole when the squamous programme is the dominant post-anchor dimension (lung: simple adeno/squamous split; CESC: HPV amplifies keratinization purity). It surfaces the opposing lineage's tissue-specific master regulator when that regulator is more anchor-orthogonal than the shared keratins (ESCA: hepatic HNF4A; BLCA: urothelial PPARG). Note that HNF1A also appears at rank 5 in CESC residuals — the adeno counter-pole signal is present but subdominant.
 
 ### 4.3  Endpoint purity is critical
 BLCA 4A vs 4B is a controlled experiment: same dataset, same anchor, same method. The only difference is endpoint definition quality:
@@ -205,6 +235,7 @@ A fixed panel can score perfectly in a new context even when residual discovery 
 | `reports/dmoi_external_hnsc.py` | HNSC tissue-independence |
 | `reports/dmoi_external_esca.py` | ESCA ESCC/EAC validation |
 | `reports/dmoi_external_blca.py` | BLCA Part A + Part B |
+| `reports/dmoi_external_cesc.py` | CESC squamous vs adeno |
 | `reports/dmoi_external_TEMPLATE.py` | Generic template for new cancers |
 | `external_validation_lung.csv` | Lung results |
 | `external_validation_esca.csv` | ESCA results |
@@ -214,6 +245,8 @@ A fixed panel can score perfectly in a new context even when residual discovery 
 | `novel_genes_esca.csv` | ESCA residual genes |
 | `novel_genes_blca_clinical.csv` | BLCA Part A residual genes |
 | `novel_genes_blca_subtype.csv` | BLCA Part B residual genes |
+| `external_validation_cesc.csv` | CESC results |
+| `novel_genes_cesc.csv` | CESC residual genes |
 | `blca_pancan_subtypes.tsv` | PanCan Atlas BLCA.3/BLCA.1 → Basal/Luminal mapping |
 | `reports/anchored_integration_manuscript.md` | Full manuscript (updated with BLCA) |
 
@@ -222,4 +255,4 @@ A fixed panel can score perfectly in a new context even when residual discovery 
 
 ---
 
-*Document generated 2026-06-20 for NotebookLM upload. Covers cross-cancer validation series #1–#4 of the omniomics anchored residual discovery framework.*
+*Document generated 2026-06-20, updated with CESC #5. Covers cross-cancer validation series #1–#5 of the omniomics anchored residual discovery framework.*

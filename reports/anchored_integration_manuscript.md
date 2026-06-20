@@ -36,7 +36,7 @@ biological knowledge — a known high-performing data type, or a fixed textbook 
 never do worse than the existing standard. By analysing only the *residual* signal left after accounting for
 that anchor, it surfaces orthogonal biological axes that conventional data-fusion overlooks: it recovers a
 keratinization (basal) program in breast cancer — and validates it as a pan-epithelial axis transferring at
-AUROC ≥ 0.91 across lung, oesophagus, and bladder — alongside the field's established immunotherapy biomarkers
+AUROC ≥ 0.91 across lung, oesophagus, bladder, and cervix — alongside the field's established immunotherapy biomarkers
 in lung cancer. Inverting the idea, a hypothesis can itself be expressed as a candidate anchor and tested against the
 textbook prior, letting the framework separate genuinely new findings from those already explained by existing
 literature. It also makes *transportability* explicit — showing how the measurement technology (for example,
@@ -167,10 +167,23 @@ RAB15, and BNC1 (overlap 1/30, KRT6B; p = 0.17), replicating the ESCA pattern in
 A critical methodological observation: when the same BLCA tumours are split by clinical subtype instead
 (Non-Papillary vs Papillary, n = 421 — a mixture spanning all molecular subtypes), panel AUROC falls to 0.633
 and residual recovery fails. Endpoint purity is therefore not cosmetic: molecularly homogeneous comparisons are
-required for transferred axes to be detectable. Across four epithelial cancers (breast, lung, oesophagus,
-bladder), the breast basal panel consistently transfers at AUROC ≥ 0.91 wherever the endpoint is defined by
-molecular identity rather than clinical convenience, affirming a pan-epithelial keratinization axis whose
-residual arm surfaces tissue-specific counter-poles — luminal/adeno biology unique to each organ.
+required for transferred axes to be detectable.
+
+A sixth cancer (cervical carcinoma, TCGA CESC, squamous n = 253 vs endocervical adenocarcinoma n = 48,
+total n = 301) reveals a second residual pattern. The breast panel transfers with AUROC 0.938, and unbiased
+residual discovery — unlike in ESCA and BLCA — names the *squamous* pole: TP63, KRT5, KRT6A, DSG3, CLCA2,
+and PKP1 (overlap 6/30, p = 1.5×10⁻⁸), recapitulating the lung pattern rather than the counter-pole pattern.
+HPV-induced squamous differentiation in the cervix is sufficiently potent to dominate the post-anchor
+residual, with only a trace of the adenocarcinoma counter-pole visible (HNF1A ranks fifth, shared with the
+ESCA adeno axis). This contrast with ESCA and BLCA suggests a pole-selection rule: the residual surfaces
+whichever lineage's anchor-orthogonal transcriptional signal is strongest — squamous keratinization when driven
+by a viral or developmental programme of extreme purity (lung, cervix), and the tissue-specific non-squamous
+TF programme otherwise (hepatic HNF4A in ESCA, urothelial PPARG in BLCA).
+
+Across five epithelial cancers (breast, lung, oesophagus, bladder, cervix), the breast basal panel
+consistently transfers at AUROC ≥ 0.91 wherever the endpoint is defined by molecular identity rather than
+clinical convenience, affirming a pan-epithelial keratinization axis whose residual arm surfaces either the
+squamous pole or a tissue-specific counter-pole depending on the relative anchor-orthogonality of each lineage.
 
 **Clinical significance: identity, not outcome (an honest negative).** A reproducible axis need not be
 prognostic. In TCGA-BRCA (n = 866, 132 events) the basal score is not associated with overall survival
@@ -273,7 +286,7 @@ patients, so it is a measurement property.](figs/platform_corr.png){ width=80% }
 
 | Endpoint / target | Anchor | Anchor AUROC | Residual gain (ΔAUROC) | Discovered axis | External status | Label |
 | :-- | :-- | :--: | :--: | :-- | :-- | :-- |
-| Luminal A vs B | 20-gene proliferation | 0.919 | +0.029 | basal/keratinization (KRT5/14/17/6B, TP63, DSG3/DSC3, SOX10, COL17A1, KLK5/7/8) | METABRIC Δ+0.036; lung 10/30 (p=3×10⁻¹⁶); SCAN-B confirmed; ESCA panel AUROC 0.91; BLCA panel AUROC 0.97 | NOVEL |
+| Luminal A vs B | 20-gene proliferation | 0.919 | +0.029 | basal/keratinization (KRT5/14/17/6B, TP63, DSG3/DSC3, SOX10, COL17A1, KLK5/7/8) | METABRIC Δ+0.036; lung 10/30 (p=3×10⁻¹⁶); SCAN-B confirmed; ESCA panel AUROC 0.91; BLCA panel AUROC 0.97; CESC panel AUROC 0.94 (6/30, p=1.5×10⁻⁸) | NOVEL |
 | HER2 status | ERBB2 amplicon | 0.752 | +0.054 | neuroendocrine/secretory + immune | not in METABRIC (anchor near-complete, 0.997) | — |
 | ER status | ER/luminal signature | 0.938 | −0.001 | none (specificity control) | n/a | INERT |
 | NSCLC anti-PD-1 benefit | TMB | 0.60 | +0.061 | PD-L1; EGFR/STK11 mutation | recovers established biomarkers | — |

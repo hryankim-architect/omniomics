@@ -1,0 +1,2 @@
+dataset,endpoint,n,n_squamous,n_adeno,textbook_anchor,anchor_auroc,basal_panel_transfer_auroc,combined,delta,novel_delta,random_delta_mean,novel_vs_random_p,overlap_with_brca_basal_of30,overlap_hyper_p,rediscovered_pole,stability_gain,shared_genes
+TCGA_CESC_Squamous_vs_Adeno,histology_squamous_vs_adeno,301,253,48,proliferation_20gene,0.582,0.938,0.967,0.385,0.397,0.361,0.091,6,1.47e-08,squamous_keratinization (TP63/KRT5/KRT6A/DSG3/CLCA2/PKP1); HNF1A at rank-5 → trace adeno signal present,0.686,ANXA8; CALML3; DSC3; DSG3; KRT5; TP63
