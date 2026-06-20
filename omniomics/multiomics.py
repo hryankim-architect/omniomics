@@ -577,6 +577,40 @@ def commonality_decomposition(anchor_score, hypothesis_score, y):
                 prop_mediated=round(prop_mediated, 3))
 
 
+def bootstrap_commonality(anchor_score, hypothesis_score, y, reps=300, seed=0, ci=95):
+    """Non-parametric bootstrap confidence intervals for the two quantities that drive a hypothesis's verdict:
+    its variance UNIQUE beyond the anchor (`unique_hypothesis_r2`) and the anchor-hypothesis correlation `corr`.
+
+    Resamples cases with replacement `reps` times (stratified within the two classes of y to keep prevalence),
+    recomputes the gate-free commonality each time, and returns percentile CIs plus the point estimates. The
+    correlation CI is the inferential core of the transportability claim: when it excludes 0 with a consistent
+    sign in one platform but the opposite in another, the label difference is statistically grounded, not noise.
+
+    Returns dict: unique_r2, unique_r2_lo, unique_r2_hi, corr, corr_lo, corr_hi, reps.
+    """
+    a = np.asarray(anchor_score, float); h = np.asarray(hypothesis_score, float); yy = np.asarray(y)
+    pt = commonality_decomposition(a, h, yy)
+    corr0 = float(np.corrcoef((a - a.mean()) / (a.std() + 1e-12), (h - h.mean()) / (h.std() + 1e-12))[0, 1])
+    rng = np.random.default_rng(seed)
+    idx0 = np.where(yy == 0)[0]; idx1 = np.where(yy == 1)[0]
+    us = []; cs = []
+    for _ in range(int(reps)):
+        b = np.concatenate([rng.choice(idx0, len(idx0), replace=True),
+                            rng.choice(idx1, len(idx1), replace=True)])
+        ab = a[b]; hb = h[b]; yb = yy[b]
+        if yb.sum() == 0 or yb.sum() == len(yb):
+            continue
+        cd = commonality_decomposition(ab, hb, yb)
+        us.append(cd["unique_hypothesis_r2"])
+        cs.append(float(np.corrcoef((ab - ab.mean()) / (ab.std() + 1e-12),
+                                    (hb - hb.mean()) / (hb.std() + 1e-12))[0, 1]))
+    lo, hi = (100 - ci) / 2, 100 - (100 - ci) / 2
+    return dict(unique_r2=round(pt["unique_hypothesis_r2"], 4),
+                unique_r2_lo=round(float(np.percentile(us, lo)), 4), unique_r2_hi=round(float(np.percentile(us, hi)), 4),
+                corr=round(corr0, 4), corr_lo=round(float(np.percentile(cs, lo)), 4),
+                corr_hi=round(float(np.percentile(cs, hi)), 4), reps=len(cs))
+
+
 def hypothesis_anchor_test(textbook_score, hypothesis_score, y, cv=5, random_state=0, inner_repeats=3,
                            betas=(0.0, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0), add_thresh=0.01, predict_thresh=0.6):
     """Test a HYPOTHESIS (expressed as a candidate anchor score) against an established TEXTBOOK anchor on

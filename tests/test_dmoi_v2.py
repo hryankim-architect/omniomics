@@ -255,6 +255,21 @@ def test_hypothesis_commonality_labels():
     assert ri["collinearity_label"] == "INERT"
 
 
+def test_bootstrap_commonality():
+    """Bootstrap CIs bracket the point estimates and are inferentially sane: an anchor-orthogonal hypothesis has
+    a unique-R2 CI above 0, while a hypothesis collinear with the anchor has a correlation CI that excludes 0."""
+    rng = np.random.default_rng(0); n = 800
+    a = rng.normal(size=n); b = rng.normal(size=n); y = ((a + b) > 0).astype(int)
+    T = a + 0.2 * rng.normal(size=n)
+    novel = b + 0.3 * rng.normal(size=n)               # orthogonal to the anchor, adds unique variance
+    collinear = a + 0.3 * rng.normal(size=n)           # strongly correlated with the anchor
+    bn = mo.bootstrap_commonality(T, novel, y, reps=200, seed=1)
+    bc = mo.bootstrap_commonality(T, collinear, y, reps=200, seed=1)
+    assert bn["unique_r2_lo"] <= bn["unique_r2"] <= bn["unique_r2_hi"]          # CI brackets the estimate
+    assert bn["unique_r2_lo"] > 0                                               # orthogonal: unique variance > 0
+    assert bc["corr_lo"] > 0.5                                                  # collinear: correlation CI excludes 0
+
+
 def test_transportability_sweep():
     """The hypothesis verdict transports as a function of the anchor-hypothesis nuisance correlation, not the
     marginal effect: holding both separations fixed and sweeping only rho, a hypothesis that is NOVEL when it
