@@ -35,10 +35,11 @@ strong data type is hard to beat. This work introduces an *anchored* framework t
 biological knowledge — a known high-performing data type, or a fixed textbook gene signature — so the model can
 never do worse than the existing standard. By analysing only the *residual* signal left after accounting for
 that anchor, it surfaces orthogonal biological axes that conventional data-fusion overlooks: it recovers a
-keratinization (basal) program in breast cancer — and validates it as a pan-epithelial axis that transfers
-at AUROC ≥ 0.91 in every squamous-containing comparison across five organs (lung, head and neck, oesophagus,
-bladder, cervix) while collapsing to 0.52–0.61 in two adeno-only negative controls (gastric and endometrial
-adenocarcinoma), a 30–40 percentage-point bifurcation that establishes specificity — alongside the field's established immunotherapy biomarkers
+keratinization (basal) program in breast cancer and validates it as a pan-epithelial axis: in seven
+independent TCGA cohorts the breast-derived panel transfers at AUROC ≥ 0.91 across five squamous-containing
+comparisons (lung, head and neck, oesophagus, bladder, cervix) yet collapses to 0.52–0.61 in two adeno-only
+negative controls (gastric and endometrial adenocarcinoma), a 30–40 percentage-point bifurcation that proves
+specificity to squamous lineage identity. The framework also recovers established immunotherapy biomarkers
 in lung cancer. Inverting the idea, a hypothesis can itself be expressed as a candidate anchor and tested against the
 textbook prior, letting the framework separate genuinely new findings from those already explained by existing
 literature. It also makes *transportability* explicit — showing how the measurement technology (for example,
@@ -68,9 +69,13 @@ replicate in METABRIC because the amplicon anchor is near-complete there (0.997)
 breast-cancer- or expression-specific: on an NSCLC anti-PD-1 immunotherapy cohort (n = 227, mutation/clinical
 features), anchored on the textbook biomarker tumour mutational burden, the residual independently recovers
 the field's other established biomarkers — PD-L1 (orthogonal to TMB), EGFR and STK11 mutation (resistance)
-(panel Δ +0.061 vs +0.006, p = 0.038). Finally, the discovered axis replicates across *cancers*: in TCGA
-lung (LUAD vs LUSC, n = 1,129), the same proliferation-anchored residual recovers the squamous/keratinization
-program, overlapping the breast basal panel 10/30 (p ≈ 3×10⁻¹⁶) — the same genes in a different cancer.
+(panel Δ +0.061 vs +0.006, p = 0.038). Finally, the discovered axis replicates across *cancers* as a pan-epithelial keratinization program:
+in seven independent TCGA cohorts spanning lung, head and neck, oesophagus, bladder, cervix (squamous
+vs non-squamous comparisons) and gastric/endometrial adenocarcinoma (adeno-only negative controls), the
+fixed 30-gene breast panel achieves AUROC ≥ 0.91 in all five squamous-containing comparisons (0.96 lung;
+0.96 HNSC; 0.91 ESCA; 0.97 BLCA; 0.94 CESC), falling to 0.52–0.61 in the two adeno-only controls — a
+30–40 percentage-point bifurcation that demonstrates the axis is specific to squamous lineage identity and
+silent in its absence.
 Inverting the frame, a *hypothesis* can be expressed as a candidate anchor and tested against the textbook
 anchor; a commonality/mediation decomposition then separates a genuinely novel axis from one that is merely
 redundant (collinear) or absent, and a five-endpoint × four-cohort panel (TCGA RNA-seq, TCGA Agilent, METABRIC,
@@ -78,9 +83,10 @@ SCAN-B) shows that anchor-orthogonal axes (e.g. an immune program beyond the bas
 platform and cohort, whereas collinear ones do not — their verdict is governed by a nuisance correlation that
 can itself flip sign with the assay (RNA-seq vs microarray). **Conclusion.** Anchor on
 established biology and let a gate decide, honestly, whether genome-wide data beats it; where it does, the
-residual names the new axis — one that reproduces across cohorts (METABRIC) and across cancers (lung), and
-generalises to a different disease and feature type (NSCLC immunotherapy). External reproducibility tracks
-biological coherence.
+residual names the new axis — one that reproduces across cohorts (METABRIC), generalises across diseases and
+feature types (NSCLC immunotherapy), and, for the basal/keratinization axis, transfers across five organs
+while correctly falling silent in two adeno-only controls. External reproducibility tracks biological
+coherence.
 
 ## 1. Introduction
 
@@ -133,7 +139,7 @@ near-complete (0.997 vs 0.752 in TCGA), leaving no residual (panel Δ ≈ 0; ove
 reproducibility tracks biological coherence: the pathway-enriched basal axis reproduces, while the diffuse
 HER2 axis was a cohort-specific residual.
 
-**Cross-domain generalisation (a different cancer, question, and feature type).** The method is not specific
+**Cross-domain generalisation (different cancers, questions, and feature types).** The method is not specific
 to breast cancer or to expression. On NSCLC patients receiving anti-PD-1 checkpoint blockade (Hellmann/MSK
 2018, n = 227; mutation and clinical features; endpoint = durable clinical benefit), anchoring on the
 textbook immuno-oncology biomarker tumour mutational burden (TMB; anchor AUROC 0.60) and mining the residual
@@ -355,9 +361,11 @@ ER-negative/basal identity) but is not prognostic in the cohort studied; discove
 mechanisms, not validated clinical biomarkers. (iii) *Anchor dependence.* Results are conditional on the chosen
 prior — a near-complete anchor (e.g. the ERBB2 amplicon in METABRIC, or the ER signature for ER status) leaves
 no residual by construction, so "nothing found" means "nothing beyond this anchor," not "nothing there." (iv)
-*Cohorts and platforms.* Validation is breast-centric (TCGA, METABRIC, SCAN-B) plus two cross-domain
-demonstrations (TCGA lung, NSCLC anti-PD-1); the hypothesis-screen labels are bulk-expression and
-assay-dependent (as the platform analysis shows), and single-cell or proteomic anchors are untested. (v) *Statistics.* CIs are
+*Cohorts and platforms.* Validation is breast-centric (TCGA, METABRIC, SCAN-B) with cross-cancer
+extension to seven TCGA cohorts (lung, HNSC, ESCA, BLCA, CESC, STAD, UCEC) and one non-expression
+cross-domain demonstration (NSCLC anti-PD-1 mutation/clinical features); the hypothesis-screen labels
+are bulk-expression and assay-dependent (as the platform analysis shows), and single-cell or proteomic
+anchors are untested. (v) *Statistics.* CIs are
 non-parametric bootstrap and the empirical-null FDR is approximate; the transport_score is descriptive, and
 some commonality labels near the NOVEL/INERT threshold are sensitive to that cut-off. (vi) *Scope of evidence.*
 This is a single-author methods study on public data with no prospective or wet-lab validation; the immunotherapy
@@ -379,7 +387,9 @@ status), the method also reports a **selection-stability** statistic — the rec
 across 50% subsamples relative to a permuted-label null — which stays informative there (lung basal axis
 stability gain ≈ +0.89; genome-wide ER methylation ≈ +0.63, both where the panel-vs-random null is
 uninformative). Data: TCGA-BRCA
-(Xena HiSeqV2, HumanMethylation450, clinical) and METABRIC (microarray, clinical). Pathway enrichment:
+(Xena HiSeqV2, HumanMethylation450, clinical), METABRIC (microarray, clinical), and seven additional
+TCGA cohorts via Xena HiSeqV2 (LUAD/LUSC, HNSC, ESCA, BLCA, CESC, STAD, UCEC). BLCA molecular
+subtypes (basal-squamous / luminal-papillary) follow Robertson et al. 2017 [13]. Pathway enrichment:
 g:Profiler. All functions are in `omniomics.multiomics`; runners and recorded metrics are in the repository.
 **Scalability.** The discovery is linear and streams: a vectorized residualize-then-correlate, an optional
 one-pass Sure-Independence-Screening pre-filter, Benjamini–Hochberg FDR, and parallel nulls let it run on
@@ -393,7 +403,8 @@ mapped to PGR (the canonical ER-coregulated gene) — textbook biology recovered
 Code, runners, recorded metrics, unit tests and continuous-integration guards: the `omniomics` repository
 (`reports/dmoi_*.py`, `*_results.csv`, `tests/`). Key runners: `dmoi_knowledge_anchor.py`,
 `dmoi_residual_discovery.py`, `dmoi_discovery_{er,her2}.py`, `dmoi_external_{metabric,her2_metabric}.py`,
-`dmoi_external_lung.py`, `dmoi_external_hnsc.py`, `dmoi_discovery_nsclc_io.py`, `dmoi_clinical_survival.py`,
+`dmoi_external_lung.py`, `dmoi_external_hnsc.py`, `dmoi_external_{esca,blca,cesc,stad,ucec}.py`
+(cross-cancer validation #3–#7), `dmoi_discovery_nsclc_io.py`, `dmoi_clinical_survival.py`,
 `dmoi_meth_genomewide.py` (genome-wide scale). Hypothesis-as-anchor and transportability:
 `dmoi_hypothesis_anchor.py`, `dmoi_hypothesis_screen{,_robust}.py`, `dmoi_hypothesis_metabric_diagnosis.py`,
 `dmoi_transportability_sweep.py`, `dmoi_transportability_her2.py`, `dmoi_endpoint_panel.py`,
@@ -428,10 +439,10 @@ adds a real axis where the textbook is incomplete (LumA/B proliferation → basa
 neuroendocrine/immune, +0.054) and nothing where it is complete (ER signature, −0.001; specificity).
 **(B)** In the independent METABRIC cohort, an unbiased re-discovery recovers the basal axis (20/30 overlap
 with the TCGA panel; direct replication Δ +0.036, p = 0.048) but not the HER2 axis (2/30), because the
-amplicon anchor is already complete in METABRIC. **(C)** Cross-cancer replication: in TCGA lung (LUAD vs
-LUSC, n = 1,129) the same proliferation-anchored residual re-discovers the squamous/keratinization program,
-overlapping the breast basal panel 10/30 (KRT5/14/6B, TP63, DSG3/DSC3, FAT2…; hypergeometric p ≈ 3×10⁻¹⁶) —
-the discovered biology, not a cohort artefact.](figs/discovery_summary.png){ width=100% }
+amplicon anchor is already complete in METABRIC. **(C)** Cross-cancer replication: across seven TCGA cohorts the breast-derived 30-gene panel achieves AUROC
+≥ 0.91 in all five squamous-containing comparisons (lung LUAD/LUSC, HNSC, ESCA, BLCA, CESC) and falls to
+0.52–0.61 in two adeno-only negative controls (STAD, UCEC); in lung (n = 1,129) the residual independently
+re-discovers 10/30 breast basal genes (KRT5/14/6B, TP63, DSG3/DSC3, FAT2…; p ≈ 3×10⁻¹⁶).](figs/discovery_summary.png){ width=100% }
 
 ![**Figure 2. Hypothesis-as-anchor: confirm, explain-away, or refute.** **(A)** On TCGA-BRCA Luminal A vs B,
 three hypotheses tested against the textbook proliferation anchor by the signal each adds beyond it: the
@@ -467,3 +478,4 @@ METABRIC's −0.17. The verdict is a covariate-distribution property, not a diff
 10. Venet D, Dumont JE, Detours V. Most random gene expression signatures are significantly associated with breast cancer outcome. *PLoS Comput Biol* 2011;7(10):e1002240. doi:[10.1371/journal.pcbi.1002240](https://doi.org/10.1371/journal.pcbi.1002240).
 11. Tonidandel S, LeBreton JM. Relative importance analysis: a useful supplement to regression analysis. *J Bus Psychol* 2011;26(1):1–9. doi:[10.1007/s10869-010-9204-3](https://doi.org/10.1007/s10869-010-9204-3). *(Commonality/relative-importance methodology; not indexed in PubMed.)*
 12. Degtiar I, Rose S. A review of generalizability and transportability. *Annu Rev Stat Appl* 2023;10:501–524. doi:[10.1146/annurev-statistics-042522-103837](https://doi.org/10.1146/annurev-statistics-042522-103837). *(Generalizability/transportability methodology; not indexed in PubMed.)*
+13. Robertson AG, et al. Comprehensive molecular characterization of muscle-invasive bladder cancer. *Cell* 2017;171(3):540–556. doi:[10.1016/j.cell.2017.09.007](https://doi.org/10.1016/j.cell.2017.09.007).
