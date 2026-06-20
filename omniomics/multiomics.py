@@ -569,6 +569,23 @@ def hypothesis_anchor_test(textbook_score, hypothesis_score, y, cv=5, random_sta
                 beta_hyp_given_textbook=beta_h, delta_textbook_given_hyp=round(dTH, 4), verdict=verdict)
 
 
+def rank_hypotheses(textbook_score, hypotheses, y, **kw):
+    """Screen many hypotheses against one textbook anchor and rank by the signal each adds beyond it.
+
+    A batch wrapper over `hypothesis_anchor_test`: turns a standard library (e.g. MSigDB Hallmark gene sets,
+    each scored into a candidate anchor) into a principled hypothesis screen — "which pathways add a real axis
+    beyond the dominant textbook prior?" hypotheses : {name: 1-D score array}. Returns a list of dicts sorted
+    by delta_hyp_given_textbook (desc), each being hypothesis_anchor_test(...) plus a `hypothesis` name.
+    """
+    out = []
+    for name, score in hypotheses.items():
+        r = hypothesis_anchor_test(textbook_score, np.asarray(score, float), y, **kw)
+        r["hypothesis"] = name
+        out.append(r)
+    out.sort(key=lambda d: -d["delta_hyp_given_textbook"])
+    return out
+
+
 def knowledge_anchored_integrate(anchor_score, modalities, y,
                                  betas=(0.0, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0), cv=5, random_state=0,
                                  gate_margin=0.01, inner_repeats=3, anchor_name="knowledge"):

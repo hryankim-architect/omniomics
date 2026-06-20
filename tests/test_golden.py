@@ -402,6 +402,23 @@ def test_hypothesis_anchor_guard():
     assert float(d.loc["random_30genes", "delta_hyp_given_textbook"]) <= 0.01           # adds ~nothing beyond textbook
 
 
+def test_hypothesis_screen_guard():
+    """Hypothesis screen over MSigDB Hallmarks vs the proliferation textbook anchor (LumA/B): proliferation
+    pathways (E2F/G2M/MYC) are correctly EXPLAINED_BY_TEXTBOOK (add ~0 — same axis as the anchor), while the
+    estrogen-response lineage axis is SUPPORTED (adds beyond proliferation). Skip-safe."""
+    f = REPO / "hypothesis_screen_results.csv"
+    if not f.exists():
+        pytest.skip("hypothesis_screen_results.csv not committed (dmoi_hypothesis_screen.py not run yet)")
+    d = pd.read_csv(f).set_index("hypothesis")
+    for prolif in ["HALLMARK_E2F_TARGETS", "HALLMARK_G2M_CHECKPOINT"]:
+        if prolif in d.index:
+            assert d.loc[prolif, "verdict"] == "EXPLAINED_BY_TEXTBOOK"
+            assert abs(float(d.loc[prolif, "delta_beyond_textbook"])) <= 0.005   # same axis as the anchor
+    er = [h for h in d.index if "ESTROGEN_RESPONSE" in h]
+    assert any(d.loc[h, "verdict"] == "SUPPORTED" for h in er)                   # ER lineage adds beyond proliferation
+    assert int((d["verdict"] == "SUPPORTED").sum()) >= 3                         # a real set of orthogonal axes
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""

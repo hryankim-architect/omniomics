@@ -237,6 +237,20 @@ def test_marker_correlated_anchor():
     assert sum(g.startswith("g") and int(g[1:]) <= 10 for g in genes) >= 8   # recovers the correlated set
 
 
+def test_rank_hypotheses():
+    """Batch screen ranks hypotheses by signal added beyond the textbook: an orthogonal real axis outranks
+    a textbook-echo and noise, and the list is sorted by delta_hyp_given_textbook (desc)."""
+    rng = np.random.default_rng(1); n = 500
+    a = rng.normal(size=n); b = rng.normal(size=n); y = ((a + b) > 0).astype(int)
+    T = a + 0.2 * rng.normal(size=n)
+    hyps = {"orthogonal": b + 0.3 * rng.normal(size=n), "echo": a + 0.3 * rng.normal(size=n),
+            "noise": rng.normal(size=n)}
+    ranked = mo.rank_hypotheses(T, hyps, y, cv=4, inner_repeats=1)
+    deltas = [r["delta_hyp_given_textbook"] for r in ranked]
+    assert deltas == sorted(deltas, reverse=True)            # sorted by signal added beyond textbook
+    assert ranked[0]["hypothesis"] == "orthogonal" and ranked[0]["verdict"] == "SUPPORTED"
+
+
 def test_hypothesis_anchor_test():
     """Hypothesis-as-anchor 3-way verdict: a hypothesis orthogonal to the textbook that adds signal is
     SUPPORTED; pure noise is REFUTED; a hypothesis that only echoes the textbook is EXPLAINED_BY_TEXTBOOK."""

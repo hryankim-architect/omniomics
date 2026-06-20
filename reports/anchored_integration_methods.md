@@ -214,6 +214,16 @@ separate LumA/B), and a **random 30-gene** set is EXPLAINED_BY_TEXTBOOK (predict
 ≈ 0 once proliferation is controlled — exactly the Venet artifact). `reports/dmoi_hypothesis_anchor.py`;
 `hypothesis_anchor_results.csv`.
 
+*Hypothesis screen — a whole standard library at once.* `rank_hypotheses` batches the test over a library:
+we scored all 50 MSigDB Hallmark gene sets as candidate hypothesis anchors and ranked them by signal added
+beyond the proliferation textbook anchor on LumA/B. The screen is internally self-validating: the
+proliferation-type hallmarks (`E2F_TARGETS` 0.914, `G2M_CHECKPOINT` 0.894, `MYC_TARGETS_V1/V2`) predict
+strongly *alone* but add **exactly 0.0** beyond the anchor → correctly EXPLAINED_BY_TEXTBOOK (they *are* the
+anchor's axis). The SUPPORTED hits (11/50) are the genuinely orthogonal lineage programs — led by
+**ESTROGEN_RESPONSE (early & late)**, plus P53, WNT, NOTCH, apical-surface/junction, myogenesis — matching
+known biology (LumA vs LumB differ in proliferation *and* ER signalling). `reports/dmoi_hypothesis_screen.py`;
+`hypothesis_screen_results.csv`.
+
 *Tissue-independence (a third cancer, head & neck).* HNSC is uniformly squamous, so it offers no
 within-cohort histology contrast — but that allows a confound control. Scoring TCGA HNSC (head & neck
 squamous), LUSC (lung squamous) and LUAD (lung adeno) with the breast 30-gene basal panel, the score
