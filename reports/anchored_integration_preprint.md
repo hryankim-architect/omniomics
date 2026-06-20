@@ -1,10 +1,24 @@
 # Anchored multi-omics integration and knowledge-anchored residual discovery
 
-*A never-below-the-best-view integrator, and a tool to find what the textbook misses.*
+*A never-below-the-best-view integrator, and a tool to find what the known biology misses.*
 
 H. Ryan Kim · omniomics-prototype · 2026
 
 ---
+
+## In brief
+
+Combining many kinds of molecular data is widely assumed to improve cancer prediction, yet in practice a single
+strong data type is hard to beat. This work introduces an *anchored* framework that starts from established
+biological knowledge — a known high-performing data type, or a fixed textbook gene signature — so the model can
+never do worse than the existing standard. By analysing only the *residual* signal left after accounting for
+that anchor, it surfaces orthogonal biological axes that conventional data-fusion overlooks: it recovers a
+keratinization (basal) program in breast cancer and the field's established immunotherapy biomarkers in lung
+cancer. Inverting the idea, a hypothesis can itself be tested against the textbook prior, letting the framework
+separate genuinely new findings from those already explained by existing literature. It also makes
+*transportability* explicit — showing how the measurement technology (for example, RNA-seq versus microarray)
+can make the same biological signal look novel in one cohort and redundant in another. In short, it is a
+discovery engine that is honest about what is new and what the textbook already knows.
 
 ## Abstract
 

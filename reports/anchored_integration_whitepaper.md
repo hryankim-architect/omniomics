@@ -5,11 +5,6 @@ author: "H. Ryan Kim"
 date: "2026"
 ---
 
-*A white paper for a technical-but-general audience. It distils the manuscript and its companion NotebookLM
-materials (briefing, study guide, data table, slide deck, infographic, and the transcribed audio overview and
-explainer video) into a single accessible document. All quantitative claims match the recorded result files and
-the manuscript.*
-
 ## Executive summary
 
 Combining many kinds of molecular data is widely assumed to improve cancer prediction, yet in practice a single
