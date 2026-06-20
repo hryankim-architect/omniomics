@@ -1,5 +1,5 @@
 ---
-title: "Anchored multi-omics integration and knowledge-anchored residual discovery: a never-below-the-best-view integrator that finds what the textbook misses"
+title: "Anchored multi-omics integration and knowledge-anchored residual discovery: a never-below-the-best-view integrator that finds what the known biology misses"
 author: "H. Ryan Kim"
 date: "2026"
 ---
@@ -17,6 +17,21 @@ date: "2026"
 **Keywords:** multi-omics integration; prior-informed machine learning; gene signatures; breast cancer; TCGA; METABRIC; immunotherapy biomarkers; interpretable discovery.
 
 ---
+
+## In brief
+
+Combining many kinds of molecular data is widely assumed to improve cancer prediction, yet in practice a single
+strong data type is hard to beat. This work introduces an *anchored* framework that starts from established
+biological knowledge — a known high-performing data type, or a fixed textbook gene signature — so the model can
+never do worse than the existing standard. By analysing only the *residual* signal left after accounting for
+that anchor, it surfaces orthogonal biological axes that conventional data-fusion overlooks: it recovers a
+keratinization (basal) program in breast cancer and the field's established immunotherapy biomarkers in lung
+cancer. Inverting the idea, a hypothesis can itself be expressed as a candidate anchor and tested against the
+textbook prior, letting the framework separate genuinely new findings from those already explained by existing
+literature. It also makes *transportability* explicit — showing how the measurement technology (for example,
+RNA-seq versus microarray) can make the same biological signal look novel in one cohort and redundant in
+another. In short, it is a discovery engine that is honest about what is new and what the textbook already
+knows.
 
 ## Abstract
 
@@ -215,6 +230,18 @@ coloured by platform family. It is positive on the two RNA-seq cohorts (TCGA RNA
 unique/suppression variance → NOVEL, and negative on the two microarray cohorts (TCGA Agilent, METABRIC) → ER
 collinear with proliferation → REDUNDANT. The sign flips even between the two TCGA platforms on the same
 patients, so it is a measurement property.](figs/platform_corr.png)
+
+**Results at a glance.** Table 1 summarises the anchored discoveries and their external status.
+
+| Endpoint / target | Anchor | Anchor AUROC | Residual gain (ΔAUROC) | Discovered axis | External status | Label |
+| :-- | :-- | :--: | :--: | :-- | :-- | :-- |
+| Luminal A vs B | 20-gene proliferation | 0.919 | +0.029 | basal/keratinization (KRT5/14/17/6B, TP63, DSG3/DSC3, SOX10, COL17A1, KLK5/7/8) | METABRIC Δ+0.036; lung 10/30; SCAN-B confirmed | NOVEL |
+| HER2 status | ERBB2 amplicon | 0.752 | +0.054 | neuroendocrine/secretory + immune | not in METABRIC (anchor near-complete, 0.997) | — |
+| ER status | ER/luminal signature | 0.938 | −0.001 | none (specificity control) | n/a | INERT |
+| NSCLC anti-PD-1 benefit | TMB | 0.60 | +0.061 | PD-L1; EGFR/STK11 mutation | recovers established biomarkers | — |
+
+*Table 1. Anchored residual discovery across endpoints: a zero-parameter/textbook anchor, the signal the
+residual adds beyond it, the discovered orthogonal axis, and its external reproduction.*
 
 ## 3. Discussion
 
