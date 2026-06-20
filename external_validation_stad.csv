@@ -1,0 +1,2 @@
+dataset,endpoint,n,n_intestinal,n_diffuse,textbook_anchor,anchor_auroc,basal_panel_transfer_auroc,combined,delta,novel_delta,random_delta_mean,novel_vs_random_p,overlap_with_brca_basal_of30,overlap_hyper_p,rediscovered_pole,stability_gain,shared_genes,note
+TCGA_STAD_Intestinal_vs_Diffuse,histology_intestinal_vs_diffuse,195,108,87,proliferation_20gene,0.674,0.517,0.721,0.047,0.086,0.021,0.182,0,1.00e+00,intestinal adenocarcinoma (CDX2/MUC2/VIL1 expected),0.4185,,NEGATIVE CONTROL — no squamous component
