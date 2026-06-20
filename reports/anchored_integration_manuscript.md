@@ -272,10 +272,14 @@ Code, runners, recorded metrics, unit tests and continuous-integration guards: t
 (`reports/dmoi_*.py`, `*_results.csv`, `tests/`). Key runners: `dmoi_knowledge_anchor.py`,
 `dmoi_residual_discovery.py`, `dmoi_discovery_{er,her2}.py`, `dmoi_external_{metabric,her2_metabric}.py`,
 `dmoi_external_lung.py`, `dmoi_external_hnsc.py`, `dmoi_discovery_nsclc_io.py`, `dmoi_clinical_survival.py`,
-`dmoi_meth_genomewide.py` (genome-wide scale). Scale utilities: `omniomics.scale`, `omniomics.representations`.
-Full methods note: `reports/anchored_integration_methods.md`. All data are public and de-identified: TCGA
-(BRCA, LUAD, LUSC, HNSC) via UCSC Xena; METABRIC via cBioPortal; the NSCLC anti-PD-1 cohort from Hellmann
-et al. (MSK 2018) via cBioPortal.
+`dmoi_meth_genomewide.py` (genome-wide scale). Hypothesis-as-anchor and transportability:
+`dmoi_hypothesis_anchor.py`, `dmoi_hypothesis_screen{,_robust}.py`, `dmoi_hypothesis_metabric_diagnosis.py`,
+`dmoi_transportability_sweep.py`, `dmoi_transportability_her2.py`, `dmoi_endpoint_panel.py`,
+`fig_hypothesis_anchor.py`, `fig_platform_corr.py` (Figures 2–4); `reports/fetch_scanb.sh` reproduces the
+SCAN-B inputs. Scale utilities: `omniomics.scale`, `omniomics.representations`. Full methods note:
+`reports/anchored_integration_methods.md`. All data are public and de-identified: TCGA (BRCA RNA-seq and
+Agilent microarray, LUAD, LUSC, HNSC) via UCSC Xena; METABRIC via cBioPortal; SCAN-B via GEO accession
+**GSE96058**; the NSCLC anti-PD-1 cohort from Hellmann et al. (MSK 2018) via cBioPortal.
 
 ## Declarations
 

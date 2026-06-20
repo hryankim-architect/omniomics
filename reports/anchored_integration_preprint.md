@@ -20,8 +20,13 @@ trained model and gives the programme's only clean super-additive gain. Finally,
 a textbook prior and mining the *residual* turns the integrator into a **discovery** tool: it recovers a
 verified basal/lineage axis beyond "LumA/B = proliferation" (keratinization, p≈8×10⁻¹¹) and a verified
 neuroendocrine/immune axis beyond the ERBB2 amplicon, while correctly finding nothing where the textbook is
-already complete (ER). The method is modality-agnostic and, above all, honest: discovery where warranted,
-silence where not.
+already complete (ER). Inverting the frame, a *hypothesis* can itself be expressed as a candidate anchor and
+tested against the textbook prior; a commonality/mediation decomposition then separates a genuinely novel axis
+from one that is merely redundant (collinear) or absent, and a four-endpoint × four-cohort panel (TCGA RNA-seq,
+TCGA Agilent, METABRIC, SCAN-B) shows anchor-orthogonal axes transport across platform and cohort while
+collinear ones do not — their verdict is governed by a nuisance correlation that can flip sign with the assay
+(RNA-seq vs microarray). The method is modality-agnostic and, above all, honest: discovery where warranted,
+silence where not, and a quantified account of what fails to reproduce and why.
 
 ## 1. Background
 
