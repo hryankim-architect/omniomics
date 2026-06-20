@@ -1,0 +1,9 @@
+endpoint,cohort,n,pos,anchor,hypothesis,auroc_anchor,auroc_hyp,corr_anchor_hyp,delta_beyond,verdict,unique_r2,redundancy,prop_mediated,collinearity_label,transports
+Basal_vs_rest,METABRIC,1756,209,basal,immune,0.881,0.696,0.121,0.0206,SUPPORTED,0.0241,0.485,0.277,NOVEL,True
+Basal_vs_rest,TCGA,956,142,basal,immune,0.768,0.661,0.1833,0.0325,SUPPORTED,0.0254,0.45,0.246,NOVEL,True
+ER_pos_vs_neg,METABRIC,1937,1498,ER_signature,proliferation,0.944,0.8,-0.4919,0.0,EXPLAINED_BY_TEXTBOOK,0.0086,0.957,0.762,NOVEL,True
+ER_pos_vs_neg,TCGA,1152,892,ER_signature,proliferation,0.936,0.782,-0.3164,0.0,EXPLAINED_BY_TEXTBOOK,0.0135,0.886,0.645,NOVEL,True
+HER2_pos_vs_neg,METABRIC,1874,438,ERBB2_amplicon,ER,0.914,0.629,-0.1052,0.0,EXPLAINED_BY_TEXTBOOK,0.0015,0.887,0.662,REDUNDANT,False
+HER2_pos_vs_neg,TCGA,766,114,ERBB2_amplicon,ER,0.921,0.614,0.0369,0.0,EXPLAINED_BY_TEXTBOOK,0.0017,-7.796,-1.968,INERT,False
+LumA_vs_LumB,METABRIC,1175,475,proliferation,ER,0.919,0.57,-0.1734,0.0,REFUTED,0.0,0.998,0.959,REDUNDANT,False
+LumA_vs_LumB,TCGA,628,194,proliferation,ER,0.919,0.617,0.1881,0.0,EXPLAINED_BY_TEXTBOOK,0.0383,-4.946,-1.483,NOVEL,False

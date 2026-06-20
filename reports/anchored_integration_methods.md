@@ -297,6 +297,18 @@ correlation. So across two endpoints the framework distinguishes all three failu
 TCGA-LumA/B), *redundant/collinear* (ER in METABRIC-LumA/B and HER2), and *absent/weak* (ER for HER2 in TCGA)
 — rather than collapsing them into a single "fails to add."
 
+*A multi-endpoint × cohort panel.* Scaling the characterisation to four breast-cancer endpoints in both
+cohorts (each anchored on its textbook driver and tested against a secondary hypothesis) yields a compact map
+of where the label transports. Two endpoints transport, two do not. The transportable ones are biologically
+robust: **Basal-vs-rest** with a basal/keratinization anchor and an immune hypothesis is **NOVEL in both
+cohorts** (immune infiltration adds a real axis beyond the basal lineage program), and **ER-status** with the
+ER-signature anchor and a proliferation hypothesis carries a small but real unique proliferation slice (NOVEL)
+in both. The two that do *not* transport are exactly the ER-collinearity cases studied above — **LumA-vs-LumB**
+(proliferation→ER: NOVEL in TCGA, REDUNDANT in METABRIC) and **HER2** (amplicon→ER: INERT in TCGA, REDUNDANT
+in METABRIC). So the transportability caveat is specific and predictable: it attaches to hypotheses whose
+collinearity with the anchor is itself cohort-dependent, while orthogonal axes (basal→immune) transport
+cleanly. Runner: `reports/dmoi_endpoint_panel.py` (`endpoint_panel.csv`, `figs/endpoint_panel.png`).
+
 *Tissue-independence (a third cancer, head & neck).* HNSC is uniformly squamous, so it offers no
 within-cohort histology contrast — but that allows a confound control. Scoring TCGA HNSC (head & neck
 squamous), LUSC (lung squamous) and LUAD (lung adeno) with the breast 30-gene basal panel, the score

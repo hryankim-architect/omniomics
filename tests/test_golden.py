@@ -534,6 +534,26 @@ def test_transportability_her2_guard():
     assert float(d.loc["METABRIC", "redundancy"]) >= 0.5            # most of it shared with the amplicon
 
 
+def test_endpoint_panel_guard():
+    """Multi-endpoint x cohort panel: the commonality label is concordant (transports) for some endpoints and
+    not others. Basal->immune is a robustly transportable NOVEL axis in both cohorts; the two ER-collinearity
+    endpoints (LumA/B, HER2) do NOT transport (label changes TCGA->METABRIC). Skip-safe."""
+    f = REPO / "endpoint_panel.csv"
+    if not f.exists():
+        pytest.skip("endpoint_panel.csv not committed (endpoint panel runner not run yet)")
+    d = pd.read_csv(f)
+    for col in ["endpoint", "cohort", "collinearity_label", "verdict", "redundancy", "transports"]:
+        assert col in d.columns
+    g = d.set_index(["endpoint", "cohort"])["collinearity_label"]
+    # Basal->immune: NOVEL in both -> transports
+    assert g[("Basal_vs_rest", "TCGA")] == "NOVEL" and g[("Basal_vs_rest", "METABRIC")] == "NOVEL"
+    # the two ER-collinearity endpoints do not transport (label differs across cohorts)
+    assert g[("LumA_vs_LumB", "TCGA")] != g[("LumA_vs_LumB", "METABRIC")]
+    assert g[("HER2_pos_vs_neg", "TCGA")] != g[("HER2_pos_vs_neg", "METABRIC")]
+    # METABRIC LumA/B is the REDUNDANT case
+    assert g[("LumA_vs_LumB", "METABRIC")] == "REDUNDANT"
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""
