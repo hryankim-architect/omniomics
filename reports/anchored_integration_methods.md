@@ -274,6 +274,18 @@ not absent but **shared with proliferation (redundancy = 1.00, 96 % mediated thr
 anchor)**. So the cross-cohort difference is correctly characterised as a change in collinearity structure,
 not a disappearance of ER biology.
 
+*Transportability of the verdict (a controlled sweep).* The framing above implies the verdict is a
+**transportability** quantity (Degtiar & Rose 2023): it depends on each cohort's covariate distribution
+(here, corr(prolif, ER)), not on the hypothesis's marginal effect. `transportability_sweep` makes this
+quantitative and fully reproducible without any external data: holding both marginal separations fixed at the
+BRCA values (Cohen's d_prolif ≈ 1.85, d_ER ≈ −0.22) and varying *only* the residual anchor–hypothesis
+correlation, it simulates many cohorts per correlation and records the fraction labelled NOVEL vs REDUNDANT.
+The two real cohorts then sit on the curve at their measured correlations: at **TCGA's +0.19 the ER hypothesis
+is 100 % NOVEL**, while at **METABRIC's −0.17 it falls into the collinear/suppression valley (≈ 2 % NOVEL,
+≈ 42 % REDUNDANT)** — the *same* ER effect, opposite verdicts, driven only by the nuisance correlation. This is
+the clearest statement of why an anchored hypothesis screen must be read within-cohort and re-characterised
+(not just re-run) when ported across cohorts.
+
 *Tissue-independence (a third cancer, head & neck).* HNSC is uniformly squamous, so it offers no
 within-cohort histology contrast — but that allows a confound control. Scoring TCGA HNSC (head & neck
 squamous), LUSC (lung squamous) and LUAD (lung adeno) with the breast 30-gene basal panel, the score

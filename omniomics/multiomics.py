@@ -641,6 +641,49 @@ def rank_hypotheses(textbook_score, hypotheses, y, **kw):
     return out
 
 
+def transportability_sweep(rho_grid, d_anchor, d_hyp, n=600, reps=40, seed=0, cv=4, inner_repeats=1):
+    """Quantify how the hypothesis verdict TRANSPORTS as a function of the anchor-hypothesis nuisance
+    correlation — the covariate-distribution property that differs across cohorts.
+
+    A hypothesis can be SUPPORTED in one cohort and REDUNDANT in another with the *same* marginal effect sizes,
+    purely because the anchor and hypothesis are correlated differently in the two cohorts (generalizability /
+    transportability; Degtiar & Rose 2023). This controlled sweep holds both marginal separations fixed
+    (d_anchor, d_hyp = the Cohen's d of anchor and hypothesis vs the endpoint) and varies only the *residual*
+    (within-class) correlation rho between them. For each rho it simulates `reps` cohorts, runs
+    `hypothesis_anchor_test`, and records the fraction SUPPORTED, mean unique R², mean redundancy, and the
+    resulting observed corr(anchor, hypothesis) — so a real cohort can be located on the curve by its measured
+    correlation. Demonstrates that the verdict is governed by the nuisance correlation, not by the hypothesis's
+    marginal effect.
+
+    Uses the gate-free `commonality_decomposition` for the per-cohort label (NOVEL ≈ would-be SUPPORTED:
+    carries unique variance beyond the anchor; REDUNDANT: collinear/mediated), so the whole sweep is cheap.
+
+    Returns a list of dicts (one per rho): rho, obs_corr, mean_unique_r2, mean_redundancy, frac_novel,
+    frac_redundant, frac_inert.
+    """
+    rng = np.random.default_rng(seed)
+    rows = []
+    for rho in rho_grid:
+        cov = np.array([[1.0, rho], [rho, 1.0]])
+        L = np.linalg.cholesky(cov)
+        ur = []; rd = []; corrs = []; labels = []
+        for _ in range(reps):
+            y = np.zeros(n, int); y[n // 2:] = 1; rng.shuffle(y)
+            e = (rng.standard_normal((n, 2)) @ L.T)
+            P = d_anchor * y + e[:, 0]              # anchor (proliferation-like): large separation
+            H = d_hyp * y + e[:, 1]                 # hypothesis (ER-like): smaller separation
+            c = commonality_decomposition(P, H, y)
+            ur.append(c["unique_hypothesis_r2"]); rd.append(c["redundancy"]); labels.append(c["collinearity_label"])
+            corrs.append(float(np.corrcoef(P, H)[0, 1]))
+        rows.append(dict(rho=round(float(rho), 3), obs_corr=round(float(np.mean(corrs)), 3),
+                         mean_unique_r2=round(float(np.mean(ur)), 4),
+                         mean_redundancy=round(float(np.median(rd)), 3),
+                         frac_novel=round(float(np.mean([l == "NOVEL" for l in labels])), 3),
+                         frac_redundant=round(float(np.mean([l == "REDUNDANT" for l in labels])), 3),
+                         frac_inert=round(float(np.mean([l == "INERT" for l in labels])), 3)))
+    return rows
+
+
 def knowledge_anchored_integrate(anchor_score, modalities, y,
                                  betas=(0.0, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0), cv=5, random_state=0,
                                  gate_margin=0.01, inner_repeats=3, anchor_name="knowledge"):

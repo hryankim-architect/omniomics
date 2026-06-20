@@ -503,6 +503,21 @@ def test_hypothesis_metabric_diagnosis_guard():
         assert float(d.loc["METABRIC", "prop_mediated"]) >= 0.7                     # mostly through proliferation
 
 
+def test_transportability_sweep_guard():
+    """Transportability: with the SAME marginal effects, the ER verdict is governed by corr(prolif,ER) -- a
+    covariate-distribution property. At TCGA's positive correlation the hypothesis is overwhelmingly NOVEL; at
+    METABRIC's negative correlation it falls into the REDUNDANT/collinear regime. Skip-safe."""
+    f = REPO / "transportability_sweep.csv"
+    if not f.exists():
+        pytest.skip("transportability_sweep.csv not committed (transportability runner not run yet)")
+    d = pd.read_csv(f)
+    pos = d[d["obs_corr"] >= 0.18]; neg = d[(d["obs_corr"] <= -0.13) & (d["obs_corr"] >= -0.22)]
+    assert not pos.empty and float(pos["frac_novel"].mean()) >= 0.9          # TCGA-like corr -> mostly NOVEL
+    assert not neg.empty and float(neg["frac_redundant"].max()) >= 0.3       # METABRIC-like corr -> REDUNDANT appears
+    # unique variance is monotone-ish in the correlation: highest-corr row beats the suppression valley
+    assert float(d.loc[d["obs_corr"].idxmax(), "mean_unique_r2"]) > float(d["mean_unique_r2"].min())
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""

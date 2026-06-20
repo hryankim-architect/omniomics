@@ -255,6 +255,20 @@ def test_hypothesis_commonality_labels():
     assert ri["collinearity_label"] == "INERT"
 
 
+def test_transportability_sweep():
+    """The hypothesis verdict transports as a function of the anchor-hypothesis nuisance correlation, not the
+    marginal effect: holding both separations fixed and sweeping only rho, a hypothesis that is NOVEL when it
+    is positively structured with the anchor becomes REDUNDANT in the collinear suppression regime."""
+    rho_grid = [-0.15, 0.0, 0.4]
+    rows = mo.transportability_sweep(rho_grid, d_anchor=1.85, d_hyp=-0.22, n=500, reps=20, seed=0)
+    by = {round(r["rho"], 2): r for r in rows}
+    # at strong positive structure the hypothesis carries unique variance (NOVEL dominates)...
+    assert by[0.4]["frac_novel"] >= 0.8 and by[0.4]["mean_unique_r2"] > by[-0.15]["mean_unique_r2"]
+    # ...while in the collinear regime REDUNDANT appears (more than in the clearly-NOVEL positive regime)
+    assert by[-0.15]["frac_redundant"] > by[0.4]["frac_redundant"]
+    assert all(0.0 <= r["frac_novel"] <= 1.0 for r in rows)
+
+
 def test_rank_hypotheses():
     """Batch screen ranks hypotheses by signal added beyond the textbook: an orthogonal real axis outranks
     a textbook-echo and noise, and the list is sorted by delta_hyp_given_textbook (desc)."""
