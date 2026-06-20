@@ -157,7 +157,13 @@ controlled sweep makes the mechanism explicit (Figure 2D): holding both marginal
 TCGA's correlation (+0.19) but falls into a collinear/suppression valley at METABRIC's (−0.17, ≈ 2 % NOVEL).
 The verdict is thus governed by each cohort's covariate distribution — a generalisability/transportability
 property [12] — which is why an anchored hypothesis screen should be re-characterised, not merely re-run,
-across cohorts.
+across cohorts. Repeating the analysis on a second endpoint (HER2, with the ERBB2-amplicon anchor and an ER
+hypothesis) confirms the labels are specific rather than a single "fails to add": there the ER→HER2 marginal
+effect itself differs across cohorts, so HER2 is *not* a same-marginal flip — ER is **INERT** in TCGA (Cohen's
+d ≈ −0.05, too weak to be novel or redundant) but **REDUNDANT** in METABRIC (d ≈ −0.29, redundancy 0.89, 66 %
+mediated by the amplicon). Across the two endpoints the framework cleanly separates all three regimes — *novel*
+(ER in TCGA Luminal A/B), *redundant/collinear* (ER in METABRIC Luminal A/B and HER2), and *absent/weak* (ER
+for HER2 in TCGA).
 
 ## 3. Discussion
 
