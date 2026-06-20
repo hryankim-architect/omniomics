@@ -130,6 +130,13 @@ The broader caution lands beyond any single result: if a calibrated model's verd
 some apparent replication failures across the literature may be platform artefacts rather than biological
 disagreements. An anchored, residual-aware frame gives a rigorous way to tell the two apart.
 
+**Limitations.** Gains over a strong anchor are modest (the value is routing/discovery/diagnosis, not large
+AUROC wins); discovered axes are candidate *biological* programs, not validated clinical biomarkers (the basal
+axis marks lineage, not prognosis); results are conditional on the chosen anchor (a near-complete anchor leaves
+no residual by construction); validation is breast-centric plus two cross-domain demonstrations, with
+assay-dependent hypothesis-screen labels and untested single-cell/proteomic anchors; and this is a single-author
+methods study on public data, without prospective or wet-lab validation.
+
 *Core philosophy: anchor on established biology and let a gate decide, honestly, whether genome-wide data beats
 it — and when a hypothesis fails to add, say whether it is novel-elsewhere, merely redundant, or truly absent.*
 

@@ -21,6 +21,13 @@ header-includes:
 
 ---
 
+## Graphical abstract
+
+![**Graphical abstract.** Anchor on established knowledge (a zero-parameter prior); admit genome-wide data only
+as a non-negative gated residual (never below the anchor); mine the residual for an anchor-orthogonal axis; and
+read transportability — the same hypothesis can be NOVEL or REDUNDANT depending on the measurement
+platform.](figs/graphical_abstract.png){ width=100% }
+
 ## In brief
 
 Combining many kinds of molecular data is widely assumed to improve cancer prediction, yet in practice a single
@@ -274,6 +281,22 @@ with the measurement platform. The practical implication is concrete — an anch
 re-characterised, not merely re-run, when ported across assays or cohorts, and collinearity-sensitive calls
 should be read within a fixed platform. This reframes a non-reproduction (estrogen-response on Luminal A/B in
 microarray cohorts) from an apparent failure into a quantified, expected consequence of covariate structure.
+
+**Limitations.** Several caveats bound these claims. (i) *Modest predictive gains.* Over a strong anchor the
+gated residual adds little AUROC (e.g. +0.029 on Luminal A/B); the contribution is routing, discovery and
+diagnosis, not large predictive wins, and the method will not rescue an endpoint a good single view already
+predicts. (ii) *Lineage, not outcome.* The flagship basal axis is a reproducible *biological* program (it marks
+ER-negative/basal identity) but is not prognostic in the cohort studied; discovered axes are candidate
+mechanisms, not validated clinical biomarkers. (iii) *Anchor dependence.* Results are conditional on the chosen
+prior — a near-complete anchor (e.g. the ERBB2 amplicon in METABRIC, or the ER signature for ER status) leaves
+no residual by construction, so "nothing found" means "nothing beyond this anchor," not "nothing there." (iv)
+*Cohorts and platforms.* Validation is breast-centric (TCGA, METABRIC, SCAN-B) plus two cross-domain
+demonstrations (TCGA lung, NSCLC anti-PD-1); the hypothesis-screen labels are bulk-expression and
+assay-dependent (as the platform analysis shows), and single-cell or proteomic anchors are untested. (v) *Statistics.* CIs are
+non-parametric bootstrap and the empirical-null FDR is approximate; the transport_score is descriptive, and
+some commonality labels near the NOVEL/INERT threshold are sensitive to that cut-off. (vi) *Scope of evidence.*
+This is a single-author methods study on public data with no prospective or wet-lab validation; the immunotherapy
+and cross-cancer results are proof-of-concept on one cohort each and warrant replication.
 
 ## 4. Methods
 
