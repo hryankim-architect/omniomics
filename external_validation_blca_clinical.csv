@@ -1,0 +1,2 @@
+dataset,endpoint,n,n_pos,n_neg,textbook_anchor,anchor_auroc,basal_panel_transfer_auroc,combined,delta,novel_delta,random_delta_mean,novel_vs_random_p,overlap_with_brca_basal_of30,overlap_hyper_p,rediscovered_pole,stability_gain,shared_genes
+TCGA_BLCA_NonPapillary_vs_Papillary,clinical_subtype_nonpapillary_vs_papillary,421,284,137,proliferation_20gene,0.595,0.633,0.708,0.114,0.169,0.114,0.091,0,1.00e+00,?,0.4541,

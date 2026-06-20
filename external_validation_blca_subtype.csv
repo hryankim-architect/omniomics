@@ -1,0 +1,2 @@
+dataset,endpoint,n,n_pos,n_neg,textbook_anchor,anchor_auroc,basal_panel_transfer_auroc,combined,delta,novel_delta,random_delta_mean,novel_vs_random_p,overlap_with_brca_basal_of30,overlap_hyper_p,rediscovered_pole,stability_gain,shared_genes
+TCGA_BLCA_BasalSquamous_vs_LuminalPapillary_Robertson2017,molecular_subtype_basal_vs_luminal,72,31,41,proliferation_20gene,0.788,0.967,0.993,0.205,0.212,0.185,0.091,1,0.166,"luminal/urothelial (PPARG, SLC14A1, RAB15, BNC1)",0.4778,KRT6B
