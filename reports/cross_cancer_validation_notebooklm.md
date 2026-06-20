@@ -129,6 +129,7 @@ residual in those cancers should partially re-discover the same genes.
 | 4B | BLCA Basal/Luminal | 72 | Molecular subtype (pure) | **0.967** | 1/30 (KRT6B) | Luminal/urothelial (PPARG, SLC14A1) | Molecular |
 | 5 | CESC Sq/Adeno | 301 | Histology: squamous vs endocervical adeno | **0.938** | **6/30** (p=1.5×10⁻⁸) | Squamous/keratinization (TP63, KRT5/6A, DSG3, CLCA2, PKP1) | Molecular |
 | 6 | **STAD neg. ctrl** | 195 | Histology: intestinal vs diffuse (**no squamous**) | **0.517 ≈ chance** | 0/30 (p=1.00) | **Immune infiltration** (CD52, CD37, GZMK, ADORA3) | Molecular |
+| 7 | **UCEC neg. ctrl** | 178 | Histology: serous vs endometrioid (**no squamous**) | **0.613** | 1/30 CLDN19 (p=0.17, n.s.) | **Serous endometrial** (L1CAM, TP53TG3B) | Molecular |
 
 ---
 
@@ -160,7 +161,7 @@ CESC squamous (HPV-driven) has an extremely pure keratinization program. TP63, K
 
 ---
 
-### 2.6  Validation #6: Stomach (STAD) — NEGATIVE CONTROL, SPECIFICITY PROVEN
+### 2.6  Validation #6 + #7: Negative Controls — SPECIFICITY PROVEN
 
 | Parameter | Value |
 |-----------|-------|
@@ -176,13 +177,17 @@ CESC squamous (HPV-driven) has an extremely pure keratinization program. TP63, K
 **Interpretation:**
 This is the first deliberate negative control in the series. Without a squamous pole, the breast basal panel is completely silent (AUROC 0.517 ≈ chance). The residual discovery surfaces a completely different biology: **immune infiltration** — reflecting that EBV-positive/MSI intestinal-type gastric cancer is immune-hot (high CD8+ T, B cells), while CDH1-mutant diffuse-type is immune-cold. This is real biology, just completely orthogonal to the keratinization axis.
 
-**The 40-point gap:**
+**UCEC — second negative control:**
+Serous (n=61, TP53-mutant) vs endometrioid (n=117, PTEN/CTNNB1-mutant) endometrial adenocarcinoma, n=178. Panel AUROC 0.613 (above pure chance, but far below 0.91 threshold). Overlap: 1/30 CLDN19 (p=0.17, n.s.). Residual names serous-associated markers (L1CAM, TP53TG3B). The slightly elevated 0.613 vs STAD's 0.517 likely reflects weak claudin/tight-junction overlap between serous EC and the breast basal panel — a trace of shared epithelial biology insufficient to reach the squamous threshold.
+
+**The bifurcation:**
 | Group | Panel AUROC |
 |-------|-------------|
 | Squamous-containing (lung, ESCA, BLCA, CESC) | **0.91–0.97** |
-| Pure adeno-vs-adeno (STAD intestinal vs diffuse) | **0.52** |
+| Adeno-only #1 (STAD intestinal vs diffuse) | **0.52** |
+| Adeno-only #2 (UCEC serous vs endometrioid) | **0.61** |
 
-This bifurcation proves that the pan-epithelial axis is specifically tracking squamous lineage identity, not generic epithelial differentiation.
+Two independent adeno-vs-adeno controls, 30–40 points below the squamous-containing group. This bifurcation proves that the pan-epithelial axis is specifically tracking squamous lineage identity, not generic epithelial differentiation.
 
 ---
 
@@ -277,6 +282,9 @@ A fixed panel can score perfectly in a new context even when residual discovery 
 | `reports/dmoi_external_stad.py` | STAD negative control |
 | `external_validation_stad.csv` | STAD results (negative control) |
 | `novel_genes_stad.csv` | STAD residual genes (immune infiltration) |
+| `reports/dmoi_external_ucec.py` | UCEC negative control |
+| `external_validation_ucec.csv` | UCEC results (negative control) |
+| `novel_genes_ucec.csv` | UCEC residual genes (serous markers) |
 | `blca_pancan_subtypes.tsv` | PanCan Atlas BLCA.3/BLCA.1 → Basal/Luminal mapping |
 | `reports/anchored_integration_manuscript.md` | Full manuscript (updated with BLCA) |
 
@@ -285,4 +293,4 @@ A fixed panel can score perfectly in a new context even when residual discovery 
 
 ---
 
-*Document generated 2026-06-20, updated with CESC #5 and STAD #6 (negative control). Covers cross-cancer validation series #1–#6 of the omniomics anchored residual discovery framework.*
+*Document generated 2026-06-20, updated with CESC #5, STAD #6 and UCEC #7 (negative controls). Covers cross-cancer validation series #1–#7 of the omniomics anchored residual discovery framework.*

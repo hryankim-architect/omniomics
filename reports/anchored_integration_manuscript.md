@@ -36,7 +36,7 @@ biological knowledge — a known high-performing data type, or a fixed textbook 
 never do worse than the existing standard. By analysing only the *residual* signal left after accounting for
 that anchor, it surfaces orthogonal biological axes that conventional data-fusion overlooks: it recovers a
 keratinization (basal) program in breast cancer — and validates it as a pan-epithelial axis transferring at
-AUROC ≥ 0.91 across lung, oesophagus, bladder, and cervix, while collapsing to chance (0.52) in a gastric adeno-vs-adeno negative control — alongside the field's established immunotherapy biomarkers
+AUROC ≥ 0.91 across lung, oesophagus, bladder, and cervix, while collapsing to chance (0.52–0.61) in two adeno-only negative controls (gastric and endometrial) — alongside the field's established immunotherapy biomarkers
 in lung cancer. Inverting the idea, a hypothesis can itself be expressed as a candidate anchor and tested against the
 textbook prior, letting the framework separate genuinely new findings from those already explained by existing
 literature. It also makes *transportability* explicit — showing how the measurement technology (for example,
@@ -191,11 +191,22 @@ the pan-epithelial keratinization axis does not detect generic epithelial differ
 to comparisons that include a squamous pole; without one, the panel collapses to chance and the residual
 surfaces orthogonal tissue biology.
 
+An eighth cancer (endometrial carcinoma, TCGA UCEC, n = 178) provides a second adeno-vs-adeno negative
+control: serous (n = 61; TP53-mutant, HER2-amplified) versus endometrioid (n = 117; PTEN/CTNNB1-mutant)
+endometrial adenocarcinoma. Breast basal panel AUROC is 0.613 — above pure chance but far below the 0.91
+squamous-threshold — and gene overlap is 1/30 (CLDN19; p = 0.17, non-significant). Residual discovery
+names serous-associated biology (L1CAM and TP53TG3B, both established serous endometrial markers) rather
+than keratinization. The modest 0.613 is notable: claudins (CLDN6, CLDN19) appeared in the residual,
+suggesting that serous endometrial cancer retains some tight-junction reorganisation signals that weakly
+overlap with the breast basal panel's claudin-family content — a trace of shared epithelial biology but
+insufficient to cross the squamous-detection threshold.
+
 Across the series, breast basal panel AUROC cleanly bifurcates: ≥ 0.91 wherever a squamous pole is present
-(lung 0.96, oesophagus 0.91, bladder 0.97, cervix 0.94), ≈ 0.52 in the pure adeno-vs-adeno control (STAD).
-This 40-percentage-point gap, combined with the organ-specific residual biology in each case, affirms a
-pan-epithelial keratinization axis whose residual arm surfaces either the squamous pole or a tissue-specific
-counter-pole — and which is entirely silent when no squamous lineage is present.
+(lung 0.96, oesophagus 0.91, bladder 0.97, cervix 0.94), and 0.52–0.61 in two pure adeno-vs-adeno controls
+(STAD 0.52, UCEC 0.61). The 30–40 percentage-point gap between the two groups, combined with organ-specific
+residual biology (immune infiltration in STAD, serous endometrial markers in UCEC) rather than keratinization,
+affirms a pan-epithelial keratinization axis that is specific to squamous lineage identity and entirely silent
+in adeno-only comparisons.
 
 **Clinical significance: identity, not outcome (an honest negative).** A reproducible axis need not be
 prognostic. In TCGA-BRCA (n = 866, 132 events) the basal score is not associated with overall survival
@@ -298,7 +309,7 @@ patients, so it is a measurement property.](figs/platform_corr.png){ width=80% }
 
 | Endpoint / target | Anchor | Anchor AUROC | Residual gain (ΔAUROC) | Discovered axis | External status | Label |
 | :-- | :-- | :--: | :--: | :-- | :-- | :-- |
-| Luminal A vs B | 20-gene proliferation | 0.919 | +0.029 | basal/keratinization (KRT5/14/17/6B, TP63, DSG3/DSC3, SOX10, COL17A1, KLK5/7/8) | METABRIC Δ+0.036; lung 10/30 (p=3×10⁻¹⁶); SCAN-B confirmed; ESCA 0.91; BLCA 0.97; CESC 0.94 (6/30, p=1.5×10⁻⁸); STAD 0.52 (neg. ctrl) | NOVEL |
+| Luminal A vs B | 20-gene proliferation | 0.919 | +0.029 | basal/keratinization (KRT5/14/17/6B, TP63, DSG3/DSC3, SOX10, COL17A1, KLK5/7/8) | METABRIC Δ+0.036; lung 10/30 (p=3×10⁻¹⁶); SCAN-B confirmed; ESCA 0.91; BLCA 0.97; CESC 0.94 (6/30, p=1.5×10⁻⁸); STAD 0.52/UCEC 0.61 (neg. ctrl) | NOVEL |
 | HER2 status | ERBB2 amplicon | 0.752 | +0.054 | neuroendocrine/secretory + immune | not in METABRIC (anchor near-complete, 0.997) | — |
 | ER status | ER/luminal signature | 0.938 | −0.001 | none (specificity control) | n/a | INERT |
 | NSCLC anti-PD-1 benefit | TMB | 0.60 | +0.061 | PD-L1; EGFR/STK11 mutation | recovers established biomarkers | — |

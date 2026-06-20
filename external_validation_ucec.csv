@@ -1,0 +1,2 @@
+dataset,endpoint,n,n_serous,n_endometrioid,textbook_anchor,anchor_auroc,basal_panel_transfer_auroc,combined,delta,novel_delta,random_delta_mean,novel_vs_random_p,overlap_with_brca_basal_of30,overlap_hyper_p,rediscovered_pole,stability_gain,shared_genes,note
+TCGA_UCEC_Serous_vs_Endometrioid,histology_serous_vs_endometrioid,178,61,117,proliferation_20gene,0.604,0.613,0.935,0.332,0.311,0.268,0.182,1,0.166,serous endometrial (L1CAM/TP53TG3B serous markers); endometrioid counter-pole not named,0.5978,CLDN19,NEGATIVE CONTROL — no squamous component
