@@ -25,3 +25,4 @@ HANDOFF-*.md
 
 # internal-review slide decks (not committed deliverables)
 reports/omniomics_*.pptx
+reports/texput.log
