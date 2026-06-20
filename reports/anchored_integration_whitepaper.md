@@ -99,16 +99,17 @@ effects fixed, vary only the anchor–hypothesis correlation) reproduces this: t
 at TCGA's correlation (+0.19) yet collapses into a collinear/suppression valley at METABRIC's (−0.17). A second
 endpoint, HER2, confirms specificity (INERT in TCGA, REDUNDANT in METABRIC).
 
-Across four endpoints and four columns — TCGA RNA-seq; TCGA Agilent (the *same patients*, different platform);
-METABRIC (independent microarray); and SCAN-B (independent RNA-seq, ~3,400 tumours) — two endpoints transport
+Across five endpoints and four columns — TCGA RNA-seq; TCGA Agilent (the *same patients*, different platform);
+METABRIC (independent microarray); and SCAN-B (independent RNA-seq, ~3,400 tumours) — three endpoints transport
 and two do not:
 
 | Endpoint (anchor → hypothesis) | TCGA RNA-seq | TCGA Agilent | METABRIC | SCAN-B | Transports? |
 | :-- | :-- | :-- | :-- | :-- | :-- |
 | Basal vs rest (basal → immune) | NOVEL | NOVEL | NOVEL | NOVEL | ✓ |
 | ER status (ER → proliferation) | NOVEL | NOVEL | NOVEL | NOVEL | ✓ |
+| HER2-subtype vs rest (amplicon → immune) | NOVEL | NOVEL | NOVEL | NOVEL | ✓ |
 | LumA vs LumB (proliferation → ER) | NOVEL | REDUNDANT | REDUNDANT | NOVEL | ✗ |
-| HER2 (amplicon → ER) | INERT | INERT | REDUNDANT | NOVEL | ✗ |
+| HER2 status (amplicon → ER) | INERT | INERT | REDUNDANT | NOVEL | ✗ |
 
 For Luminal A/B the label tracks **measurement technology**: corr(proliferation, ER) is positive on both
 RNA-seq cohorts (+0.19, +0.10 → NOVEL) and negative on both microarrays (−0.10, −0.17 → REDUNDANT), flipping

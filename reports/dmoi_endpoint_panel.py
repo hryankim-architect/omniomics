@@ -52,7 +52,9 @@ ENDPOINTS = {
     "HER2_pos_vs_neg": (AMP, "ERBB2_amplicon", ER, "ER"),
     "ER_pos_vs_neg":   (ER, "ER_signature", PROLIF, "proliferation"),
     "Basal_vs_rest":   (BASAL, "basal", IMMUNE, "immune"),
+    "Her2_subtype_vs_rest": (AMP, "ERBB2_amplicon", IMMUNE, "immune"),
 }
+SUBTYPES5 = ["LumA", "LumB", "Basal", "Her2", "Normal"]
 
 
 def _score(E, genes):
@@ -89,6 +91,7 @@ def _tcga_cohort(name, ex, cl):
     m = her2.isin(["Positive", "Negative"]); out.append(_cell(name, "HER2_pos_vs_neg", ex.loc[:, m], (her2[m] == "Positive").astype(int).values))
     m = er.isin(["Positive", "Negative"]); out.append(_cell(name, "ER_pos_vs_neg", ex.loc[:, m], (er[m] == "Positive").astype(int).values))
     m = pam.isin(["LumA", "LumB", "Basal", "Her2", "Normal"]); out.append(_cell(name, "Basal_vs_rest", ex.loc[:, m], (pam[m] == "Basal").astype(int).values))
+    m = pam.isin(SUBTYPES5); out.append(_cell(name, "Her2_subtype_vs_rest", ex.loc[:, m], (pam[m] == "Her2").astype(int).values))
     return out
 
 
@@ -121,6 +124,8 @@ def _metabric():
     out.append(_cell("METABRIC", "ER_pos_vs_neg", E, np.array([1 if er[c].startswith("Pos") else 0 for c in s])))
     ids = sub[sub.isin(["LumA", "LumB", "Basal", "Her2", "Normal"])].index; E, s = E_for(ids)
     out.append(_cell("METABRIC", "Basal_vs_rest", E, np.array([1 if sub[c] == "Basal" else 0 for c in s])))
+    ids = sub[sub.isin(SUBTYPES5)].index; E, s = E_for(ids)
+    out.append(_cell("METABRIC", "Her2_subtype_vs_rest", E, np.array([1 if sub[c] == "Her2" else 0 for c in s])))
     return out
 
 
@@ -142,6 +147,7 @@ def _scanb():
     m = her2.isin([0, 1]); out.append(_cell("SCAN-B", "HER2_pos_vs_neg", E.loc[:, m], (her2[m] == 1).astype(int).values))
     m = er.isin([0, 1]); out.append(_cell("SCAN-B", "ER_pos_vs_neg", E.loc[:, m], (er[m] == 1).astype(int).values))
     m = pam.isin(["LumA", "LumB", "Basal", "Her2", "Normal"]); out.append(_cell("SCAN-B", "Basal_vs_rest", E.loc[:, m], (pam[m] == "Basal").astype(int).values))
+    m = pam.isin(SUBTYPES5); out.append(_cell("SCAN-B", "Her2_subtype_vs_rest", E.loc[:, m], (pam[m] == "Her2").astype(int).values))
     return out
 
 

@@ -297,16 +297,18 @@ correlation. So across two endpoints the framework distinguishes all three failu
 TCGA-LumA/B), *redundant/collinear* (ER in METABRIC-LumA/B and HER2), and *absent/weak* (ER for HER2 in TCGA)
 — rather than collapsing them into a single "fails to add."
 
-*A multi-endpoint × cohort panel.* Scaling the characterisation to four breast-cancer endpoints across four
+*A multi-endpoint × cohort panel.* Scaling the characterisation to five breast-cancer endpoints across four
 columns — TCGA RNA-seq, **TCGA Agilent microarray (the same patients on a different platform)**, METABRIC
 (an independent microarray cohort), and **SCAN-B (GSE96058, a fully independent Swedish RNA-seq cohort of
-~3,400 tumours)** — yields a compact map of where the label transports. Two endpoints transport, two do not.
+~3,400 tumours)** — yields a compact map of where the label transports. Three endpoints transport, two do not.
 The transportable ones are biologically robust: **Basal-vs-rest** with a basal/keratinization anchor and an
 immune hypothesis is **NOVEL in all four columns** (immune infiltration adds a real axis beyond the basal
-lineage program), and **ER-status** with the ER-signature anchor and a proliferation hypothesis carries a small
-but real unique proliferation slice (NOVEL) in all four — robust across platform *and* independent cohort. The
+lineage program), **ER-status** with the ER-signature anchor and a proliferation hypothesis carries a small but
+real unique proliferation slice (NOVEL) in all four, and **Her2-subtype-vs-rest** with the ERBB2-amplicon anchor
+and an immune hypothesis is **NOVEL in all four** (immune infiltration adds beyond the amplicon) — all robust
+across platform *and* independent cohort. The
 two that do *not* transport are exactly the ER-collinearity cases studied above — **LumA-vs-LumB**
-(proliferation→ER) and **HER2** (amplicon→ER). The four-column view exposes the mechanism cleanly: for
+(proliferation→ER) and **HER2** (amplicon→ER). The panel exposes the mechanism cleanly: for
 LumA-vs-LumB the label tracks **measurement technology**, NOVEL on *both* RNA-seq cohorts (TCGA RNA-seq and the
 independent SCAN-B) yet REDUNDANT on *both* microarrays (TCGA Agilent and METABRIC) — it even flips on the same
 TCGA patients between their RNA-seq and Agilent measurements, before any change of cohort. So the
@@ -315,6 +317,14 @@ anchor is itself measurement-dependent, while genuinely anchor-orthogonal axes (
 across platform and cohort. Runner: `reports/dmoi_endpoint_panel.py` (`endpoint_panel.csv`,
 `figs/endpoint_panel.png`); the Agilent column auto-adds when AgilentG4502A_07_3.gz (UCSC Xena) is present and
 the SCAN-B column when the pre-extracted GSE96058 marker matrix + phenotype are in SCANB_DIR.
+
+*Inference.* Each panel cell carries a non-parametric bootstrap 95 % CI (class-stratified, 300 resamples;
+`bootstrap_commonality`) for both the unique-R² and the anchor–hypothesis correlation, and each endpoint a
+`transport_score` (fraction of cohort-pairs with the same commonality label, 1.0 = identical everywhere) plus
+the corr spread across cohorts. This grounds the platform claim statistically: for LumA-vs-LumB the
+corr(proliferation, ER) CI is wholly positive in SCAN-B and wholly negative in METABRIC (non-overlapping), the
+transport_score is 1.0 for the anchor-orthogonal axes and 0.17–0.33 for the two ER-collinearity endpoints, and
+the basal→immune unique-R² CI stays above zero in every cohort.
 
 The mechanism is concrete and quantitative (`reports/fig_platform_corr.py`, `figs/platform_corr.png`): for
 LumA-vs-LumB the **sign of corr(proliferation, ER) flips by platform** — it is **positive on RNA-seq**

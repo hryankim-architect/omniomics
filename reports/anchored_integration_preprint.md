@@ -36,7 +36,7 @@ verified basal/lineage axis beyond "LumA/B = proliferation" (keratinization, p�
 neuroendocrine/immune axis beyond the ERBB2 amplicon, while correctly finding nothing where the textbook is
 already complete (ER). Inverting the frame, a *hypothesis* can itself be expressed as a candidate anchor and
 tested against the textbook prior; a commonality/mediation decomposition then separates a genuinely novel axis
-from one that is merely redundant (collinear) or absent, and a four-endpoint × four-cohort panel (TCGA RNA-seq,
+from one that is merely redundant (collinear) or absent, and a five-endpoint × four-cohort panel (TCGA RNA-seq,
 TCGA Agilent, METABRIC, SCAN-B) shows anchor-orthogonal axes transport across platform and cohort while
 collinear ones do not — their verdict is governed by a nuisance correlation that can flip sign with the assay
 (RNA-seq vs microarray). The method is modality-agnostic and, above all, honest: discovery where warranted,
@@ -151,13 +151,13 @@ in TCGA (unique R² 0.038) but REDUNDANT in METABRIC (redundancy 1.00, 96 % medi
 controlled transportability sweep — fixing both marginal effects and varying only the anchor–hypothesis
 correlation — shows the *same* ER effect is 100 % NOVEL at TCGA's correlation (+0.19) yet collapses into the
 collinear/suppression valley at METABRIC's (−0.17): the verdict is a covariate-distribution (transportability)
-property, not a change in biology. A four-endpoint panel across four columns (TCGA RNA-seq, TCGA Agilent
+property, not a change in biology. A five-endpoint panel across four columns (TCGA RNA-seq, TCGA Agilent
 microarray — the same patients on a different platform — the independent METABRIC microarray cohort, and
-SCAN-B, a fully independent RNA-seq cohort of ~3,400 tumours) makes the payload concrete: two endpoints
-transport and two do not. The transportable ones are orthogonal axes (basal→immune is NOVEL in all four;
-ER-status→proliferation carries a small unique slice in all four — robust across platform and independent
-cohort), while the two non-transporting ones are exactly the ER-collinearity cases (proliferation→ER on Luminal
-A/B; amplicon→ER on HER2). For Luminal A/B the label tracks measurement technology — NOVEL on both RNA-seq
+SCAN-B, a fully independent RNA-seq cohort of ~3,400 tumours) makes the payload concrete: three endpoints
+transport and two do not. The transportable ones are orthogonal axes (basal→immune and HER2-subtype→immune are
+NOVEL in all four; ER-status→proliferation carries a small unique slice in all four — robust across platform and
+independent cohort), while the two non-transporting ones are exactly the ER-collinearity cases (proliferation→ER
+on Luminal A/B; amplicon→ER on HER2 status). For Luminal A/B the label tracks measurement technology — NOVEL on both RNA-seq
 cohorts (TCGA RNA-seq, SCAN-B) but REDUNDANT on both microarrays (TCGA Agilent, METABRIC), flipping even on the
 same TCGA patients. So the caveat attaches specifically to hypotheses whose anchor-collinearity is itself
 measurement-dependent — anchor-orthogonal axes transport cleanly across platform and cohort.

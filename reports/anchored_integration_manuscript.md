@@ -70,7 +70,7 @@ lung (LUAD vs LUSC, n = 1,129), the same proliferation-anchored residual recover
 program, overlapping the breast basal panel 10/30 (p ≈ 3×10⁻¹⁶) — the same genes in a different cancer.
 Inverting the frame, a *hypothesis* can be expressed as a candidate anchor and tested against the textbook
 anchor; a commonality/mediation decomposition then separates a genuinely novel axis from one that is merely
-redundant (collinear) or absent, and a four-endpoint × four-cohort panel (TCGA RNA-seq, TCGA Agilent, METABRIC,
+redundant (collinear) or absent, and a five-endpoint × four-cohort panel (TCGA RNA-seq, TCGA Agilent, METABRIC,
 SCAN-B) shows that anchor-orthogonal axes (e.g. an immune program beyond the basal lineage) transport across
 platform and cohort, whereas collinear ones do not — their verdict is governed by a nuisance correlation that
 can itself flip sign with the assay (RNA-seq vs microarray). **Conclusion.** Anchor on
@@ -195,14 +195,16 @@ mediated by the amplicon). Across the two endpoints the framework cleanly separa
 (ER in TCGA Luminal A/B), *redundant/collinear* (ER in METABRIC Luminal A/B and HER2), and *absent/weak* (ER
 for HER2 in TCGA).
 
-Extending this to a four-endpoint × four-column panel (Figure 3) — TCGA RNA-seq, TCGA Agilent microarray
+Extending this to a five-endpoint × four-column panel (Figure 3) — TCGA RNA-seq, TCGA Agilent microarray
 (the *same* patients on a different platform), METABRIC (an independent microarray cohort), and SCAN-B
 (GSE96058, a fully independent Swedish RNA-seq cohort of ~3,400 tumours) — makes the practical payload
-explicit: of four endpoints, two transport and two do not. The transportable pairs are orthogonal, biologically
-robust axes — a basal/keratinization anchor with an immune hypothesis is NOVEL in *all four* columns (immune
-infiltration adds a real axis beyond the basal lineage program), and an ER-signature anchor with a
-proliferation hypothesis carries a small but genuine unique proliferation slice in all four — robust across
-platform *and* independent cohort. The two that do *not* transport are exactly the ER-collinearity cases above
+explicit: of five endpoints, three transport and two do not. The transportable trio are orthogonal,
+biologically robust axes — a basal/keratinization anchor with an immune hypothesis is NOVEL in *all four*
+columns (immune infiltration adds a real axis beyond the basal lineage program), an ER-signature anchor with a
+proliferation hypothesis carries a small but genuine unique proliferation slice in all four, and an
+ERBB2-amplicon anchor with an immune hypothesis on the HER2-enriched subtype is NOVEL in all four (immune
+infiltration adds beyond the amplicon) — all robust across platform *and* independent cohort. The two that do
+*not* transport are exactly the ER-collinearity cases above
 (proliferation→ER on Luminal A/B; amplicon→ER on HER2), and the four columns expose why: for Luminal A/B the
 label tracks *measurement technology* — NOVEL on both RNA-seq cohorts (TCGA RNA-seq and the independent SCAN-B)
 yet REDUNDANT on both microarrays (TCGA Agilent and METABRIC), flipping even on the same TCGA patients between
@@ -210,7 +212,7 @@ their RNA-seq and Agilent measurements. The transportability caveat is therefore
 attaches to hypotheses whose collinearity with the anchor is itself measurement-dependent, while genuinely
 anchor-orthogonal axes transport cleanly across platform and cohort.
 
-![**Figure 3. Anchored hypothesis labels across four endpoints × four columns (TCGA RNA-seq, TCGA Agilent,
+![**Figure 3. Anchored hypothesis labels across five endpoints × four columns (TCGA RNA-seq, TCGA Agilent,
 METABRIC, SCAN-B).** Each cell is one (anchor → hypothesis) test in one column, coloured by the commonality
 label (NOVEL = carries variance unique to the hypothesis beyond the anchor; REDUNDANT = predicts but
 collinear/mediated; INERT = no appreciable signal), with the cross-validated verdict and the redundancy below

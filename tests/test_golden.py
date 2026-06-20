@@ -568,6 +568,31 @@ def test_endpoint_panel_guard():
         assert g[("LumA_vs_LumB", "SCAN-B")] != g[("LumA_vs_LumB", "METABRIC")]
 
 
+def test_transportability_metric_guard():
+    """Bootstrap CIs + transport_score on the panel: the transportable endpoints (basal->immune,
+    ER-status->proliferation) score 1.0 (identical label everywhere), the ER-collinearity endpoints score < 1,
+    and the LumA/B platform sign-flip is statistically grounded -- SCAN-B's correlation CI is wholly positive
+    while METABRIC's is wholly negative (non-overlapping). Skip-safe."""
+    f = REPO / "endpoint_panel.csv"
+    if not f.exists():
+        pytest.skip("endpoint_panel.csv not committed")
+    d = pd.read_csv(f)
+    for col in ["corr_lo", "corr_hi", "unique_r2_lo", "unique_r2_hi", "transport_score", "corr_spread"]:
+        assert col in d.columns
+    ts = d.drop_duplicates("endpoint").set_index("endpoint")["transport_score"]
+    assert ts["Basal_vs_rest"] == 1.0 and ts["ER_pos_vs_neg"] == 1.0
+    assert ts["LumA_vs_LumB"] < 1.0 and ts["HER2_pos_vs_neg"] < 1.0
+    if "Her2_subtype_vs_rest" in ts.index:                                   # 5th endpoint: amplicon -> immune
+        assert ts["Her2_subtype_vs_rest"] == 1.0                             # immune transports beyond the amplicon
+        assert (d[d.endpoint == "Her2_subtype_vs_rest"]["collinearity_label"] == "NOVEL").all()
+    g = d.set_index(["endpoint", "cohort"])
+    if ("LumA_vs_LumB", "SCAN-B") in g.index and ("LumA_vs_LumB", "METABRIC") in g.index:
+        assert float(g.loc[("LumA_vs_LumB", "SCAN-B"), "corr_lo"]) > 0          # SCAN-B: CI wholly positive
+        assert float(g.loc[("LumA_vs_LumB", "METABRIC"), "corr_hi"]) < 0        # METABRIC: CI wholly negative
+    # basal->immune is a real orthogonal axis: its unique-R2 CI stays above 0 in the TCGA RNA-seq cohort
+    assert float(g.loc[("Basal_vs_rest", "TCGA_RNAseq"), "unique_r2_lo"]) > 0
+
+
 def test_platform_corr_sign_guard():
     """Mechanism behind the LumA/B label split: corr(proliferation, ER) flips SIGN by platform family.
     RNA-seq cohorts (TCGA_RNAseq, SCAN-B) have a positive correlation and are labelled NOVEL; microarray
