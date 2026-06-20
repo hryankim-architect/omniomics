@@ -140,6 +140,19 @@ is self-validating: the proliferation-type hallmarks (E2F, G2M, MYC) add exactly
 (EXPLAINED — they *are* the anchor's axis), while the SUPPORTED hits are the orthogonal lineage programs led
 by estrogen-response (early & late) — matching the known LumA/B biology of proliferation plus ER signalling.
 
+A binary verdict can mislead when a hypothesis fails to add: *absent* and *redundant-because-collinear* look
+identical (both Δ ≈ 0) yet mean opposite things. We therefore attach a gate-free commonality decomposition
+(after Tonidandel & LeBreton [11]) to every hypothesis: the variance it explains is partitioned into the part
+**unique** beyond the anchor versus the part **common** (shared with it), and its effect is split into direct
+versus anchor-**mediated**, yielding a `collinearity_label` ∈ {NOVEL, REDUNDANT, INERT}. This makes the one
+cross-cohort non-reproduction in our screen honest rather than misleading (Figure 2C): the estrogen-response
+hypothesis is SUPPORTED in TCGA but not in METABRIC — yet the decomposition shows the difference is *structural,
+not biological*. In TCGA, ER carries variance unique beyond proliferation (unique R² = 0.038 → NOVEL); in
+METABRIC the same ER signal is essentially entirely shared with proliferation (redundancy = 1.00, 96 % of its
+effect mediated through the proliferation anchor → REDUNDANT), because LumB's lower ER is collinear with its
+higher proliferation in that cohort. ER biology is *redundant* in METABRIC, not *absent* — a distinction the
+raw verdict cannot make and a transportability caveat for any anchored screen ported across cohorts.
+
 ## 3. Discussion
 
 The method instantiates and unifies three established traditions — clinical-offset / incremental-value
@@ -226,7 +239,11 @@ basal/keratinization hypothesis is SUPPORTED (Δ +0.039), an immune/cytotoxic hy
 controlled). **(B)** Screening all 50 MSigDB Hallmark gene sets as candidate hypotheses: the
 proliferation-type hallmarks (E2F, G2M, MYC) add exactly 0 beyond the anchor (EXPLAINED — the same axis),
 while the SUPPORTED hits are the orthogonal lineage programs led by estrogen-response, matching known LumA/B
-biology.](figs/hypothesis_anchor.png)
+biology. **(C)** Commonality/mediation re-characterization of the estrogen-response hypothesis across cohorts:
+stacked R² in the LumA/B endpoint split into the part *unique* to ER (beyond proliferation, blue) versus the
+part *shared* with proliferation (grey). ER is NOVEL in TCGA (unique R² 0.038, orthogonal to proliferation)
+but REDUNDANT in METABRIC (redundancy 1.00, 96 % mediated through proliferation) — collinear, not absent.
+](figs/hypothesis_anchor.png)
 
 ## References
 
@@ -242,3 +259,4 @@ biology.](figs/hypothesis_anchor.png)
 8. Boscolo Bielo L, et al. A machine learning assay to predict disease recurrence in hormone receptor-positive breast cancer. *ESMO Open* 2026;11(3):106064. doi:[10.1016/j.esmoop.2026.106064](https://doi.org/10.1016/j.esmoop.2026.106064).
 9. Horvath S. DNA methylation age of human tissues and cell types. *Genome Biol* 2013;14(10):R115. doi:[10.1186/gb-2013-14-10-r115](https://doi.org/10.1186/gb-2013-14-10-r115).
 10. Venet D, Dumont JE, Detours V. Most random gene expression signatures are significantly associated with breast cancer outcome. *PLoS Comput Biol* 2011;7(10):e1002240. doi:[10.1371/journal.pcbi.1002240](https://doi.org/10.1371/journal.pcbi.1002240).
+11. Tonidandel S, LeBreton JM. Relative importance analysis: a useful supplement to regression analysis. *J Bus Psychol* 2011;26(1):1–9. doi:[10.1007/s10869-010-9204-3](https://doi.org/10.1007/s10869-010-9204-3). *(Commonality/relative-importance methodology; not indexed in PubMed.)*

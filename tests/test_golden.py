@@ -417,6 +417,13 @@ def test_hypothesis_screen_guard():
     er = [h for h in d.index if "ESTROGEN_RESPONSE" in h]
     assert any(d.loc[h, "verdict"] == "SUPPORTED" for h in er)                   # ER lineage adds beyond proliferation
     assert int((d["verdict"] == "SUPPORTED").sum()) >= 3                         # a real set of orthogonal axes
+    # commonality/mediation columns are exposed; proliferation hallmarks share most variance with the anchor
+    for col in ["unique_r2", "common_r2", "redundancy", "prop_mediated", "collinearity_label"]:
+        assert col in d.columns
+    assert set(d["collinearity_label"]).issubset({"NOVEL", "REDUNDANT", "INERT"})
+    for prolif in ["HALLMARK_E2F_TARGETS", "HALLMARK_G2M_CHECKPOINT"]:
+        if prolif in d.index:
+            assert float(d.loc[prolif, "redundancy"]) >= 0.8                     # signal largely shared with anchor
 
 
 def test_hypothesis_screen_robust_guard():
@@ -436,6 +443,9 @@ def test_hypothesis_screen_robust_guard():
             assert float(d.loc[prolif, "mean_delta"]) <= 0.005
     nsup = int((d["robust_verdict"] == "SUPPORTED").sum())
     assert 2 <= nsup <= 9                                       # agreement filter tightens vs single-anchor
+    for col in ["unique_r2", "redundancy", "prop_mediated", "collinearity_label"]:
+        assert col in d.columns                                 # commonality/mediation exposed in robust screen too
+    assert set(d["collinearity_label"]).issubset({"NOVEL", "REDUNDANT", "INERT"})
 
 
 def test_hypothesis_screen_endpoints_guard():
@@ -451,6 +461,46 @@ def test_hypothesis_screen_endpoints_guard():
             d = pd.read_csv(f)
             assert int((d["verdict"] == "SUPPORTED").sum()) <= 2        # complete anchor -> no false discoveries
             assert float(d["delta_beyond_textbook"].max()) <= 0.02      # nothing adds materially beyond it
+
+
+def test_hypothesis_screen_metabric_guard():
+    """METABRIC external reproduction of the screen (honest negative + agreement-filter check): the
+    proliferation hallmarks (E2F/G2M) have large single-anchor deltas on microarray yet the anchor-family
+    agreement filter correctly nulls them (both_anchors_support False, not SUPPORTED), and the TCGA ER-lineage
+    hit does NOT reproduce (estrogen-response not SUPPORTED) -- the pathway screen is cohort/platform-sensitive.
+    Skip-safe."""
+    f = REPO / "hypothesis_screen_metabric.csv"
+    if not f.exists():
+        pytest.skip("hypothesis_screen_metabric.csv not committed (dmoi_hypothesis_screen_metabric.py not run yet)")
+    d = pd.read_csv(f).set_index("hypothesis")
+    for prolif in ["HALLMARK_E2F_TARGETS", "HALLMARK_G2M_CHECKPOINT"]:
+        if prolif in d.index:
+            assert not bool(d.loc[prolif, "both_anchors_support"])      # agreement filter nulls proliferation
+            assert d.loc[prolif, "robust_verdict"] != "SUPPORTED"
+    for er in ["HALLMARK_ESTROGEN_RESPONSE_EARLY", "HALLMARK_ESTROGEN_RESPONSE_LATE"]:
+        if er in d.index:
+            assert d.loc[er, "robust_verdict"] != "SUPPORTED"          # TCGA hit does not reproduce (honest)
+    assert int((d["robust_verdict"] == "SUPPORTED").sum()) <= 4         # screen is conservative across platforms
+
+
+def test_hypothesis_metabric_diagnosis_guard():
+    """Root cause of the METABRIC non-reproduction: ER separates LumA/LumB in BOTH cohorts (Cohen d ~ -0.2),
+    but the proliferation-ER correlation flips sign (+ in TCGA, - in METABRIC), collapsing the partial
+    correlation (ER given proliferation) to ~0 in METABRIC while it stays clearly negative in TCGA -- so ER is
+    redundant-with-proliferation in METABRIC, not absent. Skip-safe."""
+    f = REPO / "hypothesis_metabric_diagnosis.csv"
+    if not f.exists():
+        pytest.skip("hypothesis_metabric_diagnosis.csv not committed (diagnosis runner not run yet)")
+    d = pd.read_csv(f).set_index("cohort")
+    assert float(d.loc["TCGA", "corr_prolif_er"]) > 0 and float(d.loc["METABRIC", "corr_prolif_er"]) < 0  # sign flip
+    assert abs(float(d.loc["TCGA", "partial_corr_er_given_prolif"])) > 0.15        # ER orthogonal-informative in TCGA
+    assert abs(float(d.loc["METABRIC", "partial_corr_er_given_prolif"])) < 0.05    # collinear -> ~0 in METABRIC
+    assert float(d.loc["METABRIC", "cohen_d_er"]) < -0.1                           # ER still differs LumA/LumB (present)
+    if "collinearity_label" in d.columns:
+        assert d.loc["TCGA", "collinearity_label"] == "NOVEL"                       # ER adds unique variance in TCGA
+        assert d.loc["METABRIC", "collinearity_label"] == "REDUNDANT"               # collinear/mediated, not absent
+        assert float(d.loc["METABRIC", "redundancy"]) >= 0.8                        # ~all of ER's signal shared
+        assert float(d.loc["METABRIC", "prop_mediated"]) >= 0.7                     # mostly through proliferation
 
 
 def test_modern_de_concordance_guard():

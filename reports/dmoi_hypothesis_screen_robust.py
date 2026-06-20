@@ -59,9 +59,17 @@ def main():
     robust = agree & (q < FDR_Q)
     verdict = np.where(robust, "SUPPORTED",
                        np.where(auc >= 0.6, "EXPLAINED_BY_TEXTBOOK", "REFUTED"))
+    # commonality / mediation re-characterization vs the primary curated anchor (gate-free OLS, cheap):
+    # NOVEL = unique variance beyond the anchor; REDUNDANT = predicts but collinear/mediated; INERT = no signal.
+    cd = [mo.commonality_decomposition(A1, hyp[n], y) for n in names]
+    redundancy = np.array([c["redundancy"] for c in cd]); prop_med = np.array([c["prop_mediated"] for c in cd])
+    clabel = np.array([c["collinearity_label"] for c in cd])
     out = pd.DataFrame(dict(hypothesis=names, delta_curated=np.round(d1, 4), delta_metaPCNA=np.round(d2, 4),
                             mean_delta=np.round(md, 4), both_anchors_support=agree, auroc_hypothesis=np.round(auc, 3),
-                            q_value=np.round(q, 4), robust_verdict=verdict)).sort_values("mean_delta", ascending=False)
+                            q_value=np.round(q, 4), robust_verdict=verdict,
+                            unique_r2=np.array([c["unique_hypothesis_r2"] for c in cd]),
+                            redundancy=redundancy, prop_mediated=prop_med,
+                            collinearity_label=clabel)).sort_values("mean_delta", ascending=False)
     out.to_csv(os.path.join(REPO, "hypothesis_screen_robust.csv"), index=False)
     print(f"robust screen: {int(robust.sum())} SUPPORTED (both anchors + FDR<{FDR_Q}) of {len(names)} hallmarks | null sd0={sd0:.4f}")
     print(out.head(10).to_string(index=False))

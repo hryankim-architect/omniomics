@@ -532,6 +532,51 @@ def marker_correlated_anchor(expr, marker="PCNA", top_frac=0.01, top_k=None, exc
     return genes
 
 
+def commonality_decomposition(anchor_score, hypothesis_score, y):
+    """Partition the variance a HYPOTHESIS explains into the part UNIQUE to it vs the part it SHARES (COMMON)
+    with the textbook ANCHOR, and split its effect into DIRECT vs anchor-mediated (INDIRECT).
+
+    Gate-free (ordinary least squares only), so it is cheap enough to attach to every row of a batch screen.
+    Grounded in commonality / relative-importance analysis (Tonidandel & LeBreton 2011; rdacca.hp, Lai 2021)
+    and in mediation (anchor as mediator H -> anchor -> y). Returns a dict with:
+      r2_hypothesis        — R² of y ~ hypothesis alone
+      unique_hypothesis_r2 — R²(y~T,H) - R²(y~T): variance the hypothesis adds beyond the anchor
+      common_r2            — R²(y~T) + R²(y~H) - R²(y~T,H): variance shared between hypothesis and anchor
+      redundancy           — common_r2 / r2_hypothesis: fraction of the hypothesis's signal shared with anchor
+      collinearity_label   — NOVEL (unique≥0.005) / REDUNDANT (predicts but ≥50% shared) / INERT (no signal)
+      direct_effect, indirect_effect, prop_mediated — mediation split (indirect = a_path·b_path)
+    This separates a hypothesis that is ABSENT from one that is merely REDUNDANT (collinear with the anchor) —
+    the distinction Venet's "adjust for the dominant prior" hinges on.
+    """
+    T = np.asarray(anchor_score, float); Hh = np.asarray(hypothesis_score, float)
+    yz = np.asarray(y).astype(float); yz = yz - yz.mean()
+    Tz = (T - T.mean()) / (T.std() + 1e-12); Hz = (Hh - Hh.mean()) / (Hh.std() + 1e-12)
+    corr = float(np.corrcoef(Tz, Hz)[0, 1])
+
+    def _r2(cols):
+        X1 = np.column_stack([np.ones(len(yz))] + cols)
+        beta, *_ = np.linalg.lstsq(X1, yz, rcond=None)
+        ss_res = float(((yz - X1 @ beta) ** 2).sum()); ss_tot = float((yz ** 2).sum()) + 1e-12
+        return 1.0 - ss_res / ss_tot
+    r2T, r2H, r2B = _r2([Tz]), _r2([Hz]), _r2([Tz, Hz])
+    unique_H = max(r2B - r2T, 0.0); common = r2T + r2H - r2B
+    redundancy = float(common / (r2H + 1e-9))
+    if unique_H >= 0.005:
+        clabel = "NOVEL"                               # carries variance unique beyond the textbook anchor
+    elif r2H >= 0.01 and redundancy >= 0.5:
+        clabel = "REDUNDANT"                           # predicts, but its signal is shared with the anchor
+    else:
+        clabel = "INERT"                               # no appreciable signal
+    X1 = np.column_stack([np.ones(len(yz)), Hz, Tz]); b2, *_ = np.linalg.lstsq(X1, yz, rcond=None)
+    direct = float(b2[1]); b_path = float(b2[2]); indirect = corr * b_path
+    total = direct + indirect
+    prop_mediated = float(indirect / total) if abs(total) > 1e-9 else 0.0
+    return dict(r2_hypothesis=round(r2H, 4), unique_hypothesis_r2=round(unique_H, 4),
+                common_r2=round(common, 4), redundancy=round(redundancy, 3), collinearity_label=clabel,
+                direct_effect=round(direct, 4), indirect_effect=round(indirect, 4),
+                prop_mediated=round(prop_mediated, 3))
+
+
 def hypothesis_anchor_test(textbook_score, hypothesis_score, y, cv=5, random_state=0, inner_repeats=3,
                            betas=(0.0, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0), add_thresh=0.01, predict_thresh=0.6):
     """Test a HYPOTHESIS (expressed as a candidate anchor score) against an established TEXTBOOK anchor on
@@ -544,7 +589,11 @@ def hypothesis_anchor_test(textbook_score, hypothesis_score, y, cv=5, random_sta
 
     Returns dict: auroc_textbook, auroc_hypothesis (orientation-agnostic), corr_textbook_hypothesis,
     delta_hyp_given_textbook (signal H adds beyond the textbook), beta_hyp_given_textbook,
-    delta_textbook_given_hyp (the reverse), verdict ∈ {SUPPORTED, EXPLAINED_BY_TEXTBOOK, REFUTED}.
+    delta_textbook_given_hyp (the reverse), verdict ∈ {SUPPORTED, EXPLAINED_BY_TEXTBOOK, REFUTED}, plus a
+    commonality decomposition (r2_hypothesis, unique_hypothesis_r2, common_r2, redundancy) with a
+    collinearity_label ∈ {NOVEL, REDUNDANT, INERT} that separates an ABSENT hypothesis from one merely
+    REDUNDANT (collinear) with the anchor, and a mediation split (direct_effect, indirect_effect,
+    prop_mediated) treating the anchor as a mediator.
     """
     from sklearn.metrics import roc_auc_score
     T = np.asarray(textbook_score, float); Hh = np.asarray(hypothesis_score, float); y = np.asarray(y)
@@ -564,9 +613,15 @@ def hypothesis_anchor_test(textbook_score, hypothesis_score, y, cv=5, random_sta
         verdict = "EXPLAINED_BY_TEXTBOOK"              # predicts alone but redundant once textbook controlled
     else:
         verdict = "REFUTED"                            # neither predicts nor adds
+
+    # Commonality + mediation re-characterization (gate-free OLS): does the hypothesis carry variance UNIQUE
+    # beyond the textbook anchor (NOVEL), or is its signal merely shared/mediated through the anchor
+    # (REDUNDANT)? See commonality_decomposition for the partition. This distinguishes ABSENT from REDUNDANT.
+    cd = commonality_decomposition(T, Hh, y)
     return dict(auroc_textbook=round(aT, 4), auroc_hypothesis=round(aH, 4),
                 corr_textbook_hypothesis=round(corr, 4), delta_hyp_given_textbook=round(dHT, 4),
-                beta_hyp_given_textbook=beta_h, delta_textbook_given_hyp=round(dTH, 4), verdict=verdict)
+                beta_hyp_given_textbook=beta_h, delta_textbook_given_hyp=round(dTH, 4), verdict=verdict,
+                **cd)
 
 
 def rank_hypotheses(textbook_score, hypotheses, y, **kw):

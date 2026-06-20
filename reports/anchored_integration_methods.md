@@ -239,6 +239,41 @@ SUPPORTED hallmarks — it does not manufacture hypotheses beyond a saturated an
 incomplete-anchor LumA/B case where the ER lineage axis is SUPPORTED. `hypothesis_screen_her2.csv`,
 `hypothesis_screen_er.csv`.
 
+*External reproduction in METABRIC — an honest negative with a methodological lesson*
+(`reports/dmoi_hypothesis_screen_metabric.py`; `hypothesis_screen_metabric.csv`). Repeating the robust LumA/B
+screen on METABRIC (microarray, n = 1,175) does **not** reproduce the TCGA pathway-level result: estrogen-
+response is REFUTED there (AUROC 0.58, adds ≈ 0) and the SUPPORTED sets do not overlap. Two things are
+instructive. (i) On microarray the 20-gene curated proliferation anchor is a weaker proxy, so E2F/G2M/MYC
+hallmarks show *large* deltas beyond it (0.08–0.12) — but the **anchor-family agreement filter correctly nulls
+them** (`both_anchors_support = False`: they add ≈ 0 beyond meta-PCNA, which fully captures proliferation), so
+no proliferation pathway is falsely called SUPPORTED. (ii) The *pathway-level* "what adds beyond the textbook"
+question is therefore more cohort/platform-sensitive than the *gene-level* discovery — the basal/keratinization
+**genes** reproduced robustly across cohorts and cancers (METABRIC 20/30, lung, HNSC), but the Hallmark
+hypothesis ranking does not transfer cleanly across RNA-seq and microarray. The honest reading: trust the
+anchor-family-robust, gene-level discoveries; treat the pathway screen as a within-cohort hypothesis-ranking
+tool, not a cross-platform claim.
+
+*Root cause of the non-reproduction* (`reports/dmoi_hypothesis_metabric_diagnosis.py`;
+`hypothesis_metabric_diagnosis.csv`). The screen measures a *conditional* (partial) association — "does the
+hypothesis add **beyond** the anchor?" — which depends on the joint correlation structure of anchor and
+hypothesis. Estrogen-response actually separates LumA from LumB in *both* cohorts (Cohen d ≈ −0.2). The
+difference is the proliferation–ER correlation: **+0.19 in TCGA vs −0.17 in METABRIC (a sign flip)**. In
+METABRIC, LumB's lower ER is collinear with its higher proliferation, so adjusting for proliferation removes
+the ER signal (partial corr ER∣prolif = **−0.007** ≈ 0 → REFUTED); in TCGA the two are not collinear, so ER
+keeps orthogonal information (partial corr **−0.243** → SUPPORTED). So ER biology is present in both — it is
+*redundant with proliferation* in METABRIC, not absent. This is an intrinsic property of conditional
+inference (the verdict is anchor-relative), and a precise reason the pathway screen is best read
+within-cohort.
+
+To make this honest rather than misleading, `hypothesis_anchor_test` now also returns a **commonality
+decomposition** (unique vs shared variance; Tonidandel & LeBreton 2011) and a **mediation split** (direct vs
+indirect through the anchor), with a `collinearity_label` ∈ {NOVEL, REDUNDANT, INERT}. This distinguishes a
+hypothesis that is *absent* from one that is merely *redundant* (collinear) with the anchor. Applied to the
+ER case: in **TCGA** ER is **NOVEL** (unique R² = 0.038); in **METABRIC** it is **REDUNDANT** — its signal is
+not absent but **shared with proliferation (redundancy = 1.00, 96 % mediated through the proliferation
+anchor)**. So the cross-cohort difference is correctly characterised as a change in collinearity structure,
+not a disappearance of ER biology.
+
 *Tissue-independence (a third cancer, head & neck).* HNSC is uniformly squamous, so it offers no
 within-cohort histology contrast — but that allows a confound control. Scoring TCGA HNSC (head & neck
 squamous), LUSC (lung squamous) and LUAD (lung adeno) with the breast 30-gene basal panel, the score

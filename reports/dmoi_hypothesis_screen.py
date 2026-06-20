@@ -39,7 +39,10 @@ def main():
     ranked = mo.rank_hypotheses(T, hyp, y, cv=4, random_state=0, inner_repeats=1)
     df = pd.DataFrame([{"hypothesis": r["hypothesis"], "auroc_hypothesis": r["auroc_hypothesis"],
                         "corr_with_textbook": r["corr_textbook_hypothesis"],
-                        "delta_beyond_textbook": r["delta_hyp_given_textbook"], "verdict": r["verdict"]}
+                        "delta_beyond_textbook": r["delta_hyp_given_textbook"], "verdict": r["verdict"],
+                        "unique_r2": r["unique_hypothesis_r2"], "common_r2": r["common_r2"],
+                        "redundancy": r["redundancy"], "prop_mediated": r["prop_mediated"],
+                        "collinearity_label": r["collinearity_label"]}
                        for r in ranked])
     df.to_csv(os.path.join(REPO, "hypothesis_screen_results.csv"), index=False)
     nsup = int((df["verdict"] == "SUPPORTED").sum())

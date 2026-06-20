@@ -237,6 +237,24 @@ def test_marker_correlated_anchor():
     assert sum(g.startswith("g") and int(g[1:]) <= 10 for g in genes) >= 8   # recovers the correlated set
 
 
+def test_hypothesis_commonality_labels():
+    """Commonality + mediation re-characterization distinguishes ABSENT from REDUNDANT (collinear): a
+    hypothesis orthogonal to the anchor that adds variance is NOVEL; one that only echoes the anchor (its
+    signal shared / mediated through the anchor) is REDUNDANT; pure noise is INERT."""
+    rng = np.random.default_rng(0); n = 800
+    a = rng.normal(size=n); b = rng.normal(size=n); y = ((a + b) > 0).astype(int)
+    T = a + 0.2 * rng.normal(size=n)
+    novel = b + 0.3 * rng.normal(size=n)               # orthogonal, adds unique variance
+    redundant = a + 0.3 * rng.normal(size=n)           # echoes the anchor -> signal shared/mediated
+    inert = rng.normal(size=n)
+    rn = mo.hypothesis_anchor_test(T, novel, y, cv=4, inner_repeats=1)
+    rr = mo.hypothesis_anchor_test(T, redundant, y, cv=4, inner_repeats=1)
+    ri = mo.hypothesis_anchor_test(T, inert, y, cv=4, inner_repeats=1)
+    assert rn["collinearity_label"] == "NOVEL" and rn["unique_hypothesis_r2"] > 0.01
+    assert rr["collinearity_label"] == "REDUNDANT" and rr["redundancy"] >= 0.5 and rr["prop_mediated"] > 0.5
+    assert ri["collinearity_label"] == "INERT"
+
+
 def test_rank_hypotheses():
     """Batch screen ranks hypotheses by signal added beyond the textbook: an orthogonal real axis outranks
     a textbook-echo and noise, and the list is sorted by delta_hyp_given_textbook (desc)."""
