@@ -191,6 +191,26 @@ transport (NOVEL everywhere, including the independent SCAN-B); the two ER-colli
 HER2) do not — and for Luminal A/B the label tracks measurement technology, NOVEL on the two RNA-seq columns
 (TCGA RNA-seq, SCAN-B) but REDUNDANT on the two microarrays (TCGA Agilent, METABRIC).](figs/endpoint_panel.png)
 
+**The platform effect is a sign flip in the nuisance correlation (Figure 4).** The transportability sweep
+predicts that the Luminal A/B verdict is governed by corr(proliferation, ER); the four columns let us read
+that correlation directly, and it is the proximate cause of the label split. Its *sign* flips with the assay:
+it is positive on both RNA-seq cohorts (TCGA RNA-seq +0.19, SCAN-B +0.10) — where ER and proliferation are not
+collinear in the Luminal B direction, so ER retains suppression/unique variance and is labelled NOVEL — and
+negative on both microarrays (TCGA Agilent −0.10, METABRIC −0.17) — where Luminal B's lower ER aligns with its
+higher proliferation, so ER's signal is collinear and is labelled REDUNDANT. Because the flip occurs even on
+the *same* TCGA patients between their RNA-seq and Agilent measurements, it is a property of the measurement,
+not of the patients. This locates the transportability caveat precisely: the nuisance correlation that decides
+a collinear hypothesis's verdict can itself be set by the assay, so such labels must be read within a fixed
+platform — whereas the anchor-orthogonal axes (basal→immune, ER-status→proliferation) are immune to this and
+reproduce across both platform and cohort.
+
+![**Figure 4. The Luminal A/B platform effect is a sign flip in corr(proliferation, ER).** For the
+Luminal A vs B endpoint, the proliferation–ER correlation that governs the verdict is plotted per cohort and
+coloured by platform family. It is positive on the two RNA-seq cohorts (TCGA RNA-seq, SCAN-B) → ER carries
+unique/suppression variance → NOVEL, and negative on the two microarray cohorts (TCGA Agilent, METABRIC) → ER
+collinear with proliferation → REDUNDANT. The sign flips even between the two TCGA platforms on the same
+patients, so it is a measurement property.](figs/platform_corr.png)
+
 ## 3. Discussion
 
 The method instantiates and unifies three established traditions — clinical-offset / incremental-value
