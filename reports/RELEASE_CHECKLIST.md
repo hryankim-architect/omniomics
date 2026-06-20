@@ -25,11 +25,13 @@ Upload (your action — needs a PyPI API token):
 python -m twine upload dist/*
 ```
 
-Version history: 0.1.0 (engine) → 0.2.0 (anchored integration + knowledge-anchored discovery) → **0.3.0**
+Version history: 0.1.0 (engine) → 0.2.0 (anchored integration + knowledge-anchored discovery) → 0.3.0
 (out-of-core `omniomics.scale`, gated learned-representation adoption `omniomics.representations`, plus
 scale-prep in `anchored_residual_discovery`: vectorized partial-corr, SIS `screen_top`, `n_jobs`, BH-FDR
-`n_fdr`, `leave_one_cohort_out`). Optional extras: `[scale]` (pyarrow, h5py), `[deep]` (scvi-tools),
-`[enrichment]`, `[modern]`, `[test]`.
+`n_fdr`, `leave_one_cohort_out`) → **0.4.0** (hypothesis-as-anchor: `marker_correlated_anchor`,
+`hypothesis_anchor_test`, `rank_hypotheses`; honesty layer: `commonality_decomposition`,
+`transportability_sweep`, `bootstrap_commonality` — NOVEL/REDUNDANT/INERT labels + CIs + transport score).
+Optional extras: `[scale]` (pyarrow, h5py), `[deep]` (scvi-tools), `[enrichment]`, `[modern]`, `[test]`.
 
 ## B. bioRxiv preprint submission
 

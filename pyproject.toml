@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "omniomics"
-version = "0.3.0"
+version = "0.4.0"
 description = "Anchored multi-omics integration + knowledge-anchored residual discovery (never below the best single view), with out-of-core scaling and gated learned-representation adoption"
 readme = "README.md"
 requires-python = ">=3.9"
