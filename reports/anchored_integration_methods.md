@@ -286,6 +286,17 @@ is 100 % NOVEL**, while at **METABRIC's −0.17 it falls into the collinear/supp
 the clearest statement of why an anchored hypothesis screen must be read within-cohort and re-characterised
 (not just re-run) when ported across cohorts.
 
+*A second endpoint (HER2) — specificity of the labels.* Repeating the analysis on HER2 status (anchor = the
+ERBB2 17q12 amplicon, hypothesis = the ER signature) gives a *different* regime, which the labels capture
+correctly. Here the ER→HER2 marginal effect itself differs across cohorts, so HER2 is not a clean
+same-marginal flip: in **TCGA** ER barely separates HER2± (Cohen's d ≈ −0.05) and is labelled **INERT** (no
+appreciable signal to be novel or redundant), whereas in **METABRIC** ER is a moderate signal (d ≈ −0.29) that
+is collinear with the amplicon and is labelled **REDUNDANT** (redundancy 0.89, 66 % mediated). The
+transportability sweep at METABRIC's own marginals reproduces the REDUNDANT valley at the observed
+correlation. So across two endpoints the framework distinguishes all three failure modes — *novel* (ER in
+TCGA-LumA/B), *redundant/collinear* (ER in METABRIC-LumA/B and HER2), and *absent/weak* (ER for HER2 in TCGA)
+— rather than collapsing them into a single "fails to add."
+
 *Tissue-independence (a third cancer, head & neck).* HNSC is uniformly squamous, so it offers no
 within-cohort histology contrast — but that allows a confound control. Scoring TCGA HNSC (head & neck
 squamous), LUSC (lung squamous) and LUAD (lung adeno) with the breast 30-gene basal panel, the score

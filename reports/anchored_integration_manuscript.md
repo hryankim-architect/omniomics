@@ -151,7 +151,13 @@ not biological*. In TCGA, ER carries variance unique beyond proliferation (uniqu
 METABRIC the same ER signal is essentially entirely shared with proliferation (redundancy = 1.00, 96 % of its
 effect mediated through the proliferation anchor → REDUNDANT), because LumB's lower ER is collinear with its
 higher proliferation in that cohort. ER biology is *redundant* in METABRIC, not *absent* — a distinction the
-raw verdict cannot make and a transportability caveat for any anchored screen ported across cohorts.
+raw verdict cannot make and a transportability caveat for any anchored screen ported across cohorts. A
+controlled sweep makes the mechanism explicit (Figure 2D): holding both marginal effects fixed and varying
+*only* the anchor–hypothesis correlation, the same ER effect is labelled NOVEL in 100 % of simulated cohorts at
+TCGA's correlation (+0.19) but falls into a collinear/suppression valley at METABRIC's (−0.17, ≈ 2 % NOVEL).
+The verdict is thus governed by each cohort's covariate distribution — a generalisability/transportability
+property [12] — which is why an anchored hypothesis screen should be re-characterised, not merely re-run,
+across cohorts.
 
 ## 3. Discussion
 
@@ -243,6 +249,11 @@ biology. **(C)** Commonality/mediation re-characterization of the estrogen-respo
 stacked R² in the LumA/B endpoint split into the part *unique* to ER (beyond proliferation, blue) versus the
 part *shared* with proliferation (grey). ER is NOVEL in TCGA (unique R² 0.038, orthogonal to proliferation)
 but REDUNDANT in METABRIC (redundancy 1.00, 96 % mediated through proliferation) — collinear, not absent.
+**(D)** Transportability of the verdict: holding both marginal effects fixed and varying *only* the
+anchor–hypothesis correlation, the fraction of simulated cohorts labelled NOVEL vs REDUNDANT is plotted
+against that correlation; the two real cohorts sit on the curve at their measured corr(proliferation, ER) —
+the *same* ER effect is 100 % NOVEL at TCGA's +0.19 but collapses into the collinear/suppression valley at
+METABRIC's −0.17. The verdict is a covariate-distribution property, not a difference in ER biology.
 ](figs/hypothesis_anchor.png)
 
 ## References
@@ -260,3 +271,4 @@ but REDUNDANT in METABRIC (redundancy 1.00, 96 % mediated through proliferation)
 9. Horvath S. DNA methylation age of human tissues and cell types. *Genome Biol* 2013;14(10):R115. doi:[10.1186/gb-2013-14-10-r115](https://doi.org/10.1186/gb-2013-14-10-r115).
 10. Venet D, Dumont JE, Detours V. Most random gene expression signatures are significantly associated with breast cancer outcome. *PLoS Comput Biol* 2011;7(10):e1002240. doi:[10.1371/journal.pcbi.1002240](https://doi.org/10.1371/journal.pcbi.1002240).
 11. Tonidandel S, LeBreton JM. Relative importance analysis: a useful supplement to regression analysis. *J Bus Psychol* 2011;26(1):1–9. doi:[10.1007/s10869-010-9204-3](https://doi.org/10.1007/s10869-010-9204-3). *(Commonality/relative-importance methodology; not indexed in PubMed.)*
+12. Degtiar I, Rose S. A review of generalizability and transportability. *Annu Rev Stat Appl* 2023;10:501–524. doi:[10.1146/annurev-statistics-042522-103837](https://doi.org/10.1146/annurev-statistics-042522-103837). *(Generalizability/transportability methodology; not indexed in PubMed.)*

@@ -1,0 +1,3 @@
+cohort,n,her2pos,cohen_d_amplicon,cohen_d_er,corr_amplicon_er,unique_er_r2,redundancy,prop_mediated,collinearity_label
+TCGA,766,114,2.169,-0.045,0.037,0.0017,-7.796,-1.968,INERT
+METABRIC,1874,438,1.793,-0.289,-0.105,0.0015,0.887,0.662,REDUNDANT

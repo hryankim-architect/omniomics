@@ -28,8 +28,11 @@ def main():
     a = pd.read_csv(os.path.join(REPO, "hypothesis_anchor_results.csv"))
     s = pd.read_csv(os.path.join(REPO, "hypothesis_screen_results.csv"))
     d = pd.read_csv(os.path.join(REPO, "hypothesis_metabric_diagnosis.csv"))
+    tp_path = os.path.join(REPO, "transportability_sweep.csv")
+    tp = pd.read_csv(tp_path) if os.path.exists(tp_path) else None
 
-    fig, (axA, axB, axC) = plt.subplots(1, 3, figsize=(15.5, 4.6))
+    fig, axes = plt.subplots(2, 2, figsize=(13.5, 9.2))
+    axA, axB, axC, axD = axes[0, 0], axes[0, 1], axes[1, 0], axes[1, 1]
 
     # --- Panel A: the three demonstration hypotheses --------------------------------------------------
     a = a.sort_values("delta_hyp_given_textbook")
@@ -78,12 +81,36 @@ def main():
     axC.set_title("C  ER hypothesis: NOVEL vs REDUNDANT across cohorts", loc="left", fontweight="bold", fontsize=11)
     axC.legend(loc="upper right", fontsize=8, frameon=False)
 
+    # --- Panel D: transportability sweep (verdict vs nuisance correlation) -----------------------------
+    axD.set_title("D  Transportability: verdict is set by corr(anchor, hypothesis)", loc="left",
+                  fontweight="bold", fontsize=11)
+    if tp is not None:
+        axD.plot(tp["obs_corr"], tp["frac_novel"], "-o", color="#2c7fb8", lw=2, ms=3.5,
+                 label="fraction NOVEL")
+        axD.plot(tp["obs_corr"], tp["frac_redundant"], "-s", color="#d95f5f", lw=1.6, ms=3,
+                 label="fraction REDUNDANT")
+        obs = {"TCGA": float(d.loc["TCGA", "corr_prolif_er"]) if "corr_prolif_er" in d.columns else 0.19,
+               "METABRIC": float(d.loc["METABRIC", "corr_prolif_er"]) if "corr_prolif_er" in d.columns else -0.17}
+        for k, c in obs.items():
+            i = (tp["obs_corr"] - c).abs().idxmin(); r = tp.loc[i]
+            col = "#1a9850" if k == "TCGA" else "#d73027"
+            axD.axvline(r["obs_corr"], ls="--", lw=1.2, color=col)
+            axD.annotate(f"{k}\ncorr={r['obs_corr']:+.2f}\n{int(round(r['frac_novel']*100))}% NOVEL",
+                         xy=(r["obs_corr"], r["frac_novel"]),
+                         xytext=(r["obs_corr"], 0.62 if k == "TCGA" else 0.30), ha="center", fontsize=8,
+                         color=col, fontweight="bold", arrowprops=dict(arrowstyle="->", color=col, lw=1))
+        axD.set_xlabel("corr(anchor, hypothesis) — a covariate-distribution property")
+        axD.set_ylabel("fraction of simulated cohorts"); axD.set_ylim(-0.03, 1.03)
+        axD.legend(loc="center left", fontsize=8, frameon=False)
+    else:
+        axD.text(0.5, 0.5, "transportability_sweep.csv not found", ha="center", va="center", fontsize=9)
+
     legend = [Patch(fc=CV["SUPPORTED"], label="SUPPORTED"),
               Patch(fc=CV["EXPLAINED_BY_TEXTBOOK"], label="EXPLAINED_BY_TEXTBOOK"),
               Patch(fc=CV["REFUTED"], label="REFUTED")]
     axA.legend(handles=legend, loc="lower right", fontsize=7.5, frameon=False)
 
-    for ax in (axA, axB, axC):
+    for ax in (axA, axB, axC, axD):
         ax.spines[["top", "right"]].set_visible(False)
     fig.tight_layout()
     out = os.path.join(FIGS, "hypothesis_anchor.png")

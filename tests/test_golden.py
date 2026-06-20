@@ -518,6 +518,22 @@ def test_transportability_sweep_guard():
     assert float(d.loc[d["obs_corr"].idxmax(), "mean_unique_r2"]) > float(d["mean_unique_r2"].min())
 
 
+def test_transportability_her2_guard():
+    """Transportability on a SECOND endpoint (HER2, ERBB2-amplicon anchor, ER hypothesis): a specificity
+    contrast rather than a same-marginal flip. In TCGA ER is too weak to be a HER2 signal (INERT); in METABRIC
+    ER is a moderate but amplicon-collinear signal (REDUNDANT). The framework separates 'weak/absent' from
+    'collinear'. Skip-safe."""
+    f = REPO / "transportability_her2_diag.csv"
+    if not f.exists():
+        pytest.skip("transportability_her2_diag.csv not committed (HER2 transportability runner not run yet)")
+    d = pd.read_csv(f).set_index("cohort")
+    assert d.loc["TCGA", "collinearity_label"] == "INERT"            # ER ~null for HER2 in TCGA
+    assert d.loc["METABRIC", "collinearity_label"] == "REDUNDANT"    # collinear with the amplicon in METABRIC
+    assert abs(float(d.loc["TCGA", "cohen_d_er"])) < 0.15            # weak ER->HER2 marginal in TCGA
+    assert abs(float(d.loc["METABRIC", "cohen_d_er"])) > 0.15        # clear ER->HER2 marginal in METABRIC
+    assert float(d.loc["METABRIC", "redundancy"]) >= 0.5            # most of it shared with the amplicon
+
+
 def test_modern_de_concordance_guard():
     """If the nf-core/DESeq2 reanalysis has been run, its '2015 vs 2026' direction must hold;
     otherwise this is a no-op (heavy run happens on the Linux node)."""

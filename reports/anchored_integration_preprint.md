@@ -113,6 +113,27 @@ HER2 axis, by contrast, does *not* replicate in METABRIC — there the amplicon 
 tracks biological coherence: the pathway-enriched basal axis reproduces; the diffuse HER2 axis was a
 cohort-specific residual.
 
+**Hypothesis-as-anchor.** The frame also inverts: a *hypothesis* is expressed as a candidate anchor and
+gated onto the textbook anchor's residual for a three-way verdict — SUPPORTED (adds beyond the textbook),
+EXPLAINED_BY_TEXTBOOK (predicts alone but redundant once the dominant prior is controlled), or REFUTED —
+operationalising the observation that most signatures predict outcome and a hypothesis is novel only if it
+survives adjustment for the dominant prior. On LumA/B against the proliferation anchor, a basal/keratinization
+hypothesis is SUPPORTED (Δ +0.039), immune is REFUTED, and a random gene set is EXPLAINED_BY_TEXTBOOK
+(predicts at 0.63 alone but adds ≈ 0). Scaled across the 50 MSigDB Hallmark sets, the screen is
+self-validating — proliferation hallmarks (E2F/G2M/MYC) add exactly 0 beyond the anchor — and, requiring
+agreement across two proliferation anchors plus FDR, the robust SUPPORTED hits are the estrogen-response
+lineage programs (matching LumA/B biology). This pathway-level ranking is cohort/platform-sensitive (it does
+not reproduce in METABRIC microarray, where the anchor-family agreement filter correctly nulls
+proliferation hallmarks instead), so it is a within-cohort hypothesis-ranking tool, not a cross-platform
+claim — unlike the gene-level basal discovery, which reproduces. To keep this honest, `hypothesis_anchor_test`
+returns a gate-free commonality/mediation decomposition (`collinearity_label` ∈ {NOVEL, REDUNDANT, INERT}) that
+separates an *absent* hypothesis from a merely *redundant* (collinear) one: the estrogen-response axis is NOVEL
+in TCGA (unique R² 0.038) but REDUNDANT in METABRIC (redundancy 1.00, 96 % mediated through proliferation). A
+controlled transportability sweep — fixing both marginal effects and varying only the anchor–hypothesis
+correlation — shows the *same* ER effect is 100 % NOVEL at TCGA's correlation (+0.19) yet collapses into the
+collinear/suppression valley at METABRIC's (−0.17): the verdict is a covariate-distribution (transportability)
+property, not a change in biology.
+
 ## 4. Related work
 
 The approach instantiates three established traditions: clinical-offset / incremental-value modelling, where
