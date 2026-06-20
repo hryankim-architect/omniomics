@@ -43,7 +43,12 @@ the field's other established biomarkers — PD-L1 (orthogonal to TMB), EGFR and
 (panel Δ +0.061 vs +0.006, p = 0.038). Finally, the discovered axis replicates across *cancers*: in TCGA
 lung (LUAD vs LUSC, n = 1,129), the same proliferation-anchored residual recovers the squamous/keratinization
 program, overlapping the breast basal panel 10/30 (p ≈ 3×10⁻¹⁶) — the same genes in a different cancer.
-**Conclusion.** Anchor on
+Inverting the frame, a *hypothesis* can be expressed as a candidate anchor and tested against the textbook
+anchor; a commonality/mediation decomposition then separates a genuinely novel axis from one that is merely
+redundant (collinear) or absent, and a four-endpoint × four-cohort panel (TCGA RNA-seq, TCGA Agilent, METABRIC,
+SCAN-B) shows that anchor-orthogonal axes (e.g. an immune program beyond the basal lineage) transport across
+platform and cohort, whereas collinear ones do not — their verdict is governed by a nuisance correlation that
+can itself flip sign with the assay (RNA-seq vs microarray). **Conclusion.** Anchor on
 established biology and let a gate decide, honestly, whether genome-wide data beats it; where it does, the
 residual names the new axis — one that reproduces across cohorts (METABRIC) and across cancers (lung), and
 generalises to a different disease and feature type (NSCLC immunotherapy). External reproducibility tracks
@@ -223,6 +228,18 @@ coherence. The honest scope: predictive gains over a strong anchor are modest �
 discovery*, not large AUROC wins — consistent with the rarity of genuine super-additive multi-omics gains
 [1,2]. Discovered axes are candidate hypotheses; the basal axis is externally validated, the HER2 axis is
 cohort-specific, and other endpoints await further cohorts.
+
+A second contribution is diagnostic honesty about *what fails to reproduce and why*. Treating a hypothesis as
+an anchor and decomposing its signal into the part unique to it versus the part shared with the textbook prior
+[11] separates three regimes a bare verdict conflates — novel, redundant-because-collinear, and absent — and a
+mediation split shows how much of a hypothesis's effect runs through the anchor. Across four breast-cancer
+endpoints and four columns (two RNA-seq, two microarray; one platform pair on identical patients), the
+anchor-orthogonal axes are labelled identically everywhere, while the collinear ones are not: their verdict is
+a transportability quantity [12] set by the anchor–hypothesis correlation, which we show can flip sign purely
+with the measurement platform. The practical implication is concrete — an anchored hypothesis screen should be
+re-characterised, not merely re-run, when ported across assays or cohorts, and collinearity-sensitive calls
+should be read within a fixed platform. This reframes a non-reproduction (estrogen-response on Luminal A/B in
+microarray cohorts) from an apparent failure into a quantified, expected consequence of covariate structure.
 
 ## 4. Methods
 
