@@ -26,3 +26,7 @@ HANDOFF-*.md
 # internal-review slide decks (not committed deliverables)
 reports/omniomics_*.pptx
 reports/texput.log
+
+# raw TCGA cohorts (UCSC Xena) — large, reproducible by download (2026-06-22)
+*_HiSeqV2.gz
+*_clinicalMatrix

@@ -1,0 +1,27 @@
+% Unicode fallback mappings for omniomics manuscript PDF rendering
+% Handles characters not in Times New Roman: superscripts, math symbols, dingbats
+\usepackage{amssymb}
+\usepackage{newunicodechar}
+
+% Superscript minus and digits (used in p-values: p≈7×10⁻²⁷)
+\newunicodechar{⁻}{\textsuperscript{$-$}}
+\newunicodechar{⁰}{\textsuperscript{0}}
+\newunicodechar{¹}{\textsuperscript{1}}
+\newunicodechar{²}{\textsuperscript{2}}
+\newunicodechar{³}{\textsuperscript{3}}
+\newunicodechar{⁴}{\textsuperscript{4}}
+\newunicodechar{⁵}{\textsuperscript{5}}
+\newunicodechar{⁶}{\textsuperscript{6}}
+\newunicodechar{⁷}{\textsuperscript{7}}
+\newunicodechar{⁸}{\textsuperscript{8}}
+\newunicodechar{⁹}{\textsuperscript{9}}
+
+% Check/cross marks (used in validation tables)
+\newunicodechar{✓}{\checkmark}
+\newunicodechar{✗}{$\times$}
+
+% Math symbols
+\newunicodechar{∈}{$\in$}
+\newunicodechar{⇒}{$\Rightarrow$}
+\newunicodechar{≡}{$\equiv$}
+\newunicodechar{≠}{$\neq$}
